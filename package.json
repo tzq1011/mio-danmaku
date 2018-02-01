@@ -1,0 +1,19 @@
+{
+  "name": "miodanmaku",
+  "version": "1.0.0",
+  "description": "",
+  "main": "js/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "core-js": "^2.5.3",
+    "lodash": "^4.17.4"
+  },
+  "devDependencies": {
+    "@types/lodash": "^4.14.93",
+    "@types/core-js": "^0.9.45"
+  }
+}
