@@ -267,6 +267,7 @@ type CSSScrollingAnimationState =
   | "playing"
   | "pausing"
   | "paused"
+  | "ended"
   | "destroying"
   | "destroyed";
 
@@ -283,15 +284,11 @@ interface CSSScrollingAnimation {
   destroy(): Promise<void>;
 }
 
-interface CSSScrollingAnimationOptions {
+interface CSSScrollingAnimationMixingOptions {
   readonly element: HTMLElement;
   readonly startX: number;
   readonly endX: number;
   readonly duration: number;
-}
-
-interface CSSScrollingAnimator {
-  animate(options: CSSScrollingAnimationOptions): CSSScrollingAnimation;
 }
 
 type DOMOperation<R = any> = (...args: any[]) => R;
@@ -359,8 +356,7 @@ export {
   Renderer,
   DOMOperation,
   DOMOperator,
-  CSSScrollingAnimator,
   CSSScrollingAnimationState,
   CSSScrollingAnimation,
-  CSSScrollingAnimationOptions,
+  CSSScrollingAnimationMixingOptions,
 };
