@@ -14,13 +14,21 @@ interface Group {
   operations: Array<DOMOperation | null>;
 }
 
-const measureGroup: Group = { tasks: [], operations: [] };
 const mutationGroup: Group = { tasks: [], operations: [] };
-const groups: Group[] = [measureGroup, mutationGroup];
+const measureGroup: Group = { tasks: [], operations: [] };
+const groups: Group[] = [mutationGroup, measureGroup];
 let isExecutionScheduled: boolean = false;
 
 function execute() {
-  groups.forEach((group) => {
+  let groupIndex: number = 0;
+
+  function executeGroup() {
+    const group = groups[groupIndex];
+    if (group == null) {
+      isExecutionScheduled = false;
+      return;
+    }
+
     for (const task of group.tasks) {
       if (task == null) {
         continue;
@@ -36,9 +44,17 @@ function execute() {
 
     group.tasks.length = 0;
     group.operations.length = 0;
-  });
 
-  isExecutionScheduled = false;
+    Promise.resolve().then(() => {
+      if (group.tasks.length === 0) {
+        groupIndex++;
+      }
+
+      executeGroup();
+    });
+  }
+
+  executeGroup();
 }
 
 function scheduleExecution(): void {
@@ -48,20 +64,6 @@ function scheduleExecution(): void {
 
   window.setTimeout(execute, 16);
   isExecutionScheduled = true;
-}
-
-function measure<R>(operation: () => R): Promise<R> {
-  return new Promise((resolve, reject) => {
-    const task: Task = {
-      operation,
-      resolve,
-      reject,
-    };
-
-    measureGroup.tasks.push(task);
-    measureGroup.operations.push(operation);
-    scheduleExecution();
-  });
 }
 
 function mutate<R>(operation: () => R): Promise<R> {
@@ -74,6 +76,20 @@ function mutate<R>(operation: () => R): Promise<R> {
 
     mutationGroup.tasks.push(task);
     mutationGroup.operations.push(operation);
+    scheduleExecution();
+  });
+}
+
+function measure<R>(operation: () => R): Promise<R> {
+  return new Promise((resolve, reject) => {
+    const task: Task = {
+      operation,
+      resolve,
+      reject,
+    };
+
+    measureGroup.tasks.push(task);
+    measureGroup.operations.push(operation);
     scheduleExecution();
   });
 }
@@ -91,8 +107,8 @@ function cancel(operation: DOMOperation): void {
 }
 
 const domOperator: DOMOperator = {
-  measure,
   mutate,
+  measure,
   cancel,
 };
 
