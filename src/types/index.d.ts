@@ -2,6 +2,19 @@ type PartialDeep<T> = {
   [P in keyof T]?: T[P];
 }
 
+type EventData = any;
+type EventSpecs = {
+  [event: string]: EventData;
+}
+
+type EventListener<D extends EventData> = (data: D) => void;
+
+interface EventEmitter<ES extends EventSpecs> {
+  on<E extends keyof ES>(event: E, listener: EventListener<ES[E]>): void;
+  off<E extends keyof ES>(event: E, listener?: EventListener<ES[E]>): void;
+  emit<E extends keyof ES>(event: E, data: ES[E]): void;
+}
+
 interface Comment {
   readonly time: number;
   readonly opacity: number;
@@ -266,6 +279,7 @@ interface CSSScrollingAnimation {
   readonly elapsedTime: number;
   play(): Promise<void>;
   pause(): Promise<void>;
+  locate(): Promise<number>;
   destroy(): Promise<void>;
 }
 
@@ -290,6 +304,9 @@ interface DOMOperator {
 
 export {
   PartialDeep,
+  EventListener,
+  EventSpecs,
+  EventEmitter,
   Comment,
   CommentMixingOptionsDefault,
   CommentMixingOptions,
