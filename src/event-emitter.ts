@@ -6,7 +6,7 @@ import {
 
 import getOwnPropertyDescriptors from "core-js/fn/object/get-own-property-descriptors";
 
-function mixinEventEmitter<ES extends EventSpecs, T extends object>(target: T): T & EventEmitter<ES> {
+function mixinEventEmitter<T extends object, ES extends EventSpecs>(target: T): T & EventEmitter<ES> {
   type ListenersMap = {
     [E in keyof ES]?: Array<EventListener<ES[E]>>;
   };
