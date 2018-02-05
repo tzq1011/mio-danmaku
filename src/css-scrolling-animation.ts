@@ -160,7 +160,8 @@ function mixinCSSScrollingAnimation<T extends object>(
     if (
       _state !== "idle" &&
       _state !== "playing" &&
-      _state !== "paused"
+      _state !== "paused" &&
+      _state !== "ended"
     ) {
       return Promise.reject(new Error(`Cannot destroy the animation because it is ${_state}.`));
     }
@@ -171,7 +172,11 @@ function mixinCSSScrollingAnimation<T extends object>(
     _element.removeEventListener(transitionEndEventName, onTransitionEnd);
 
     let promise = Promise.resolve();
-    if (oldState === "playing" || oldState === "paused") {
+    if (
+      oldState === "playing" ||
+      oldState === "paused" ||
+      oldState === "ended"
+    ) {
       promise = promise.then(() => {
         return domOperator.mutate(() => {
           _element.style.left = _endX + "px";
