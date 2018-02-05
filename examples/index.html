@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+</head>
+<body>
+  <div id="container" style="position: relative;"></div>
+  <script src="../dist/bundle.js"></script>
+  <script>
+    const containerElement = document.getElementById("container");
+    const animationElement = document.createElement("div");
+    animationElement.style.width = "100px";
+    animationElement.style.height = "40px";
+    animationElement.style.backgroundColor = "orange";
+
+    const animation = mio.mixinCSSScrollingAnimation({}, {
+      animationElement,
+      duration: 3000,
+      startX: 10,
+      endX: 610,
+    });
+
+    containerElement.appendChild(animationElement);
+    animation.play();
+
+    setTimeout(() => {
+      animation.pause();
+    }, 1000);
+    setTimeout(() => {
+      animation.play();
+    }, 2000);
+    setTimeout(() => {
+      animation.pause();
+    }, 3000);
+    setTimeout(() => {
+      animation.play();
+    }, 4000);
+  </script>
+</body>
+</html>

@@ -7,8 +7,6 @@ import {
   ScrollingPlannerMixingOptionsDefault,
 } from "./types";
 
-import getOwnPropertyDescriptors from "core-js/fn/object/get-own-property-descriptors";
-
 const defaultMixingOptions: ScrollingPlannerMixingOptionsDefault = {
   direction: "left",
   basicSpeed: 120,
@@ -86,7 +84,7 @@ function mixinScrollingPlanner<T extends object>(
     setExtraSpeedPerPixel,
   };
 
-  Object.defineProperties(target, getOwnPropertyDescriptors(planner));
+  Object.defineProperties(target, Object.getOwnPropertyDescriptors(planner));
   return target as (T & ScrollingPlanner);
 }
 

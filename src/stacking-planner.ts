@@ -7,8 +7,6 @@ import {
   StackingPlannerMixingOptionsDefault,
 } from "./types";
 
-import getOwnPropertyDescriptors from "core-js/fn/object/get-own-property-descriptors";
-
 const defaultMixingOptions: StackingPlannerMixingOptionsDefault = {
   direction: "down",
 };
@@ -123,7 +121,7 @@ function mixinStackingPlanner<T extends object>(
     setStage,
   };
 
-  Object.defineProperties(target, getOwnPropertyDescriptors(planner));
+  Object.defineProperties(target, Object.getOwnPropertyDescriptors(planner));
   return target as (T & StackingPlanner);
 }
 
