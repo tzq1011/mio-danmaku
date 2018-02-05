@@ -19,14 +19,14 @@ function mixinCSSScrollingAnimation<T extends object>(
   const _duration = options.duration;
   const _events: EventEmitter<CSSScrollingAnimationEvents> = mixinEventEmitter({});
 
-  let _state: CSSScrollingAnimationState;
+  let _state: CSSScrollingAnimationState = "idle";
   let _startedAt: number | undefined;
   let _elapsedTimeWhenStopped: number = 0;
 
   const transitionEndEventName =
-  ("webkitTransform" in _element.style)
-    ? "webkitTransitionEnd"
-    : "transitionend";
+    (_element.style.webkitTransform != null)
+      ? "webkitTransitionEnd"
+      : "transitionend";
 
   function onEnded() {
     if (_state !== "playing") {
@@ -73,25 +73,12 @@ function mixinCSSScrollingAnimation<T extends object>(
       .then(() => {
         return domOperator.mutate(() => {
           _element.style.left = "0";
-
-          const now = Date.now();
-          const currentX = getX(now);
+          const currentX = getX(Date.now());
           const transform = `translateX(${currentX}px)`;
-          const elapsedTime = getElapsedTime(now);
-          const remainingTime = _duration - elapsedTime;
-
-          if ("webkitTransform" in _element.style) {
+          if (_element.style.webkitTransform != null) {
             _element.style.webkitTransform = transform;
-            _element.style.webkitTransition = `-webkit-transform linear ${remainingTime}ms`;
           } else {
             _element.style.transform = transform;
-            _element.style.transition = `transform linear ${remainingTime}ms`;
-          }
-
-          if (remainingTime === 0) {
-            setTimeout(() => {
-              onEnded();
-            }, 0);
           }
         });
       })
@@ -103,11 +90,21 @@ function mixinCSSScrollingAnimation<T extends object>(
       })
       .then(() => {
         return domOperator.mutate(() => {
-          const transform = `translateX(${_endX})`;
-          if ("webkitTransform" in _element.style) {
+          const elapsedTime = getElapsedTime(Date.now());
+          const remainingTime = _duration - elapsedTime;
+          const transform = `translateX(${_endX}px)`;
+          if (_element.style.webkitTransform != null) {
+            _element.style.webkitTransition = `-webkit-transform linear ${remainingTime}ms`;
             _element.style.webkitTransform = transform;
           } else {
+            _element.style.transition = `transform linear ${remainingTime}ms`;
             _element.style.transform = transform;
+          }
+
+          if (remainingTime === 0) {
+            setTimeout(() => {
+              onEnded();
+            }, 0);
           }
         });
       })
@@ -136,7 +133,7 @@ function mixinCSSScrollingAnimation<T extends object>(
           const now = Date.now();
           const currentX = getX(now);
           const transform = `translateX(${currentX}px)`;
-          if ("webkitTransform" in _element.style) {
+          if (_element.style.webkitTransform != null) {
             _element.style.webkitTransition = "";
             _element.style.webkitTransform = transform;
           } else {
@@ -178,7 +175,7 @@ function mixinCSSScrollingAnimation<T extends object>(
       promise = promise.then(() => {
         return domOperator.mutate(() => {
           _element.style.left = _endX + "px";
-          if ("webkitTransition" in _element.style) {
+          if (_element.style.webkitTransform != null) {
             _element.style.webkitTransform = "";
             _element.style.webkitTransition = "";
           } else {
