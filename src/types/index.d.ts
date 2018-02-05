@@ -271,8 +271,16 @@ type CSSScrollingAnimationState =
   | "destroying"
   | "destroyed";
 
+type CSSScrollingAnimationEvents = {
+  playing: null,
+  paused: null,
+  ended: null,
+  destroyed: null,
+};
+
 interface CSSScrollingAnimation {
   readonly state: CSSScrollingAnimationState;
+  readonly events: EventEmitter<CSSScrollingAnimationEvents>;
   readonly element: HTMLElement;
   readonly startX: number;
   readonly endX: number;
@@ -357,6 +365,7 @@ export {
   DOMOperation,
   DOMOperator,
   CSSScrollingAnimationState,
+  CSSScrollingAnimationEvents,
   CSSScrollingAnimation,
   CSSScrollingAnimationMixingOptions,
 };

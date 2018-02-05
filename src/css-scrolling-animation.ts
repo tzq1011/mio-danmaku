@@ -1,11 +1,13 @@
 import {
   CSSScrollingAnimation,
   CSSScrollingAnimationState,
+  CSSScrollingAnimationEvents,
   CSSScrollingAnimationMixingOptions,
+  EventEmitter,
 } from "./types";
 
-import getOwnPropertyDescriptors from "core-js/fn/object/get-own-property-descriptors";
 import domOperator from "./dom-operator";
+import { mixinEventEmitter } from "./event-emitter";
 
 function mixinCSSScrollingAnimation<T extends object>(
   target: T,
@@ -15,13 +17,36 @@ function mixinCSSScrollingAnimation<T extends object>(
   const _startX = options.startX;
   const _endX = options.endX;
   const _duration = options.duration;
+  const _events: EventEmitter<CSSScrollingAnimationEvents> = mixinEventEmitter({});
 
   let _state: CSSScrollingAnimationState;
   let _startedAt: number | undefined;
-  let _elapsedTimeWhenPaused: number = 0;
+  let _elapsedTimeWhenStopped: number = 0;
+
+  const transitionEndEventName =
+  ("webkitTransform" in _element.style)
+    ? "webkitTransitionEnd"
+    : "transitionend";
+
+  function onEnded() {
+    if (_state !== "playing") {
+      return;
+    }
+
+    _elapsedTimeWhenStopped = _duration;
+    _startedAt = undefined;
+    _state = "ended";
+    _events.emit("ended", null);
+  }
+
+  function onTransitionEnd() {
+    onEnded();
+  }
+
+  _element.addEventListener(transitionEndEventName, onTransitionEnd);
 
   function getElapsedTime(time: number): number {
-    let elapsedTime: number = _elapsedTimeWhenPaused;
+    let elapsedTime: number = _elapsedTimeWhenStopped;
     if (_startedAt != null) {
       elapsedTime += time - _startedAt;
     }
@@ -55,18 +80,25 @@ function mixinCSSScrollingAnimation<T extends object>(
           const elapsedTime = getElapsedTime(now);
           const remainingTime = _duration - elapsedTime;
 
-          if ("webkitTransition" in _element.style) {
+          if ("webkitTransform" in _element.style) {
             _element.style.webkitTransform = transform;
-            _element.style.webkitTransition = `-webkit-transform linear ${remainingTime}s`;
+            _element.style.webkitTransition = `-webkit-transform linear ${remainingTime}ms`;
           } else {
             _element.style.transform = transform;
-            _element.style.transition = `transform linear ${remainingTime}s`;
+            _element.style.transition = `transform linear ${remainingTime}ms`;
+          }
+
+          if (remainingTime === 0) {
+            setTimeout(() => {
+              onEnded();
+            }, 0);
           }
         });
       })
       .then(() => {
         return domOperator.measure(() => {
-          _element.offsetLeft; // tslint:disable-line:no-unused-expression
+          // tslint:disable-next-line:no-unused-expression
+          _element.offsetLeft;
         });
       })
       .then(() => {
@@ -82,6 +114,7 @@ function mixinCSSScrollingAnimation<T extends object>(
       .then(() => {
         _startedAt = Date.now();
         _state = "playing";
+        _events.emit("playing", null);
       })
       .catch((e) => {
         _state = oldState;
@@ -103,7 +136,7 @@ function mixinCSSScrollingAnimation<T extends object>(
           const now = Date.now();
           const currentX = getX(now);
           const transform = `translateX(${currentX}px)`;
-          if ("webkitTransition" in _element.style) {
+          if ("webkitTransform" in _element.style) {
             _element.style.webkitTransition = "";
             _element.style.webkitTransform = transform;
           } else {
@@ -115,9 +148,10 @@ function mixinCSSScrollingAnimation<T extends object>(
         });
       })
       .then((pausedAt: number) => {
-        _elapsedTimeWhenPaused = getElapsedTime(pausedAt);
+        _elapsedTimeWhenStopped = getElapsedTime(pausedAt);
         _startedAt = undefined;
         _state = "paused";
+        _events.emit("paused", null);
       })
       .catch((e) => {
         _state = oldState;
@@ -137,11 +171,13 @@ function mixinCSSScrollingAnimation<T extends object>(
     const oldState = _state;
     _state = "destroying";
 
+    _element.removeEventListener(transitionEndEventName, onTransitionEnd);
+
     let promise = Promise.resolve();
     if (oldState === "playing" || oldState === "paused") {
       promise = promise.then(() => {
         return domOperator.mutate(() => {
-          _element.style.left = "auto";
+          _element.style.left = _endX + "px";
           if ("webkitTransition" in _element.style) {
             _element.style.webkitTransform = "";
             _element.style.webkitTransition = "";
@@ -156,6 +192,7 @@ function mixinCSSScrollingAnimation<T extends object>(
     return promise
       .then(() => {
         _state = "destroyed";
+        _events.emit("destroyed", null);
       })
       .catch((e) => {
         _state = oldState;
@@ -173,22 +210,25 @@ function mixinCSSScrollingAnimation<T extends object>(
   }
 
   const animation: CSSScrollingAnimation = {
-    get state(): CSSScrollingAnimationState {
+    get state() {
       return _state;
     },
-    get element(): HTMLElement {
+    get events() {
+      return _events;
+    },
+    get element() {
       return _element;
     },
-    get startX(): number {
+    get startX() {
       return _startX;
     },
-    get endX(): number {
+    get endX() {
       return _endX;
     },
-    get duration(): number {
+    get duration() {
       return _duration;
     },
-    get elapsedTime(): number {
+    get elapsedTime() {
       return getElapsedTime(Date.now());
     },
     play,
@@ -197,7 +237,7 @@ function mixinCSSScrollingAnimation<T extends object>(
     destroy,
   };
 
-  Object.defineProperties(target, getOwnPropertyDescriptors(animation));
+  Object.defineProperties(target, Object.getOwnPropertyDescriptors(animation));
   return target as (T & CSSScrollingAnimation);
 }
 
