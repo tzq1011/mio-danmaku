@@ -292,12 +292,16 @@ interface CSSScrollingAnimation {
   destroy(): Promise<void>;
 }
 
-interface CSSScrollingAnimationMixingOptions {
-  readonly element: HTMLElement;
-  readonly startX: number;
-  readonly endX: number;
-  readonly duration: number;
-}
+type CSSScrollingAnimationMixingOptions =
+  Pick<
+    CSSScrollingAnimation,
+    (
+      | "element"
+      | "startX"
+      | "endX"
+      | "duration"
+    )
+  >;
 
 type DOMOperation<R = any> = (...args: any[]) => R;
 
@@ -306,6 +310,31 @@ interface DOMOperator {
   mutate<R>(operation: DOMOperation<R>): Promise<R>;
   cancel(operation: DOMOperation): void;
 }
+
+type TimerState =
+  | "idle"
+  | "running"
+  | "paused"
+  | "ended"
+  | "destroyed";
+
+type TimerEvents = {
+  running: null,
+  paused: null,
+  ended: null,
+  destroyed: null,
+};
+
+interface Timer {
+  readonly state: TimerState;
+  readonly events: EventEmitter<TimerEvents>;
+  readonly duration: number;
+  run(): void;
+  pause(): void;
+  destroy(): void;
+}
+
+type TimerMixingOptions = Pick<Timer, "duration">;
 
 export {
   PartialDeep,
@@ -368,4 +397,8 @@ export {
   CSSScrollingAnimationEvents,
   CSSScrollingAnimation,
   CSSScrollingAnimationMixingOptions,
+  TimerState,
+  TimerEvents,
+  Timer,
+  TimerMixingOptions,
 };
