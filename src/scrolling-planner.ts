@@ -3,22 +3,19 @@ import {
   Block,
   ScrollingPlan,
   ScrollingPlanner,
-  ScrollingPlannerMixingOptions,
-  ScrollingPlannerMixingOptionsDefault,
+  ScrollingPlannerCreationOptions,
+  ScrollingPlannerCreationOptionsDefault,
 } from "./types";
 
-const defaultMixingOptions: ScrollingPlannerMixingOptionsDefault = {
+const defaultCreationOptions: ScrollingPlannerCreationOptionsDefault = {
   direction: "left",
   basicSpeed: 120,
   extraSpeedPerPixel: 2,
 };
 
-function mixinScrollingPlanner<T extends object>(
-  target: T,
-  options: ScrollingPlannerMixingOptions,
-): T & ScrollingPlanner {
+function createScrollingPlanner(options: ScrollingPlannerCreationOptions): ScrollingPlanner {
   const finalOptions = {
-    ...defaultMixingOptions,
+    ...defaultCreationOptions,
     ...options,
   };
 
@@ -44,13 +41,13 @@ function mixinScrollingPlanner<T extends object>(
     const distance: number = _stage.width + block.width;
     const duration: number = distance / finalSpeed * 1000;
 
-    const plan: ScrollingPlan = {
+    const scrollingPlan: ScrollingPlan = {
       startX,
       endX,
       duration,
     };
 
-    return plan;
+    return scrollingPlan;
   }
 
   function setStage(stage: Stage): void {
@@ -84,10 +81,9 @@ function mixinScrollingPlanner<T extends object>(
     setExtraSpeedPerPixel,
   };
 
-  Object.defineProperties(target, Object.getOwnPropertyDescriptors(planner));
-  return target as (T & ScrollingPlanner);
+  return planner;
 }
 
 export {
-  mixinScrollingPlanner,
+  createScrollingPlanner,
 };

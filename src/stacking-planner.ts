@@ -3,25 +3,22 @@ import {
   Block,
   StackingPlan,
   StackingPlanner,
-  StackingPlannerMixingOptions,
-  StackingPlannerMixingOptionsDefault,
+  StackingPlannerCreationOptions,
+  StackingPlannerCreationOptionsDefault,
 } from "./types";
 
-const defaultMixingOptions: StackingPlannerMixingOptionsDefault = {
+const defaultCreationOptions: StackingPlannerCreationOptionsDefault = {
   direction: "down",
 };
 
-function mixinStackingPlanner<T extends object>(
-  target: T,
-  options: StackingPlannerMixingOptions,
-): StackingPlanner {
+function createStackingPlanner(options: StackingPlannerCreationOptions): StackingPlanner {
   interface Row {
     startY: number;
     endY: number;
   }
 
   const finalOptions = {
-    ...defaultMixingOptions,
+    ...defaultCreationOptions,
     ...options,
   };
 
@@ -97,13 +94,13 @@ function mixinStackingPlanner<T extends object>(
       endY = _stage.height - startY + stageMarginDiff;
     }
 
-    const plan: StackingPlan = {
+    const stackingPlan: StackingPlan = {
       startY,
       endY,
       onEnded,
     };
 
-    return plan;
+    return stackingPlan;
   }
 
   function setStage(stage: Stage): void {
@@ -121,10 +118,9 @@ function mixinStackingPlanner<T extends object>(
     setStage,
   };
 
-  Object.defineProperties(target, Object.getOwnPropertyDescriptors(planner));
-  return target as (T & StackingPlanner);
+  return planner;
 }
 
 export {
-  mixinStackingPlanner,
+  createStackingPlanner,
 };

@@ -1,7 +1,7 @@
 import {
   Comment,
-  CommentMixingOptions,
-  CommentMixingOptionsDefault,
+  CommentCreationOptions,
+  CommentCreationOptionsDefault,
   CommentTextTrait,
   CommentTextTraitMixingOptions,
   CommentTextTraitMixingOptionsDefault,
@@ -27,23 +27,22 @@ import {
   CommentLifetimeTraitMixingOptionsDefault,
   CommentLifetimeTraitMixingOptions,
   StackingComment,
-  StackingCommentMixingOptionsDefault,
-  StackingCommentMixingOptions,
+  StackingCommentCreationOptionsDefault,
+  StackingCommentCreationOptions,
   ScrollingComment,
-  ScrollingCommentMixingOptionsDefault,
-  ScrollingCommentMixingOptions,
+  ScrollingCommentCreationOptionsDefault,
+  ScrollingCommentCreationOptions,
   PositioningComment,
-  PositioningCommentMixingOptionsDefault,
-  PositioningCommentMixingOptions,
+  PositioningCommentCreationOptionsDefault,
+  PositioningCommentCreationOptions,
 } from "./types";
 
 import merge from "lodash/merge";
-import assign from "lodash/assign";
 import uniqueId from "lodash/uniqueId";
 import mixin from "./utils/mixin";
 
 const defaultOptions: {
-  mixinComment: CommentMixingOptionsDefault,
+  createComment: CommentCreationOptionsDefault,
   mixinCommentTextTrait: CommentTextTraitMixingOptionsDefault,
   mixinCommentPositionXTrait: CommentPositionXTraitMixingOptionsDefault,
   mixinCommentPositionYTrait: CommentPositionTraitMixingOptionsDefault,
@@ -53,7 +52,7 @@ const defaultOptions: {
   mixinCommentScrollingTrait: CommentScrollingTraitMixingOptionsDefault,
   mixinCommentLifetimeTrait: CommentLifetimeTraitMixingOptionsDefault,
 } = {
-  mixinComment: {
+  createComment: {
     time: 0,
     opacity: 1,
   },
@@ -85,17 +84,14 @@ const defaultOptions: {
   },
 };
 
-function mixinComment<T extends object>(
-  target: T,
-  options: CommentMixingOptions = {},
-): T & Comment {
-  const finalOptions = merge({}, defaultOptions.mixinComment, options);
+function createComment(options: CommentCreationOptions = {}): Comment {
+  const finalOptions = merge({}, defaultOptions.createComment, options);
   const comment: Comment = {
     ...finalOptions,
     instanceId: uniqueId(),
   };
 
-  return assign(target, comment);
+  return comment;
 }
 
 function mixinCommentTextTrait<C extends Comment>(
@@ -104,7 +100,7 @@ function mixinCommentTextTrait<C extends Comment>(
 ): C & CommentTextTrait {
   const finalOptions = merge({}, defaultOptions.mixinCommentTextTrait, options);
   const trait: CommentTextTrait = finalOptions;
-  return assign(comment, trait);
+  return Object.assign(comment, trait);
 }
 
 function mixinCommentPositionXTrait<C extends Comment>(
@@ -113,7 +109,7 @@ function mixinCommentPositionXTrait<C extends Comment>(
 ): C & CommentPosotionXTrait {
   const finalOptions = merge({}, defaultOptions.mixinCommentPositionXTrait, options);
   const trait: CommentPosotionXTrait = finalOptions;
-  return assign(comment, trait);
+  return Object.assign(comment, trait);
 }
 
 function mixinCommentPositionYTrait<C extends Comment>(
@@ -122,7 +118,7 @@ function mixinCommentPositionYTrait<C extends Comment>(
 ): C & CommentPositionYTrait {
   const finalOptions = merge({}, defaultOptions.mixinCommentPositionYTrait, options);
   const trait: CommentPositionYTrait = finalOptions;
-  return assign(comment, trait);
+  return Object.assign(comment, trait);
 }
 
 function mixinCommentHorizontalAlignmentTrait<C extends Comment>(
@@ -131,7 +127,7 @@ function mixinCommentHorizontalAlignmentTrait<C extends Comment>(
 ): C & CommentHorizontalAlignmentTrait {
   const finalOptions = merge({}, defaultOptions.mixinCommentHorizontalAlignmentTrait, options);
   const trait: CommentHorizontalAlignmentTrait = finalOptions;
-  return assign(comment, trait);
+  return Object.assign(comment, trait);
 }
 
 function mixinCommentVerticalAlignmentTrait<C extends Comment>(
@@ -140,7 +136,7 @@ function mixinCommentVerticalAlignmentTrait<C extends Comment>(
 ): C & CommentVerticalAlignmentTrait {
   const finalOptions = merge({}, defaultOptions.mixinCommentVerticalAlignmentTrait, options);
   const trait: CommentVerticalAlignmentTrait = finalOptions;
-  return assign(comment, trait);
+  return Object.assign(comment, trait);
 }
 
 function mixinCommentStackingTrait<C extends Comment>(
@@ -149,7 +145,7 @@ function mixinCommentStackingTrait<C extends Comment>(
 ): C & CommentStackingTrait {
   const finalOptions = merge({}, defaultOptions.mixinCommentStackingTrait, options);
   const trait: CommentStackingTrait = finalOptions;
-  return assign(comment, trait);
+  return Object.assign(comment, trait);
 }
 
 function mixinCommentScrollingTrait<C extends Comment>(
@@ -158,7 +154,7 @@ function mixinCommentScrollingTrait<C extends Comment>(
 ): C & CommentScrollingTrait {
   const finalOptions = merge({}, defaultOptions.mixinCommentScrollingTrait, options);
   const trait: CommentScrollingTrait = finalOptions;
-  return assign(comment, trait);
+  return Object.assign(comment, trait);
 }
 
 function mixinCommentLifetimeTrait<C extends Comment>(
@@ -167,16 +163,13 @@ function mixinCommentLifetimeTrait<C extends Comment>(
 ): C & CommentLifetimeTrait {
   const finalOptions = merge({}, defaultOptions.mixinCommentLifetimeTrait, options);
   const trait: CommentLifetimeTrait = finalOptions;
-  return assign(comment, trait);
+  return Object.assign(comment, trait);
 }
 
-function mixinStackingComment<T extends object>(
-  target: T,
-  options: StackingCommentMixingOptions,
-): T & StackingComment {
+function createStackingComment(options: StackingCommentCreationOptions): StackingComment {
+  const comment = createComment(options);
   return mixin(
-    target,
-    (target) => mixinComment(target, options),
+    comment,
     (target) => mixinCommentTextTrait(target, options),
     (target) => mixinCommentHorizontalAlignmentTrait(target, options),
     (target) => mixinCommentStackingTrait(target, options),
@@ -184,26 +177,20 @@ function mixinStackingComment<T extends object>(
   );
 }
 
-function mixinScrollingComment<T extends object>(
-  target: T,
-  options: ScrollingCommentMixingOptions,
-): T & ScrollingComment {
+function createScrollingComment(options: ScrollingCommentCreationOptions): ScrollingComment {
+  const comment = createComment(options);
   return mixin(
-    target,
-    (target) => mixinComment(target, options),
+    comment,
     (target) => mixinCommentTextTrait(target, options),
     (target) => mixinCommentStackingTrait(target, options),
     (target) => mixinCommentScrollingTrait(target, options),
   );
 }
 
-function mixinPositioningComment<T extends object>(
-  target: T,
-  options: PositioningCommentMixingOptions,
-): T & PositioningComment {
+function createPositioningComment(options: PositioningCommentCreationOptions): PositioningComment {
+  const comment = createComment(options);
   return mixin(
-    target,
-    (target) => mixinComment(target, options),
+    comment,
     (target) => mixinCommentTextTrait(target, options),
     (target) => mixinCommentPositionXTrait(target, options),
     (target) => mixinCommentPositionYTrait(target, options),
@@ -212,7 +199,7 @@ function mixinPositioningComment<T extends object>(
 }
 
 export {
-  mixinComment,
+  createComment,
   mixinCommentTextTrait,
   mixinCommentPositionXTrait,
   mixinCommentPositionYTrait,
@@ -221,7 +208,7 @@ export {
   mixinCommentStackingTrait,
   mixinCommentScrollingTrait,
   mixinCommentLifetimeTrait,
-  mixinStackingComment,
-  mixinScrollingComment,
-  mixinPositioningComment,
+  createStackingComment,
+  createScrollingComment,
+  createPositioningComment,
 };

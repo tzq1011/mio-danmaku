@@ -4,7 +4,7 @@ import {
   EventEmitter,
 } from "./types";
 
-function mixinEventEmitter<T extends object, ES extends EventSpecs>(target: T): T & EventEmitter<ES> {
+function createEventEmitter<ES extends EventSpecs>(): EventEmitter<ES> {
   type ListenersMap = {
     [E in keyof ES]?: Array<EventListener<ES[E]>>;
   };
@@ -58,10 +58,9 @@ function mixinEventEmitter<T extends object, ES extends EventSpecs>(target: T): 
     emit,
   };
 
-  Object.defineProperties(target, Object.getOwnPropertyDescriptors(emitter));
-  return target as (T & EventEmitter<ES>);
+  return emitter;
 }
 
 export {
-  mixinEventEmitter,
+  createEventEmitter,
 };

@@ -16,7 +16,7 @@
     animationElement.style.height = "40px";
     animationElement.style.backgroundColor = "orange";
 
-    const animation = mio.mixinCSSScrollingAnimation({}, {
+    const animation = mio.createCSSScrollingAnimation({
       element: animationElement,
       duration: 3000,
       startX: 10,

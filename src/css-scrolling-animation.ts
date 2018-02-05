@@ -2,22 +2,19 @@ import {
   CSSScrollingAnimation,
   CSSScrollingAnimationState,
   CSSScrollingAnimationEvents,
-  CSSScrollingAnimationMixingOptions,
+  CSSScrollingAnimationCreationOptions,
   EventEmitter,
 } from "./types";
 
 import domOperator from "./dom-operator";
-import { mixinEventEmitter } from "./event-emitter";
+import { createEventEmitter } from "./event-emitter";
 
-function mixinCSSScrollingAnimation<T extends object>(
-  target: T,
-  options: CSSScrollingAnimationMixingOptions,
-): T & CSSScrollingAnimation {
+function createCSSScrollingAnimation(options: CSSScrollingAnimationCreationOptions): CSSScrollingAnimation {
   const _element = options.element;
   const _startX = options.startX;
   const _endX = options.endX;
   const _duration = options.duration;
-  const _events: EventEmitter<CSSScrollingAnimationEvents> = mixinEventEmitter({});
+  const _events: EventEmitter<CSSScrollingAnimationEvents> = createEventEmitter();
 
   let _state: CSSScrollingAnimationState = "idle";
   let _startedAt: number | undefined;
@@ -239,10 +236,9 @@ function mixinCSSScrollingAnimation<T extends object>(
     destroy,
   };
 
-  Object.defineProperties(target, Object.getOwnPropertyDescriptors(animation));
-  return target as (T & CSSScrollingAnimation);
+  return animation;
 }
 
 export {
-  mixinCSSScrollingAnimation,
+  createCSSScrollingAnimation,
 };

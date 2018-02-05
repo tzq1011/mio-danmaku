@@ -1,5 +1,5 @@
-import { mixinCSSScrollingAnimation } from "./css-scrolling-animation";
+import { createCSSScrollingAnimation } from "./css-scrolling-animation";
 
 (window as any).mio = {
-  mixinCSSScrollingAnimation,
+  createCSSScrollingAnimation,
 };

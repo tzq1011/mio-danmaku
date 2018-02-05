@@ -21,7 +21,7 @@ interface Comment {
   readonly instanceId: string;
 }
 
-type CommentMixingOptionsDefault =
+type CommentCreationOptionsDefault =
   Pick<
     Comment,
     (
@@ -30,7 +30,7 @@ type CommentMixingOptionsDefault =
     )
   >;
 
-type CommentMixingOptions =
+type CommentCreationOptions =
   PartialDeep<
     Pick<
       Comment,
@@ -106,15 +106,15 @@ type StackingComment =
   & CommentStackingTrait
   & CommentLifetimeTrait;
 
-type StackingCommentMixingOptions =
-  & CommentMixingOptions
+type StackingCommentCreationOptions =
+  & CommentCreationOptions
   & CommentTextTraitMixingOptions
   & CommentHorizontalAlignmentTraitMixingOptions
   & CommentStackingTraitMixingOptions
   & CommentLifetimeTraitMixingOptions;
 
-type StackingCommentMixingOptionsDefault =
-  & CommentMixingOptionsDefault
+type StackingCommentCreationOptionsDefault =
+  & CommentCreationOptionsDefault
   & CommentTextTraitMixingOptionsDefault
   & CommentHorizontalAlignmentTraitMixingOptionsDefault
   & CommentStackingTraitMixingOptionsDefault
@@ -126,14 +126,14 @@ type ScrollingComment =
   & CommentStackingTrait
   & CommentScrollingTrait;
 
-type ScrollingCommentMixingOptions =
-  & CommentMixingOptions
+type ScrollingCommentCreationOptions =
+  & CommentCreationOptions
   & CommentTextTraitMixingOptions
   & CommentStackingTraitMixingOptions
   & CommentScrollingTraitMixingOptions;
 
-type ScrollingCommentMixingOptionsDefault =
-  & CommentMixingOptionsDefault
+type ScrollingCommentCreationOptionsDefault =
+  & CommentCreationOptionsDefault
   & CommentTextTraitMixingOptionsDefault
   & CommentStackingTraitMixingOptionsDefault
   & CommentScrollingTraitMixingOptionsDefault;
@@ -145,15 +145,15 @@ type PositioningComment =
   & CommentPositionYTrait
   & CommentLifetimeTrait;
 
-type PositioningCommentMixingOptions =
-  & CommentMixingOptions
+type PositioningCommentCreationOptions =
+  & CommentCreationOptions
   & CommentTextTraitMixingOptions
   & CommentPositionXTraitMixingOptions
   & CommentPositionYTraitMixingOptions
   & CommentLifetimeTraitMixingOptions;
 
-type PositioningCommentMixingOptionsDefault =
-  & CommentMixingOptionsDefault
+type PositioningCommentCreationOptionsDefault =
+  & CommentCreationOptionsDefault
   & CommentTextTraitMixingOptionsDefault
   & CommentPositionXTraitMixingOptionsDefault
   & CommentPositionTraitMixingOptionsDefault
@@ -188,12 +188,12 @@ interface StackingPlanner {
   setStage(stage: Stage): void;
 }
 
-interface StackingPlannerMixingOptions {
+interface StackingPlannerCreationOptions {
   stage: StackingPlanner["stage"];
   direction?: StackingPlanner["direction"];
 }
 
-type StackingPlannerMixingOptionsDefault =
+type StackingPlannerCreationOptionsDefault =
   Pick<
     StackingPlanner,
     (
@@ -218,14 +218,14 @@ interface ScrollingPlanner {
   setExtraSpeedPerPixel(speed: number): void;
 }
 
-interface ScrollingPlannerMixingOptions {
+interface ScrollingPlannerCreationOptions {
   stage: ScrollingPlanner["stage"];
   direction?: ScrollingPlanner["direction"];
   basicSpeed?: ScrollingPlanner["basicSpeed"];
   extraSpeedPerPixel?: ScrollingPlanner["extraSpeedPerPixel"];
 } 
 
-type ScrollingPlannerMixingOptionsDefault =
+type ScrollingPlannerCreationOptionsDefault =
   Pick<
     ScrollingPlanner,
     (
@@ -292,7 +292,7 @@ interface CSSScrollingAnimation {
   destroy(): Promise<void>;
 }
 
-type CSSScrollingAnimationMixingOptions =
+type CSSScrollingAnimationCreationOptions =
   Pick<
     CSSScrollingAnimation,
     (
@@ -334,7 +334,7 @@ interface Timer {
   destroy(): void;
 }
 
-type TimerMixingOptions = Pick<Timer, "duration">;
+type TimerCreationOptions = Pick<Timer, "duration">;
 
 export {
   PartialDeep,
@@ -342,8 +342,8 @@ export {
   EventSpecs,
   EventEmitter,
   Comment,
-  CommentMixingOptionsDefault,
-  CommentMixingOptions,
+  CommentCreationOptionsDefault,
+  CommentCreationOptions,
   CommentTextTrait,
   CommentTextTraitMixingOptions,
   CommentTextTraitMixingOptionsDefault,
@@ -369,25 +369,25 @@ export {
   CommentLifetimeTraitMixingOptions,
   CommentLifetimeTraitMixingOptionsDefault,
   StackingComment,
-  StackingCommentMixingOptions,
-  StackingCommentMixingOptionsDefault,
+  StackingCommentCreationOptions,
+  StackingCommentCreationOptionsDefault,
   ScrollingComment,
-  ScrollingCommentMixingOptions,
-  ScrollingCommentMixingOptionsDefault,
+  ScrollingCommentCreationOptions,
+  ScrollingCommentCreationOptionsDefault,
   PositioningComment,
-  PositioningCommentMixingOptions,
-  PositioningCommentMixingOptionsDefault,
+  PositioningCommentCreationOptions,
+  PositioningCommentCreationOptionsDefault,
   StageMargin,
   Stage,
   Block,
   StackingPlan,
   StackingPlanner,
-  StackingPlannerMixingOptions,
-  StackingPlannerMixingOptionsDefault,
+  StackingPlannerCreationOptions,
+  StackingPlannerCreationOptionsDefault,
   ScrollingPlan,
   ScrollingPlanner,
-  ScrollingPlannerMixingOptions,
-  ScrollingPlannerMixingOptionsDefault,
+  ScrollingPlannerCreationOptions,
+  ScrollingPlannerCreationOptionsDefault,
   CommentView,
   RendererState,
   Renderer,
@@ -396,9 +396,9 @@ export {
   CSSScrollingAnimationState,
   CSSScrollingAnimationEvents,
   CSSScrollingAnimation,
-  CSSScrollingAnimationMixingOptions,
+  CSSScrollingAnimationCreationOptions,
   TimerState,
   TimerEvents,
   Timer,
-  TimerMixingOptions,
+  TimerCreationOptions,
 };

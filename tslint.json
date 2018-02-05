@@ -8,7 +8,6 @@
         "object-literal-sort-keys": false,
         "interface-name": false,
         "ordered-imports": false,
-        "no-shadowed-variable": false,
         "variable-name": [true, "ban-keywords", "check-format", "allow-leading-underscore"]
     },
     "rulesDirectory": []
