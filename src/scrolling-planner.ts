@@ -44,7 +44,7 @@ function mixinScrollingPlanner<T extends object>(
     }
 
     const distance: number = _stage.width + block.width;
-    const duration: number = distance / finalSpeed;
+    const duration: number = distance / finalSpeed * 1000;
 
     const plan: ScrollingPlan = {
       startX,
