@@ -5,7 +5,7 @@ import {
   CommentTextTrait,
   CommentTextTraitMixingOptions,
   CommentTextTraitMixingOptionsDefault,
-  CommentPosotionXTrait,
+  CommentPositionXTrait,
   CommentPositionXTraitMixingOptionsDefault,
   CommentPositionXTraitMixingOptions,
   CommentPositionYTrait,
@@ -106,9 +106,9 @@ function mixinCommentTextTrait<C extends Comment>(
 function mixinCommentPositionXTrait<C extends Comment>(
   comment: C,
   options: CommentPositionXTraitMixingOptions = {},
-): C & CommentPosotionXTrait {
+): C & CommentPositionXTrait {
   const finalOptions = merge({}, defaultOptions.mixinCommentPositionXTrait, options);
-  const trait: CommentPosotionXTrait = finalOptions;
+  const trait: CommentPositionXTrait = finalOptions;
   return Object.assign(comment, trait);
 }
 

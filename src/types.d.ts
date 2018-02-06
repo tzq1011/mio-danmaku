@@ -50,12 +50,12 @@ interface CommentTextTrait {
 type CommentTextTraitMixingOptions = PartialDeep<CommentTextTrait>;
 type CommentTextTraitMixingOptionsDefault = CommentTextTrait;
 
-interface CommentPosotionXTrait {
+interface CommentPositionXTrait {
   readonly positionX: number;
 }
 
-type CommentPositionXTraitMixingOptions = PartialDeep<CommentPosotionXTrait>;
-type CommentPositionXTraitMixingOptionsDefault = CommentPosotionXTrait;
+type CommentPositionXTraitMixingOptions = PartialDeep<CommentPositionXTrait>;
+type CommentPositionXTraitMixingOptionsDefault = CommentPositionXTrait;
 
 interface CommentPositionYTrait {
   readonly positionY: number;
@@ -141,7 +141,7 @@ type ScrollingCommentCreationOptionsDefault =
 type PositioningComment =
   & Comment
   & CommentTextTrait
-  & CommentPosotionXTrait
+  & CommentPositionXTrait
   & CommentPositionYTrait
   & CommentLifetimeTrait;
 
@@ -348,7 +348,7 @@ export {
   CommentTextTrait,
   CommentTextTraitMixingOptions,
   CommentTextTraitMixingOptionsDefault,
-  CommentPosotionXTrait,
+  CommentPositionXTrait,
   CommentPositionXTraitMixingOptions,
   CommentPositionXTraitMixingOptionsDefault,
   CommentPositionYTrait,
