@@ -329,6 +329,7 @@ interface Timer {
   readonly state: TimerState;
   readonly events: EventEmitter<TimerEvents>;
   readonly duration: number;
+  readonly elapsedTime: number;
   run(): void;
   pause(): void;
   destroy(): void;
