@@ -190,6 +190,8 @@ function createCSSScrollingAnimation(options: CSSScrollingAnimationCreationOptio
 
     return promise
       .then(() => {
+        _elapsedTimeWhenStopped = 0;
+        _startedAt = undefined;
         _state = "destroyed";
         _events.emit("destroyed", null);
       })
