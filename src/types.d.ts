@@ -235,11 +235,15 @@ type ScrollingPlannerCreationOptionsDefault =
     )
   >;
 
+interface Position {
+  x: number;
+  y: number;
+}
+
 interface CommentView {
   readonly width: number;
   readonly height: number;
-  readonly positionX: number;
-  readonly positionY: number;
+  locate(): Promise<Position>;
   destroy(): void;
 }
 
@@ -247,19 +251,26 @@ type RendererState =
   | "idle"
   | "running"
   | "paused"
-  | "destroyed";
+  | "destroyed"
+  | "frozen";
 
 interface Renderer {
-  readonly stage: Stage;
   readonly state: RendererState;
-  run(): void;
-  stop(): void;
-  pause(): void;
-  destroy(): void;
-  setStage(stage: Stage): void;
-  renderComment(comment: Comment): CommentView;
+  readonly stage: Stage;
+  readonly stageElement: HTMLElement;
+  run(): Promise<void>;
+  stop(): Promise<void>;
+  pause(): Promise<void>;
+  destroy(): Promise<void>;
+  setStage(stage: Stage): Promise<void>;
+  renderComment(comment: Comment): Promise<CommentView>;
   isCommentRendering(comment: Comment): boolean;
 }
+
+type RendererCreationOptions = Pick<Renderer, "stage">;
+
+type CSSRenderer = Renderer;
+type CSSRendererCreationOptions = RendererCreationOptions;
 
 type CSSScrollingAnimationState =
   | "idle"
@@ -389,9 +400,13 @@ export {
   ScrollingPlanner,
   ScrollingPlannerCreationOptions,
   ScrollingPlannerCreationOptionsDefault,
+  Position,
   CommentView,
   RendererState,
   Renderer,
+  RendererCreationOptions,
+  CSSRenderer,
+  CSSRendererCreationOptions,
   DOMOperation,
   DOMOperator,
   CSSScrollingAnimationState,
