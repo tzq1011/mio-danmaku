@@ -240,67 +240,27 @@ interface Position {
   y: number;
 }
 
-interface CommentView {
-  readonly width: number;
-  readonly height: number;
-  locate(): Promise<Position>;
-  destroy(): void;
-}
-
-type RendererState =
-  | "idle"
-  | "running"
-  | "paused"
-  | "destroyed"
-  | "frozen";
-
-interface Renderer {
-  readonly state: RendererState;
-  readonly stage: Stage;
-  readonly stageElement: HTMLElement;
-  run(): Promise<void>;
-  stop(): Promise<void>;
-  pause(): Promise<void>;
-  destroy(): Promise<void>;
-  setStage(stage: Stage): Promise<void>;
-  renderComment(comment: Comment): Promise<CommentView>;
-  isCommentRendering(comment: Comment): boolean;
-}
-
-type RendererCreationOptions = Pick<Renderer, "stage">;
-
-type CSSRenderer = Renderer;
-type CSSRendererCreationOptions = RendererCreationOptions;
-
 type CSSScrollingAnimationState =
   | "idle"
-  | "starting"
   | "playing"
-  | "pausing"
   | "paused"
   | "ended"
-  | "destroying"
   | "destroyed";
 
-type CSSScrollingAnimationEvents = {
+interface CSSScrollingAnimationEvents {
   playing: null,
   paused: null,
   ended: null,
   destroyed: null,
-};
+}
 
 interface CSSScrollingAnimation {
   readonly state: CSSScrollingAnimationState;
-  readonly events: EventEmitter<CSSScrollingAnimationEvents>;
+  readonly events: EventEmitter<CSSScrollingAnimationEvents>
   readonly element: HTMLElement;
+  readonly duration: number;
   readonly startX: number;
   readonly endX: number;
-  readonly duration: number;
-  readonly elapsedTime: number;
-  play(): Promise<void>;
-  pause(): Promise<void>;
-  locate(): Promise<number>;
-  destroy(): Promise<void>;
 }
 
 type CSSScrollingAnimationCreationOptions =
@@ -308,18 +268,25 @@ type CSSScrollingAnimationCreationOptions =
     CSSScrollingAnimation,
     (
       | "element"
+      | "duration"
       | "startX"
       | "endX"
-      | "duration"
     )
   >;
 
-type DOMOperation<R = any> = (...args: any[]) => R;
-
-interface DOMOperator {
-  measure<R>(operation: DOMOperation<R>): Promise<R>;
-  mutate<R>(operation: DOMOperation<R>): Promise<R>;
-  cancel(operation: DOMOperation): void;
+interface CSSScrollingAnimationService {
+  create(options: CSSScrollingAnimationCreationOptions): CSSScrollingAnimation;
+  createBatch(optionsList: CSSScrollingAnimationCreationOptions[]): CSSScrollingAnimation[];
+  play(animation: CSSScrollingAnimation): void;
+  playBatch(animations: CSSScrollingAnimation[]): void;
+  pause(animation: CSSScrollingAnimation): void;
+  pauseBatch(animations: CSSScrollingAnimation[]): void;
+  destroy(animation: CSSScrollingAnimation): void;
+  destroyBatch(animations: CSSScrollingAnimation[]): void;
+  getElapsedTime(animation: CSSScrollingAnimation): number;
+  getElapsedTimeBatch(animations: CSSScrollingAnimation[]): number[];
+  getCurrentX(animation: CSSScrollingAnimation): number;
+  getCurrentXBatch(animations: CSSScrollingAnimation[]): number[];
 }
 
 type TimerState =
@@ -400,19 +367,11 @@ export {
   ScrollingPlanner,
   ScrollingPlannerCreationOptions,
   ScrollingPlannerCreationOptionsDefault,
-  Position,
-  CommentView,
-  RendererState,
-  Renderer,
-  RendererCreationOptions,
-  CSSRenderer,
-  CSSRendererCreationOptions,
-  DOMOperation,
-  DOMOperator,
   CSSScrollingAnimationState,
   CSSScrollingAnimationEvents,
   CSSScrollingAnimation,
   CSSScrollingAnimationCreationOptions,
+  CSSScrollingAnimationService,
   TimerState,
   TimerEvents,
   Timer,

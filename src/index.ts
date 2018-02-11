@@ -1,5 +1,5 @@
-import { createCSSScrollingAnimation } from "./css-scrolling-animation";
+import { createCSSScrollingAnimationService } from "./css-scrolling-animation";
 
 (window as any).mio = {
-  createCSSScrollingAnimation,
+  createCSSScrollingAnimationService,
 };

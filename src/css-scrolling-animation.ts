@@ -1,246 +1,380 @@
 import {
-  CSSScrollingAnimation,
+  EventEmitter,
   CSSScrollingAnimationState,
   CSSScrollingAnimationEvents,
+  CSSScrollingAnimation,
   CSSScrollingAnimationCreationOptions,
-  EventEmitter,
+  CSSScrollingAnimationService,
 } from "./types";
 
-import domOperator from "./dom-operator";
 import { createEventEmitter } from "./event-emitter";
 
-function createCSSScrollingAnimation(options: CSSScrollingAnimationCreationOptions): CSSScrollingAnimation {
-  const _element = options.element;
-  const _startX = options.startX;
-  const _endX = options.endX;
-  const _duration = options.duration;
-  const _events: EventEmitter<CSSScrollingAnimationEvents> = createEventEmitter();
+function createCSSScrollingAnimationService(): CSSScrollingAnimationService {
+  interface Status {
+    readonly element: HTMLElement;
+    readonly duration: number;
+    readonly startX: number;
+    readonly endX: number;
+    readonly events: EventEmitter<CSSScrollingAnimationEvents>;
+    readonly transitionEndEventName: string;
+    readonly transitionEndEventListener: () => void;
+    state: CSSScrollingAnimationState;
+    startTime: number | null;
+    elapsedTimeWhenStopped: number;
+  }
 
-  let _state: CSSScrollingAnimationState = "idle";
-  let _startedAt: number | undefined;
-  let _elapsedTimeWhenStopped: number = 0;
+  const _statuses: WeakMap<CSSScrollingAnimation, Status> = new WeakMap();
 
-  const transitionEndEventName =
-    (_element.style.webkitTransform != null)
-      ? "webkitTransitionEnd"
-      : "transitionend";
+  function _getElapsedTime(status: Status): number {
+    const {
+      duration,
+      startTime,
+      elapsedTimeWhenStopped,
+    } = status;
 
-  function onEnded() {
-    if (_state !== "playing") {
+    let elapsedTime: number = elapsedTimeWhenStopped;
+    if (startTime != null) {
+      elapsedTime += Date.now() - startTime;
+    }
+
+    return Math.min(elapsedTime, duration);
+  }
+
+  function _getCurrentX(status: Status): number {
+    const {
+      duration,
+      startX,
+      endX,
+    } = status;
+
+    const elapsedTime = _getElapsedTime(status);
+    const progress = elapsedTime / duration;
+    return startX + ((endX - startX) * progress);
+  }
+
+  function _onEnded(status: Status) {
+    if (status.state !== "playing") {
       return;
     }
 
-    _elapsedTimeWhenStopped = _duration;
-    _startedAt = undefined;
-    _state = "ended";
-    _events.emit("ended", null);
+    status.elapsedTimeWhenStopped = status.duration;
+    status.startTime = null;
+    status.state = "ended";
+    status.events.emit("ended", null);
   }
 
-  function onTransitionEnd() {
-    onEnded();
+  function createBatch(optionsList: CSSScrollingAnimationCreationOptions[]): CSSScrollingAnimation[] {
+    const animations: CSSScrollingAnimation[] = [];
+
+    optionsList.forEach((options) => {
+      const { element } = options;
+
+      const transitionEndEventName =
+        element.style.webkitTransition != null
+          ? "webkitTransitionEnd"
+          : "transitionend";
+
+      function transitionEndEventListener() {
+        _onEnded(status);
+      }
+
+      element.addEventListener(transitionEndEventName, transitionEndEventListener);
+
+      const status: Status = {
+        element,
+        duration: options.duration,
+        startX: options.startX,
+        endX: options.endX,
+        events: createEventEmitter(),
+        transitionEndEventName,
+        transitionEndEventListener,
+        state: "idle",
+        startTime: null,
+        elapsedTimeWhenStopped: 0,
+      };
+
+      const animation: CSSScrollingAnimation = {
+        get state() {
+          return status.state;
+        },
+        get events() {
+          return status.events;
+        },
+        get element() {
+          return status.element;
+        },
+        get duration() {
+          return status.duration;
+        },
+        get startX() {
+          return status.startX;
+        },
+        get endX() {
+          return status.endX;
+        },
+      };
+
+      _statuses.set(animation, status);
+      animations.push(animation);
+    });
+
+    return animations;
   }
 
-  _element.addEventListener(transitionEndEventName, onTransitionEnd);
-
-  function getElapsedTime(time: number): number {
-    let elapsedTime: number = _elapsedTimeWhenStopped;
-    if (_startedAt != null) {
-      elapsedTime += time - _startedAt;
-    }
-
-    elapsedTime = Math.min(elapsedTime, _duration);
-    return elapsedTime;
+  function create(options: CSSScrollingAnimationCreationOptions): CSSScrollingAnimation {
+    return createBatch([options])[0];
   }
 
-  function getX(time: number): number {
-    const elapsedTime = getElapsedTime(time);
-    const progress = elapsedTime / _duration;
-    return _startX + ((_endX - _startX) * progress);
+  function playBatch(animations: CSSScrollingAnimation[]): void {
+    const statuses: Status[] = [];
+
+    animations.forEach((animation) => {
+      const status = _statuses.get(animation);
+      if (status == null) {
+        throw new Error("Invalid animation.");
+      }
+
+      const { state } = status;
+      if (state !== "idle" && state !== "paused") {
+        throw new Error(`Unexpected state: ${state}.`);
+      }
+
+      statuses.push(status);
+    });
+
+    statuses.forEach((status) => {
+      const { element } = status;
+      element.style.left = "0";
+
+      const currentX = _getCurrentX(status);
+      const transform = `translateX(${currentX}px)`;
+      if (element.style.webkitTransform != null) {
+        element.style.webkitTransform = transform;
+      } else {
+        element.style.transform = transform;
+      }
+    });
+
+    statuses.forEach((status) => {
+      status.element.offsetWidth; // tslint:disable-line:no-unused-expression
+    });
+
+    statuses.forEach((status) => {
+      const {
+        element,
+        duration,
+        endX,
+      } = status;
+
+      const elapsedTime = _getElapsedTime(status);
+      const remainingTime = duration - elapsedTime;
+      const transform = `translateX(${endX}px)`;
+      if (element.style.webkitTransform != null) {
+        element.style.webkitTransition = `-webkit-transform linear ${remainingTime}ms`;
+        element.style.webkitTransform = transform;
+      } else {
+        element.style.transition = `transform linear ${remainingTime}ms`;
+        element.style.transform = transform;
+      }
+
+      if (remainingTime === 0) {
+        setTimeout(() => {
+          _onEnded(status);
+        }, 0);
+      }
+
+      status.startTime = Date.now();
+      status.state = "playing";
+      status.events.emit("playing", null);
+    });
   }
 
-  function play(): Promise<void> {
-    if (_state !== "idle" && _state !== "paused") {
-      return Promise.reject(new Error(`Cannot play the animation because it is ${_state}.`));
-    }
-
-    const oldState = _state;
-    _state = "starting";
-
-    return Promise.resolve()
-      .then(() => {
-        return domOperator.mutate(() => {
-          _element.style.left = "0";
-          const currentX = getX(Date.now());
-          const transform = `translateX(${currentX}px)`;
-          if (_element.style.webkitTransform != null) {
-            _element.style.webkitTransform = transform;
-          } else {
-            _element.style.transform = transform;
-          }
-        });
-      })
-      .then(() => {
-        return domOperator.measure(() => {
-          // tslint:disable-next-line:no-unused-expression
-          _element.offsetLeft;
-        });
-      })
-      .then(() => {
-        return domOperator.mutate(() => {
-          const elapsedTime = getElapsedTime(Date.now());
-          const remainingTime = _duration - elapsedTime;
-          const transform = `translateX(${_endX}px)`;
-          if (_element.style.webkitTransform != null) {
-            _element.style.webkitTransition = `-webkit-transform linear ${remainingTime}ms`;
-            _element.style.webkitTransform = transform;
-          } else {
-            _element.style.transition = `transform linear ${remainingTime}ms`;
-            _element.style.transform = transform;
-          }
-
-          if (remainingTime === 0) {
-            setTimeout(() => {
-              onEnded();
-            }, 0);
-          }
-        });
-      })
-      .then(() => {
-        _startedAt = Date.now();
-        _state = "playing";
-        _events.emit("playing", null);
-      })
-      .catch((e) => {
-        _state = oldState;
-        throw e;
-      });
+  function play(animation: CSSScrollingAnimation): void {
+    playBatch([animation]);
   }
 
-  function pause(): Promise<void> {
-    if (_state !== "playing") {
-      return Promise.reject(new Error(`Cannot pause the animation because it is ${_state}.`));
-    }
+  function pauseBatch(animations: CSSScrollingAnimation[]): void {
+    const statuses: Status[] = [];
 
-    const oldState = _state;
-    _state = "pausing";
+    animations.forEach((animation) => {
+      const status = _statuses.get(animation);
+      if (status == null) {
+        throw new Error("Invalid animation.");
+      }
 
-    return Promise.resolve()
-      .then(() => {
-        return domOperator.mutate(() => {
-          const now = Date.now();
-          const currentX = getX(now);
-          const transform = `translateX(${currentX}px)`;
-          if (_element.style.webkitTransform != null) {
-            _element.style.webkitTransition = "";
-            _element.style.webkitTransform = transform;
-          } else {
-            _element.style.transition = "";
-            _element.style.transform = transform;
-          }
+      const { state } = status;
+      if (state !== "playing") {
+        throw new Error(`Unexpected state: ${state}.`);
+      }
 
-          return now;
-        });
-      })
-      .then((pausedAt: number) => {
-        _elapsedTimeWhenStopped = getElapsedTime(pausedAt);
-        _startedAt = undefined;
-        _state = "paused";
-        _events.emit("paused", null);
-      })
-      .catch((e) => {
-        _state = oldState;
-        throw e;
-      });
+      statuses.push(status);
+    });
+
+    statuses.forEach((status) => {
+      const { element } = status;
+      const currentX = _getCurrentX(status);
+      const transform = `translateX(${currentX}px)`;
+      if (element.style.webkitTransform != null) {
+        element.style.webkitTransition = "";
+        element.style.webkitTransform = transform;
+      } else {
+        element.style.transition = "";
+        element.style.transform = transform;
+      }
+
+      status.elapsedTimeWhenStopped = _getElapsedTime(status);
+      status.startTime = null;
+      status.state = "paused";
+      status.events.emit("paused", null);
+    });
   }
 
-  function destroy(): Promise<void> {
-    if (
-      _state !== "idle" &&
-      _state !== "playing" &&
-      _state !== "paused" &&
-      _state !== "ended"
-    ) {
-      return Promise.reject(new Error(`Cannot destroy the animation because it is ${_state}.`));
-    }
-
-    const oldState = _state;
-    _state = "destroying";
-
-    _element.removeEventListener(transitionEndEventName, onTransitionEnd);
-
-    let promise = Promise.resolve();
-    if (
-      oldState === "playing" ||
-      oldState === "paused" ||
-      oldState === "ended"
-    ) {
-      promise = promise.then(() => {
-        return domOperator.mutate(() => {
-          _element.style.left = _endX + "px";
-          if (_element.style.webkitTransform != null) {
-            _element.style.webkitTransform = "";
-            _element.style.webkitTransition = "";
-          } else {
-            _element.style.transform = "";
-            _element.style.transition = "";
-          }
-        });
-      });
-    }
-
-    return promise
-      .then(() => {
-        _elapsedTimeWhenStopped = 0;
-        _startedAt = undefined;
-        _state = "destroyed";
-        _events.emit("destroyed", null);
-      })
-      .catch((e) => {
-        _state = oldState;
-        throw e;
-      });
+  function pause(animation: CSSScrollingAnimation): void {
+    pauseBatch([animation]);
   }
 
-  function locate(): Promise<number> {
-    if (_state !== "playing" && _state !== "paused") {
-      return Promise.reject(new Error("Cannot locate the animation because it is ${_aState}."));
-    }
+  function destroyBatch(animations: CSSScrollingAnimation[]): void {
+    const statuses: Array<Status | undefined> = [];
 
-    const currentX = getX(Date.now());
-    return Promise.resolve(currentX);
+    animations.forEach((animation, index) => {
+      const status = _statuses.get(animation);
+      if (status == null) {
+        throw new Error("Invalid animation.");
+      }
+
+      const { state } = status;
+      if (
+        state !== "idle" &&
+        state !== "playing" &&
+        state !== "paused"
+      ) {
+        throw new Error(`Unexpected state: ${state}.`);
+      }
+
+      statuses[index] = status;
+    });
+
+    animations.forEach((animation, index) => {
+      const status = statuses[index];
+      if (status == null) {
+        return;
+      }
+
+      const {
+        element,
+        endX,
+        transitionEndEventName,
+        transitionEndEventListener,
+        state,
+      } = status;
+
+      element.removeEventListener(transitionEndEventName, transitionEndEventListener);
+
+      if (state === "playing" || state === "paused") {
+        element.style.left = "0";
+        if (element.style.webkitTransform != null) {
+          element.style.webkitTransform = "";
+          element.style.webkitTransition = "";
+        } else {
+          element.style.transform = "";
+          element.style.transition = "";
+        }
+      }
+
+      status.elapsedTimeWhenStopped = 0;
+      status.startTime = null;
+      status.state = "destroyed";
+      status.events.emit("destroyed", null);
+      _statuses.delete(animation);
+    });
   }
 
-  const animation: CSSScrollingAnimation = {
-    get state() {
-      return _state;
-    },
-    get events() {
-      return _events;
-    },
-    get element() {
-      return _element;
-    },
-    get startX() {
-      return _startX;
-    },
-    get endX() {
-      return _endX;
-    },
-    get duration() {
-      return _duration;
-    },
-    get elapsedTime() {
-      return getElapsedTime(Date.now());
-    },
+  function destroy(animation: CSSScrollingAnimation): void {
+    destroyBatch([animation]);
+  }
+
+  function getCurrentXBatch(animations: CSSScrollingAnimation[]): number[] {
+    const statuses: Status[] = [];
+
+    animations.forEach((animation) => {
+      const status = _statuses.get(animation);
+      if (status == null) {
+        throw new Error("Invalid animation.");
+      }
+
+      const { state } = status;
+      if (state !== "playing" && state !== "paused") {
+        throw new Error(`Unexpected state: ${state}.`);
+      }
+
+      statuses.push(status);
+    });
+
+    const currentXList: number[] = [];
+    statuses.forEach((status) => {
+      const currentX = _getCurrentX(status);
+      currentXList.push(currentX);
+    });
+
+    return currentXList;
+  }
+
+  function getCurrentX(animation: CSSScrollingAnimation): number {
+    return getCurrentXBatch([animation])[0];
+  }
+
+  function getElapsedTimeBatch(animations: CSSScrollingAnimation[]): number[] {
+    const statuses: Status[] = [];
+
+    animations.forEach((animation) => {
+      const status = _statuses.get(animation);
+      if (status == null) {
+        throw new Error("Invalid animation.");
+      }
+
+      const { state } = status;
+      if (
+        state !== "idle" &&
+        state !== "playing" &&
+        state !== "paused"
+      ) {
+        throw new Error(`Unexpected state: ${state}.`);
+      }
+
+      statuses.push(status);
+    });
+
+    const elapsedTimeList: number[] = [];
+    statuses.forEach((status) => {
+      const elapsedTime = _getElapsedTime(status);
+      elapsedTimeList.push(elapsedTime);
+    });
+
+    return elapsedTimeList;
+  }
+
+  function getElapsedTime(animation: CSSScrollingAnimation): number {
+    return getElapsedTimeBatch([animation])[0];
+  }
+
+  const service: CSSScrollingAnimationService = {
+    create,
+    createBatch,
     play,
+    playBatch,
     pause,
-    locate,
+    pauseBatch,
     destroy,
+    destroyBatch,
+    getCurrentX,
+    getCurrentXBatch,
+    getElapsedTime,
+    getElapsedTimeBatch,
   };
 
-  return animation;
+  return service;
 }
 
 export {
-  createCSSScrollingAnimation,
+  createCSSScrollingAnimationService,
 };

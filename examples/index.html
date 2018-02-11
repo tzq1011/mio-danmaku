@@ -10,33 +10,69 @@
   <div id="container" style="position: relative;"></div>
   <script src="../dist/bundle.js"></script>
   <script>
+    const animationService = mio.createCSSScrollingAnimationService();
     const containerElement = document.getElementById("container");
     const animationElement = document.createElement("div");
     animationElement.style.width = "100px";
     animationElement.style.height = "40px";
     animationElement.style.backgroundColor = "orange";
 
-    const animation = mio.createCSSScrollingAnimation({
-      element: animationElement,
-      duration: 3000,
-      startX: 10,
-      endX: 610,
-    });
+    let offsetY = 0;
+    const animationOptionsList = [];
+    for (let i = 0; i < 400; i++) {
+      const element = document.createElement("div");
+      element.appendChild(document.createTextNode("Hello"));
+      element.style.color = "#000";
+      element.style.fontSize = "24px";
+      element.style.textShadow = "0 0 5px white";
+      element.style.top = offsetY + "px";
+      element.style.width = "100px";
+      element.style.height = "30px";
+      element.style.backgroundColor = "orange";
+      offsetY += 40;
+      containerElement.appendChild(element);
 
-    containerElement.appendChild(animationElement);
-    animation.play();
+      const animationOptions = {
+        element,
+        startX: 0,
+        endX: 900 * Math.random(),
+        duration: 3000,
+      };
+
+      animationOptionsList.push(animationOptions);
+    }
+
+    const animations = animationService.createBatch(animationOptionsList);
+
+    const batchOperation = true;
+    function playAll() {
+      batchOperation
+        ? animationService.playBatch(animations)
+        : animations.forEach(animation => animationService.play(animation));
+    }
+
+    function pauseAll() {
+      batchOperation
+        ? animationService.pauseBatch(animations)
+        : animations.forEach(animation => animationService.pause(animation));
+    }
+
+    playAll();
 
     setTimeout(() => {
-      animation.pause();
+      pauseAll();
     }, 1000);
+
     setTimeout(() => {
-      animation.play();
+      playAll();
     }, 2000);
+
     setTimeout(() => {
-      animation.pause();
+      pauseAll();
     }, 3000);
+
     setTimeout(() => {
-      animation.play();
+      playAll();
     }, 4000);
   </script>
 </body>
