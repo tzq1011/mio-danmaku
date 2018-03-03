@@ -7,73 +7,28 @@
   <title>Document</title>
 </head>
 <body>
-  <div id="container" style="position: relative;"></div>
   <script src="../dist/bundle.js"></script>
   <script>
-    const animationService = mio.createCSSScrollingAnimationService();
-    const containerElement = document.getElementById("container");
-    const animationElement = document.createElement("div");
-    animationElement.style.width = "100px";
-    animationElement.style.height = "40px";
-    animationElement.style.backgroundColor = "orange";
+    const stage = { width: 800, height: 600, marginTop: 0, marginBottom: 0 };
+    const renderer = mio.createCSSRenderer({ stage });
+    document.body.appendChild(renderer.stageElement);
+    renderer.run();
 
-    let offsetY = 0;
-    const animationOptionsList = [];
-    for (let i = 0; i < 400; i++) {
-      const element = document.createElement("div");
-      element.appendChild(document.createTextNode("Hello"));
-      element.style.color = "#000";
-      element.style.fontSize = "24px";
-      element.style.textShadow = "0 0 5px white";
-      element.style.top = offsetY + "px";
-      element.style.width = "100px";
-      element.style.height = "30px";
-      element.style.backgroundColor = "orange";
-      offsetY += 40;
-      containerElement.appendChild(element);
-
-      const animationOptions = {
-        element,
-        startX: 0,
-        endX: 900 * Math.random(),
-        duration: 3000,
-      };
-
-      animationOptionsList.push(animationOptions);
+    function schedule() {
+      setTimeout(() => {
+        const comment = mio.createStackingComment({
+          text: "0".repeat(Math.random() * 20),
+        });
+        renderer.renderComment(comment);
+        schedule();
+      }, Math.random() * 1000);
     }
 
-    const animations = animationService.createBatch(animationOptionsList);
+    // setTimeout(() => {
+    //   renderer.pause();
+    // }, 1000);
 
-    const batchOperation = true;
-    function playAll() {
-      batchOperation
-        ? animationService.playBatch(animations)
-        : animations.forEach(animation => animationService.play(animation));
-    }
-
-    function pauseAll() {
-      batchOperation
-        ? animationService.pauseBatch(animations)
-        : animations.forEach(animation => animationService.pause(animation));
-    }
-
-    playAll();
-
-    setTimeout(() => {
-      pauseAll();
-    }, 1000);
-
-    setTimeout(() => {
-      playAll();
-    }, 2000);
-
-    setTimeout(() => {
-      pauseAll();
-    }, 3000);
-
-    setTimeout(() => {
-      playAll();
-    }, 4000);
+    schedule();
   </script>
 </body>
 </html>

@@ -11,7 +11,7 @@ function createEventEmitter<ES extends EventSpecs>(): EventEmitter<ES> {
 
   const listenersMap: ListenersMap = {};
 
-  function on<E extends keyof ES>(event: E, listener: EventListener<ES[E]>): void {
+  function on<E extends keyof ES>(event: E, listener: EventListener<ES[E]>): EventEmitter<ES> {
     let listeners = listenersMap[event];
     if (listeners == null) {
       listeners = [];
@@ -21,23 +21,27 @@ function createEventEmitter<ES extends EventSpecs>(): EventEmitter<ES> {
     if (listeners.indexOf(listener) === -1) {
       listeners.push(listener);
     }
+
+    return emitter;
   }
 
-  function off<E extends keyof ES>(event: E, listener?: EventListener<ES[E]>): void {
+  function off<E extends keyof ES>(event: E, listener?: EventListener<ES[E]>): EventEmitter<ES> {
     const listeners = listenersMap[event];
     if (listeners == null) {
-      return;
+      return emitter;
     }
 
     if (listener == null) {
       listeners.length = 0;
-      return;
+      return emitter;
     }
 
     const index = listeners.indexOf(listener);
     if (index !== -1) {
       listeners.splice(index, 1);
     }
+
+    return emitter;
   }
 
   function emit<E extends keyof ES>(event: E, data: ES[E]): void {

@@ -1,41 +1,43 @@
 import {
   Stage,
-  Block,
   StackingPlan,
   StackingPlanner,
-  StackingPlannerCreationOptions,
-  StackingPlannerCreationOptionsDefault,
+  StackingPlannerOptions,
+  StackingPlannerOptionsDefault,
+  StackingPlanningOptions,
 } from "./types";
 
-const defaultCreationOptions: StackingPlannerCreationOptionsDefault = {
+interface Row {
+  topY: number;
+  bottomY: number;
+}
+
+const defaultOptions: StackingPlannerOptionsDefault = {
   direction: "down",
 };
 
-function createStackingPlanner(options: StackingPlannerCreationOptions): StackingPlanner {
-  interface Row {
-    startY: number;
-    endY: number;
-  }
-
+function createStackingPlanner(options: StackingPlannerOptions): StackingPlanner {
   const finalOptions = {
-    ...defaultCreationOptions,
+    ...defaultOptions,
     ...options,
   };
 
   const _cols: Row[][] = [];
-  const _direction = finalOptions.direction;
+  const _direction: ("up" | "down") = finalOptions.direction;
   let _stage: Stage = finalOptions.stage;
 
-  function plan(block: Block): StackingPlan {
-    const stageBodyStartY: number = _stage.margin.top;
-    const stageBodyEndY: number = _stage.height - _stage.margin.bottom;
-    const stageBodyHeight: number = stageBodyEndY - stageBodyStartY;
+  function plan(opts: StackingPlanningOptions): StackingPlan {
+    const blockHeight = opts.blockHeight;
+    const stageBodyTopY: number = _stage.marginTop;
+    const stageBodyBottomY: number = _stage.height - _stage.marginBottom;
+    const stageBodyHeight: number = stageBodyBottomY - stageBodyTopY;
 
-    let startY: number;
-    let endY: number;
-    let onEnded: () => void;
+    let topY: number | undefined;
+    let bottomY: number | undefined;
+    let isEnded: boolean = false;
+    let end: (() => void) | undefined;
+    let colIndex: number = 0;
 
-    let colIndex = 0;
     do {
       if (colIndex === _cols.length) {
         _cols.push([]);
@@ -43,61 +45,126 @@ function createStackingPlanner(options: StackingPlannerCreationOptions): Stackin
 
       const rows = _cols[colIndex];
       let newRowIndex: number | undefined;
-      startY = stageBodyStartY;
 
-      if (block.height >= stageBodyHeight) {
+      if (blockHeight >= stageBodyHeight) {
         if (rows.length === 0) {
           newRowIndex = 0;
         }
       } else {
-        for (let rowIndex = 0; rowIndex < rows.length; rowIndex++) {
-          const row = rows[rowIndex];
-          if (row.startY > stageBodyEndY) {
-            break;
+        if (_direction === "up") {
+          bottomY = stageBodyBottomY;
+
+          for (let rowIndex = rows.length - 1; rowIndex > -1; rowIndex--) {
+            const row = rows[rowIndex];
+
+            if (row.bottomY <= stageBodyTopY) {
+              break;
+            }
+
+            if ((bottomY - row.bottomY) >= blockHeight) {
+              newRowIndex = rowIndex + 1;
+              break;
+            }
+
+            bottomY = row.topY;
           }
 
-          if ((row.startY - startY) >= block.height) {
-            newRowIndex = rowIndex;
-            break;
+          if (
+            newRowIndex == null &&
+            (bottomY - stageBodyTopY) >= blockHeight
+          ) {
+            newRowIndex = 0;
+          }
+        } else if (_direction === "down") {
+          topY = stageBodyTopY;
+
+          for (let rowIndex = 0; rowIndex < rows.length; rowIndex++) {
+            const row = rows[rowIndex];
+
+            if (row.topY >= stageBodyBottomY) {
+              break;
+            }
+
+            if ((row.topY - topY) >= blockHeight) {
+              newRowIndex = rowIndex;
+              break;
+            }
+
+            topY = row.bottomY;
           }
 
-          startY = row.endY;
+          if (
+            newRowIndex == null &&
+            (stageBodyBottomY - topY) >= blockHeight
+          ) {
+            newRowIndex = rows.length;
+          }
+        }
+      }
+
+      if (newRowIndex != null) {
+        if (_direction === "up") {
+          if (bottomY == null) {
+            throw new Error("BottomY not found.");
+          }
+
+          topY = bottomY - blockHeight;
+        } else if (_direction === "down") {
+          if (topY == null) {
+            throw new Error("TopY not found.");
+          }
+
+          bottomY = topY + blockHeight;
+        } else {
+          throw new Error(`Unexpected direction: ${_direction}`);
         }
 
-        if (
-          newRowIndex == null &&
-          (stageBodyEndY - startY) >= block.height
-        ) {
-          newRowIndex = rows.length;
-        }
+        const newRow = { topY, bottomY };
+        rows.splice(newRowIndex, 0, newRow);
 
-        if (newRowIndex != null) {
-          endY = startY + block.height;
-          const newRow = { startY, endY };
-          rows.splice(newRowIndex, 0, newRow);
+        end = () => {
+          if (isEnded) {
+            return;
+          }
 
-          onEnded = () => {
-            const foundNewRowIndex = rows.indexOf(newRow);
-            rows.splice(foundNewRowIndex, 1);
-          };
+          const rowIndex = rows.indexOf(newRow);
+          rows.splice(rowIndex, 1);
+          isEnded = true;
+        };
 
-          break;
-        }
+        break;
       }
 
       colIndex++;
     } while (true);
 
-    if (_direction === "up") {
-      const stageMarginDiff = _stage.margin.top - _stage.margin.bottom;
-      startY = _stage.height - endY + stageMarginDiff;
-      endY = _stage.height - startY + stageMarginDiff;
+    if (
+      topY == null ||
+      bottomY == null ||
+      end == null
+    ) {
+      throw new Error("Unexpected results.");
     }
 
     const stackingPlan: StackingPlan = {
-      startY,
-      endY,
-      onEnded,
+      get topY() {
+        if (topY == null) {
+          throw new Error("TopY not found.");
+        }
+
+        return topY;
+      },
+      get bottomY() {
+        if (bottomY == null) {
+          throw new Error("BottomY not found.");
+        }
+
+        return bottomY;
+      },
+      get isEnded() {
+        return isEnded;
+      },
+      end,
     };
 
     return stackingPlan;

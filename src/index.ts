@@ -1,5 +1,12 @@
-import { createCSSScrollingAnimationService } from "./css-scrolling-animation";
+import {
+  createStackingComment,
+  createScrollingComment,
+} from "./comment-creators";
+
+import { createCSSRenderer } from "./css-renderer";
 
 (window as any).mio = {
-  createCSSScrollingAnimationService,
+  createStackingComment,
+  createScrollingComment,
+  createCSSRenderer,
 };

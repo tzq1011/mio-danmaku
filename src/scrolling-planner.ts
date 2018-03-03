@@ -1,49 +1,53 @@
 import {
   Stage,
-  Block,
   ScrollingPlan,
   ScrollingPlanner,
-  ScrollingPlannerCreationOptions,
-  ScrollingPlannerCreationOptionsDefault,
+  ScrollingPlannerOptions,
+  ScrollingPlannerOptionsDefault,
+  ScrollingPlanningOptions,
 } from "./types";
 
-const defaultCreationOptions: ScrollingPlannerCreationOptionsDefault = {
+const defaultOptions: ScrollingPlannerOptionsDefault = {
   direction: "left",
   basicSpeed: 120,
-  extraSpeedPerPixel: 2,
+  extraSpeedPerPixel: 0.2,
 };
 
-function createScrollingPlanner(options: ScrollingPlannerCreationOptions): ScrollingPlanner {
+function createScrollingPlanner(options: ScrollingPlannerOptions): ScrollingPlanner {
   const finalOptions = {
-    ...defaultCreationOptions,
+    ...defaultOptions,
     ...options,
   };
 
-  const _direction = finalOptions.direction;
+  const _direction: ("left" | "right") = finalOptions.direction;
   let _stage: Stage = finalOptions.stage;
   let _basicSpeed: number = finalOptions.basicSpeed;
   let _extraSpeedPerPixel: number = finalOptions.extraSpeedPerPixel;
 
-  function plan(block: Block): ScrollingPlan {
-    const extraSpeed: number = _extraSpeedPerPixel * block.width;
-    const finalSpeed: number = _basicSpeed + extraSpeed;
+  function plan(opts: ScrollingPlanningOptions): ScrollingPlan {
+    const blockWidth = opts.blockWidth;
+    let fromX: number;
+    let toX: number;
 
-    let startX: number;
-    let endX: number;
     if (_direction === "left") {
-      startX = _stage.width;
-      endX = -block.width;
+      fromX = _stage.width;
+      toX = -blockWidth;
+    } else if (_direction === "right") {
+      fromX = -blockWidth;
+      toX = _stage.width;
     } else {
-      startX = -block.width;
-      endX = _stage.width;
+      throw new Error(`Unexpected direction: ${_direction}`);
     }
 
-    const distance: number = _stage.width + block.width;
-    const duration: number = distance / finalSpeed * 1000;
+    const distance: number = _stage.width + blockWidth;
+    const extraSpeed: number = _extraSpeedPerPixel * blockWidth;
+    const speed: number = _basicSpeed + extraSpeed;
+    const duration: number = distance / speed * 1000;
 
     const scrollingPlan: ScrollingPlan = {
-      startX,
-      endX,
+      fromX,
+      toX,
+      speed,
       duration,
     };
 

@@ -2,94 +2,95 @@ import {
   Timer,
   TimerState,
   TimerEvents,
-  TimerCreationOptions,
+  TimerOptions,
+  EventEmitter,
 } from "./types";
 
 import { createEventEmitter } from "./event-emitter";
 
-function createTimer(options: TimerCreationOptions): Timer {
+function createTimer(options: TimerOptions): Timer {
   const _duration = options.duration;
-  const _events = createEventEmitter<TimerEvents>();
+  const _events: EventEmitter<TimerEvents> = createEventEmitter();
 
   let _state: TimerState = "idle";
   let _timerId: number | undefined;
-  let _startedAt: number | undefined;
+  let _timeWhenRunning: number | undefined;
   let _elapsedTimeWhenStopped: number = 0;
 
-  function getElapsedTime(): number {
+  function _getElapsedTime(): number {
     let elapsedTime: number = _elapsedTimeWhenStopped;
-    if (_startedAt != null) {
-      elapsedTime += Date.now() - _startedAt;
+    if (_timeWhenRunning != null) {
+      elapsedTime += Date.now() - _timeWhenRunning;
     }
 
-    elapsedTime = Math.min(elapsedTime, _duration);
-    return elapsedTime;
+    return Math.min(elapsedTime, _duration);
   }
 
-  function onEnded() {
+  function _onFinished() {
     if (_state !== "running") {
       return;
     }
 
     _elapsedTimeWhenStopped = _duration;
-    _startedAt = undefined;
+    _timeWhenRunning = undefined;
     _timerId = undefined;
-    _state = "ended";
+    _state = "finished";
+    _events.emit("finished", null);
     _events.emit("ended", null);
   }
 
   function run(): void {
     if (_state !== "idle" && _state !== "paused") {
-      throw new Error(`Cannot run the timer because it is ${_state}`);
+      throw new Error(`Unexpected state: ${_state}.`);
     }
 
-    const elapsedTime = getElapsedTime();
+    const elapsedTime = _getElapsedTime();
     const remainingTime = _duration - elapsedTime;
-    _timerId = setTimeout(onEnded, remainingTime);
-    _startedAt = Date.now();
+    _timerId = setTimeout(_onFinished, remainingTime);
+    _timeWhenRunning = Date.now();
     _state = "running";
     _events.emit("running", null);
   }
 
   function pause(): void {
     if (_state !== "running") {
-      throw new Error(`Cannot pause the timer because it is ${_state}`);
+      throw new Error(`Unexpected state: ${_state}.`);
     }
 
     if (_timerId == null) {
-      throw new Error("_timerId is undefined.");
+      throw new Error("TimerId not found.");
     }
 
     clearTimeout(_timerId);
     _timerId = undefined;
-    _elapsedTimeWhenStopped = getElapsedTime();
-    _startedAt = undefined;
+    _elapsedTimeWhenStopped = _getElapsedTime();
+    _timeWhenRunning = undefined;
     _state = "paused";
     _events.emit("paused", null);
   }
 
-  function destroy(): void {
+  function cancel(): void {
     if (
-      _state !== "idle" &&
       _state !== "running" &&
       _state !== "paused"
     ) {
-      throw new Error(`Cannot destroy the timer because it is ${_state}`);
+      throw new Error(`Unexpected state: ${_state}.`);
     }
 
     if (_state === "running") {
       if (_timerId == null) {
-        throw new Error("_timerId is undefined.");
+        throw new Error("TimerId not found.");
       }
 
       clearTimeout(_timerId);
       _timerId = undefined;
     }
 
-    _elapsedTimeWhenStopped = 0;
-    _startedAt = undefined;
-    _state = "destroyed";
-    _events.emit("destroyed", null);
+    _elapsedTimeWhenStopped = _getElapsedTime();
+    _timeWhenRunning = undefined;
+    _state = "canceled";
+    _events.emit("canceled", null);
+    _events.emit("ended", null);
   }
 
   const timer: Timer = {
@@ -103,11 +104,11 @@ function createTimer(options: TimerCreationOptions): Timer {
       return _duration;
     },
     get elapsedTime() {
-      return getElapsedTime();
+      return _getElapsedTime();
     },
     run,
     pause,
-    destroy,
+    cancel,
   };
 
   return timer;
