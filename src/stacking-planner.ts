@@ -34,8 +34,8 @@ function createStackingPlanner(options: StackingPlannerOptions): StackingPlanner
 
     let topY: number | undefined;
     let bottomY: number | undefined;
-    let isEnded: boolean = false;
-    let end: (() => void) | undefined;
+    let isCanceled: boolean = false;
+    let cancel: (() => void) | undefined;
     let colIndex: number = 0;
 
     do {
@@ -122,14 +122,14 @@ function createStackingPlanner(options: StackingPlannerOptions): StackingPlanner
         const newRow = { topY, bottomY };
         rows.splice(newRowIndex, 0, newRow);
 
-        end = () => {
-          if (isEnded) {
+        cancel = () => {
+          if (isCanceled) {
             return;
           }
 
           const rowIndex = rows.indexOf(newRow);
           rows.splice(rowIndex, 1);
-          isEnded = true;
+          isCanceled = true;
         };
 
         break;
@@ -141,7 +141,7 @@ function createStackingPlanner(options: StackingPlannerOptions): StackingPlanner
     if (
       topY == null ||
       bottomY == null ||
-      end == null
+      cancel == null
     ) {
       throw new Error("Unexpected results.");
     }
@@ -161,10 +161,10 @@ function createStackingPlanner(options: StackingPlannerOptions): StackingPlanner
 
         return bottomY;
       },
-      get isEnded() {
-        return isEnded;
+      get isCanceled() {
+        return isCanceled;
       },
-      end,
+      cancel,
     };
 
     return stackingPlan;

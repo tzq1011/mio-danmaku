@@ -166,6 +166,15 @@ type PositioningCommentOptionsDefault =
   & CommentPositionTraitOptionsDefault
   & CommentLifetimeTraitOptionsDefault;
 
+interface CommentPool {
+  load(comments: Comment[]): void;
+  add(comment: Comment): void;
+  has(comment: Comment): void;
+  remove(comment: Comment): void;
+  clear(): void;
+  getByTime(startTime: number, endTime: number): Comment[];
+}
+
 interface Stage {
   width: number;
   height: number;
@@ -173,10 +182,29 @@ interface Stage {
   marginBottom: number;
 }
 
-interface Block {
-  width: number;
-  height: number;
-}
+type StageOptions =
+  PartialDeep<
+    Pick<
+      Stage,
+      (
+        | "width"
+        | "height"
+        | "marginTop"
+        | "marginBottom"
+      )
+    >
+  >;
+
+type StageOptionsDefault =
+  Pick<
+    Stage,
+    (
+      | "width"
+      | "height"
+      | "marginTop"
+      | "marginBottom"
+    )
+  >;
 
 interface StackingPlanningOptions {
   blockHeight: number;
@@ -185,8 +213,8 @@ interface StackingPlanningOptions {
 interface StackingPlan {
   readonly topY: number;
   readonly bottomY: number;
-  readonly isEnded: boolean;
-  end(): void;
+  readonly isCanceled: boolean;
+  cancel(): void;
 }
 
 interface StackingPlanner {
@@ -248,6 +276,11 @@ type ScrollingPlannerOptionsDefault =
     )
   >;
 
+interface Dimensions {
+  width: number;
+  height: number;
+}
+
 interface Position {
   x: number;
   y: number;
@@ -255,8 +288,7 @@ interface Position {
 
 interface CommentView {
   readonly isDestroyed: boolean;
-  readonly width: number;
-  readonly height: number;
+  measure(): Dimensions;
   locate(): Position;
   destroy(): void;
 }
@@ -270,17 +302,36 @@ type RendererEvents = {
   idle: null,
   running: null,
   paused: null,
+};
+
+interface RendererStackingPlanners {
+  readonly up: StackingPlanner,
+  readonly down: StackingPlanner,
+  readonly upScrolling: StackingPlanner,
+  readonly downScrolling: StackingPlanner,
+}
+
+interface RendererScrollingPlanners {
+  readonly left: ScrollingPlanner,
+  readonly right: ScrollingPlanner,
 }
 
 interface Renderer {
+  readonly events: EventEmitter<RendererEvents>;
   readonly state: RendererState;
   readonly stage: Stage;
   readonly stageElement: HTMLElement;
-  readonly events: EventEmitter<RendererEvents>;
+  readonly stackingPlanners: RendererStackingPlanners;
+  readonly scrollingPlanners: RendererScrollingPlanners;
   run(): void;
   pause(): void;
   stop(): void;
+  setStage(stage: Stage): void;
   renderComment(comment: Comment): CommentView;
+  unrenderComment(comment: Comment): void;
+  isCommentRendering(comment: Comment): boolean;
+  getRenderingComments(): Comment[];
+  getCommentView(comment: Comment): CommentView | null;
 }
 
 type RendererOptions = Pick<Renderer, "stage">;
@@ -406,7 +457,10 @@ export {
   PositioningComment,
   PositioningCommentOptions,
   PositioningCommentOptionsDefault,
+  CommentPool,
   Stage,
+  StageOptions,
+  StageOptionsDefault,
   StackingPlanningOptions,
   StackingPlan,
   StackingPlanner,
@@ -417,10 +471,13 @@ export {
   ScrollingPlanner,
   ScrollingPlannerOptions,
   ScrollingPlannerOptionsDefault,
+  Dimensions,
   Position,
   CommentView,
   RendererState,
   RendererEvents,
+  RendererStackingPlanners,
+  RendererScrollingPlanners,
   Renderer,
   RendererOptions,
   DOMOperation,

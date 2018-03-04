@@ -3,12 +3,15 @@ import {
   Stage,
   Comment,
   CommentView,
+  Dimensions,
   Position,
   StackingPlan,
   ScrollingPlan,
   EventEmitter,
   RendererState,
   RendererEvents,
+  RendererStackingPlanners,
+  RendererScrollingPlanners,
   CSSRenderer,
   CSSRendererOptions,
   CSSScrollingAnimation,
@@ -36,14 +39,15 @@ import domOperator from "./dom-operator";
 type CommentRenderingState =
   | "running"
   | "paused"
-  | "ended";
+  | "canceled"
+  | "finished";
 
 interface CommentRenderingProcess {
-  readonly view: CommentView;
   readonly state: CommentRenderingState;
+  readonly view: CommentView;
   pause: () => void;
   resume: () => void;
-  end: (isFinished?: boolean) => void;
+  cancel: () => void;
 }
 
 function createCSSRenderer(options: CSSRendererOptions): CSSRenderer {
@@ -60,23 +64,27 @@ function createCSSRenderer(options: CSSRendererOptions): CSSRenderer {
   _stageElement.style.pointerEvents = "none";
 
   (_stageElement.style as any).MozUserSelect = "none";
-  _stageElement.style.msUserSelect = "none";
   _stageElement.style.webkitUserSelect = "none";
+  _stageElement.style.msUserSelect = "none";
   _stageElement.style.userSelect = "none";
 
-  const _stackingPlanners = {
+  const _stackingPlanners: RendererStackingPlanners = {
     up: createStackingPlanner({ stage: _stage, direction: "up" }),
     down: createStackingPlanner({ stage: _stage, direction: "down" }),
     upScrolling: createStackingPlanner({ stage: _stage, direction: "up" }),
     downScrolling: createStackingPlanner({ stage: _stage, direction: "down" }),
   };
 
-  const _scrollingPlanners = {
+  Object.freeze(_stackingPlanners);
+
+  const _scrollingPlanners: RendererScrollingPlanners = {
     left: createScrollingPlanner({ stage: _stage, direction: "left" }),
     right: createScrollingPlanner({ stage: _stage, direction: "right" }),
   };
 
-  const _commentRenderingProcessMap: Map<Comment, CommentRenderingProcess> = new Map();
+  Object.freeze(_scrollingPlanners);
+
+  const _commentRenderingProcesses: Map<Comment, CommentRenderingProcess> = new Map();
 
   function run(): void {
     if (_state !== "idle" && _state !== "paused") {
@@ -85,7 +93,7 @@ function createCSSRenderer(options: CSSRendererOptions): CSSRenderer {
 
     _stageElement.style.display = "block";
 
-    _commentRenderingProcessMap.forEach((process) => {
+    _commentRenderingProcesses.forEach((process) => {
       if (process.state === "paused") {
         process.resume();
       }
@@ -100,7 +108,7 @@ function createCSSRenderer(options: CSSRendererOptions): CSSRenderer {
       throw new Error(`Unexpected state: ${_state}`);
     }
 
-    _commentRenderingProcessMap.forEach((process) => {
+    _commentRenderingProcesses.forEach((process) => {
       if (process.state === "running") {
         process.pause();
       }
@@ -111,37 +119,23 @@ function createCSSRenderer(options: CSSRendererOptions): CSSRenderer {
   }
 
   function stop(): void {
-    if (
-      _state !== "idle" &&
-      _state !== "running" &&
-      _state !== "paused"
-    ) {
+    if (_state !== "running" && _state !== "paused") {
       throw new Error(`Unexpected state: ${_state}`);
     }
 
-    if (_state === "running" || _state === "paused") {
-      _commentRenderingProcessMap.forEach((process) => {
-        if (process.state !== "ended") {
-          process.end();
-        }
-      });
+    _commentRenderingProcesses.forEach((process) => {
+      if (process.state === "running" || process.state === "paused") {
+        process.cancel();
+      }
+    });
 
-      _stageElement.style.display = "none";
-    }
+    _stageElement.style.display = "none";
 
     _state = "idle";
     _events.emit("idle", null);
   }
 
   function setStage(stage: Stage): void {
-    if (
-      _state !== "idle" &&
-      _state !== "running" &&
-      _state !== "paused"
-    ) {
-      throw new Error(`Unexpected state: ${_state}`);
-    }
-
     _stackingPlanners.up.setStage(stage);
     _stackingPlanners.down.setStage(stage);
     _stackingPlanners.upScrolling.setStage(stage);
@@ -158,12 +152,13 @@ function createCSSRenderer(options: CSSRendererOptions): CSSRenderer {
       throw new Error(`Unexpected state: ${_state}`);
     }
 
-    const workingProcess = _commentRenderingProcessMap.get(comment);
-    if (workingProcess != null) {
-      return workingProcess.view;
+    const existingProcess = _commentRenderingProcesses.get(comment);
+    if (existingProcess != null) {
+      return existingProcess.view;
     }
 
     const element = document.createElement("div");
+    element.style.visibility = "hidden";
     element.style.position = "absolute";
     element.style.display = "inline-block";
     element.style.opacity = String(comment.opacity);
@@ -254,17 +249,38 @@ function createCSSRenderer(options: CSSRendererOptions): CSSRenderer {
       }
 
       if (hasCommentHorizontalAlignmentTrait(comment)) {
-        positionX = (_stage.width / 2) - (width / 2);
+        const alignment: ("left" | "center" | "right") = comment.horizontalAlignment;
+
+        if (alignment === "left") {
+          positionX = 0;
+        } else if (alignment === "center") {
+          positionX = (_stage.width / 2) - (width / 2);
+        } else if (alignment === "right") {
+          positionX = _stage.width - width;
+        } else {
+          throw new Error(`Unexpected alignment: ${alignment}`);
+        }
       }
 
       if (hasCommentVerticalAlignmentTrait(comment)) {
-        positionY = (_stage.height / 2) - (height / 2);
+        const alignment: ("top" | "middle" | "bottom") = comment.verticalAlignment;
+
+        if (alignment === "top") {
+          positionY = _stage.marginTop;
+        } else if (alignment === "middle") {
+          const stageBodyHeight: number = _stage.height - _stage.marginTop - _stage.marginBottom;
+          positionY = _stage.marginTop + (stageBodyHeight / 2) - (height / 2);
+        } else if (alignment === "bottom") {
+          positionY = _stage.height - _stage.marginBottom - height;
+        } else {
+          throw new Error(`Unexpected alignment: ${alignment}`);
+        }
       }
 
       if (hasCommentStackingTrait(comment)) {
-        const isScrolling = hasCommentScrollingTrait(comment);
         const direction: ("up" | "down") = comment.stackingDirection;
-        let plannerKey: keyof typeof _stackingPlanners;
+        const isScrolling = hasCommentScrollingTrait(comment);
+        let plannerKey: keyof RendererStackingPlanners;
 
         if (direction === "up") {
           plannerKey = isScrolling ? "upScrolling" : "up";
@@ -281,7 +297,7 @@ function createCSSRenderer(options: CSSRendererOptions): CSSRenderer {
 
       if (hasCommentScrollingTrait(comment)) {
         const direction: ("left" | "right") = comment.scrollingDirection;
-        let plannerKey: keyof typeof _scrollingPlanners;
+        let plannerKey: keyof RendererScrollingPlanners;
 
         if (direction === "left") {
           plannerKey = "left";
@@ -338,40 +354,42 @@ function createCSSRenderer(options: CSSRendererOptions): CSSRenderer {
         });
 
         if (stackingPlan != null) {
-          const inboundTime = width / scrollingPlan.speed * 1000;
-          const inboundTimer = createTimer({ duration: inboundTime });
+          const cancellationTime = (width / scrollingPlan.speed * 1000) + 100;
+          const cancellationTimer = createTimer({ duration: cancellationTime });
 
-          inboundTimer.events
+          cancellationTimer.events
             .on("ended", () => {
-              if (stackingPlan != null && !stackingPlan.isEnded) {
-                stackingPlan.end();
+              if (stackingPlan != null && !stackingPlan.isCanceled) {
+                stackingPlan.cancel();
               }
             });
 
           tmpScrollingAnimation.events
             .on("runningStrict", () => {
-              if (inboundTimer.state === "idle" || inboundTimer.state === "paused") {
-                inboundTimer.run();
+              if (cancellationTimer.state === "idle" || cancellationTimer.state === "paused") {
+                cancellationTimer.run();
               }
             })
             .on("paused", () => {
-              if (inboundTimer.state === "running") {
-                inboundTimer.pause();
+              if (cancellationTimer.state === "running") {
+                cancellationTimer.pause();
               }
             })
             .on("ended", () => {
-              if (inboundTimer.state === "running" || inboundTimer.state === "paused") {
-                inboundTimer.cancel();
-              }
-
-              if (tmpScrollingAnimation.state === "finished") {
-                process.end(true);
+              if (cancellationTimer.state === "running" || cancellationTimer.state === "paused") {
+                cancellationTimer.cancel();
               }
             });
 
           tmpScrollingAnimation.run();
           scrollingAnimation = tmpScrollingAnimation;
         }
+
+        tmpScrollingAnimation.events.on("ended", () => {
+          if (tmpScrollingAnimation.state === "finished") {
+            endRendering(true);
+          }
+        });
       }
 
       if (hasCommentLifetimeTrait(comment) && !hasCommentScrollingTrait(comment)) {
@@ -379,12 +397,12 @@ function createCSSRenderer(options: CSSRendererOptions): CSSRenderer {
 
         tmpLifetimeTimer.events
           .on("ended", () => {
-            if (stackingPlan != null && !stackingPlan.isEnded) {
-              stackingPlan.end();
+            if (stackingPlan != null && !stackingPlan.isCanceled) {
+              stackingPlan.cancel();
             }
 
             if (tmpLifetimeTimer.state === "finished") {
-              process.end(true);
+              endRendering(true);
             }
           });
 
@@ -418,32 +436,29 @@ function createCSSRenderer(options: CSSRendererOptions): CSSRenderer {
     let isAnimationPaused: boolean = false;
 
     const view: CommentView = {
-      get isDestroyed() {
-        return renderingState === "ended";
+      get isDestroyed(): boolean {
+        return renderingState === "canceled" || renderingState === "finished";
       },
-      get width() {
+      measure(): Dimensions {
+        if (view.isDestroyed) {
+          throw new Error("CommentView is destroyed.");
+        }
+
         if (!isMeasured) {
           measure();
         }
 
-        if (width == null) {
-          throw new Error("Width not found.");
+        if (width == null || height == null) {
+          throw new Error("Invalid dimensions.");
         }
 
-        return width;
-      },
-      get height() {
-        if (!isMeasured) {
-          measure();
-        }
-
-        if (height == null) {
-          throw new Error("Height not found.");
-        }
-
-        return height;
+        return { width, height };
       },
       locate(): Position {
+        if (view.isDestroyed) {
+          throw new Error("CommentView is destroyed.");
+        }
+
         if (!isArranged) {
           arrange();
         }
@@ -458,16 +473,59 @@ function createCSSRenderer(options: CSSRendererOptions): CSSRenderer {
         return { x, y };
       },
       destroy(): void {
-        process.end();
+        if (view.isDestroyed) {
+          throw new Error("CommentView is destroyed.");
+        }
+
+        process.cancel();
       },
     };
 
+    function endRendering(isFinished: boolean): void {
+      if (renderingState !== "running" && renderingState !== "paused") {
+        throw new Error(`Unexpected state: ${renderingState}`);
+      }
+
+      if (isMeasurementScheduled) {
+        cancelMeasurement();
+      }
+
+      if (animationCanceler != null) {
+        animationCanceler();
+      }
+
+      if (
+        scrollingAnimation != null &&
+        (scrollingAnimation.state === "running" || scrollingAnimation.state === "paused")
+      ) {
+        scrollingAnimation.cancel();
+      }
+
+      if (
+        lifetimeTimer != null &&
+        (lifetimeTimer.state === "running" || lifetimeTimer.state === "paused")
+      ) {
+        lifetimeTimer.cancel();
+      }
+
+      _stageElement.removeChild(element);
+      _commentRenderingProcesses.delete(comment);
+
+      if (isFinished) {
+        renderingState = "finished";
+        comment.events.emit("renderingFinished", null);
+      } else {
+        renderingState = "canceled";
+        comment.events.emit("renderingCanceled", null);
+      }
+    }
+
     const process: CommentRenderingProcess = {
-      get view() {
-        return view;
-      },
       get state() {
         return renderingState;
+      },
+      get view() {
+        return view;
       },
       pause(): void {
         if (renderingState !== "running") {
@@ -517,45 +575,45 @@ function createCSSRenderer(options: CSSRendererOptions): CSSRenderer {
 
         renderingState = "running";
       },
-      end(isFinished: boolean = false): void {
-        if (renderingState !== "running" && renderingState !== "paused") {
-          throw new Error(`Unexpected state: ${renderingState}`);
-        }
-
-        if (isMeasurementScheduled) {
-          cancelMeasurement();
-        }
-
-        if (animationCanceler != null) {
-          animationCanceler();
-        }
-
-        if (
-          scrollingAnimation != null &&
-          (scrollingAnimation.state === "running" || scrollingAnimation.state === "paused")
-        ) {
-          scrollingAnimation.cancel();
-        }
-
-        if (
-          lifetimeTimer != null &&
-          (lifetimeTimer.state === "running" || lifetimeTimer.state === "paused")
-        ) {
-          lifetimeTimer.cancel();
-        }
-
-        _stageElement.removeChild(element);
-        renderingState = "ended";
-        _commentRenderingProcessMap.delete(comment);
+      cancel(): void {
+        endRendering(false);
       },
     };
 
-    _commentRenderingProcessMap.set(comment, process);
+    _commentRenderingProcesses.set(comment, process);
     scheduleMeasurement();
+    comment.events.emit("rendering", null);
     return view;
   }
 
+  function unrenderComment(comment: Comment): void {
+    const process = _commentRenderingProcesses.get(comment);
+    if (process != null) {
+      process.cancel();
+    }
+  }
+
+  function isCommentRendering(comment: Comment): boolean {
+    return _commentRenderingProcesses.has(comment);
+  }
+
+  function getRenderingComments(): Comment[] {
+    return [..._commentRenderingProcesses.keys()];
+  }
+
+  function getCommentView(comment: Comment): CommentView | null {
+    const process = _commentRenderingProcesses.get(comment);
+    if (process == null) {
+      return null;
+    }
+
+    return process.view;
+  }
+
   const renderer: CSSRenderer = {
+    get events() {
+      return _events;
+    },
     get state() {
       return _state;
     },
@@ -565,13 +623,21 @@ function createCSSRenderer(options: CSSRendererOptions): CSSRenderer {
     get stageElement() {
       return _stageElement;
     },
-    get events() {
-      return _events;
+    get stackingPlanners() {
+      return _stackingPlanners;
+    },
+    get scrollingPlanners() {
+      return _scrollingPlanners;
     },
     run,
     pause,
     stop,
+    setStage,
     renderComment,
+    unrenderComment,
+    isCommentRendering,
+    getRenderingComments,
+    getCommentView,
   };
 
   return renderer;

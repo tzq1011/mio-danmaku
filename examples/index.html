@@ -12,23 +12,40 @@
     const stage = { width: 800, height: 600, marginTop: 0, marginBottom: 0 };
     const renderer = mio.createCSSRenderer({ stage });
     document.body.appendChild(renderer.stageElement);
-    renderer.run();
+
+    let timerId;
 
     function schedule() {
-      setTimeout(() => {
-        const comment = mio.createStackingComment({
+      timerId = setTimeout(() => {
+        const comemntFoo = mio.createStackingComment({
           text: "0".repeat(Math.random() * 20),
         });
-        renderer.renderComment(comment);
+
+        renderer.renderComment(comemntFoo);
+
+        const commentBar = mio.createScrollingComment({
+          text: "1".repeat(Math.random() * 20),
+        });
+
+        renderer.renderComment(commentBar);
+
         schedule();
       }, Math.random() * 1000);
     }
 
-    // setTimeout(() => {
-    //   renderer.pause();
-    // }, 1000);
+    function cancel() {
+      if (timerId != null) {
+        clearTimeout(timerId);
+      }
+    }
 
-    schedule();
+    renderer.events
+      .on("running", () => schedule())
+      .on("paused", () => cancel())
+      .on("idle", () => cancel());
+
+    renderer.run();
+
   </script>
 </body>
 </html>
