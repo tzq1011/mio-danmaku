@@ -26,6 +26,7 @@ interface Comment {
   readonly events: EventEmitter<CommentEvents>;
   readonly time: number;
   readonly opacity: number;
+  readonly instanceId: string;
 }
 
 type CommentOptionsDefault =
@@ -166,13 +167,31 @@ type PositioningCommentOptionsDefault =
   & CommentPositionTraitOptionsDefault
   & CommentLifetimeTraitOptionsDefault;
 
+type CommentFilter = (comment: Comment) => boolean;
+
+type CommentPoolEvents = {
+  loaded: { comments: Comment[] };
+  added: { index: number, comment: Comment },
+  removed: { index: number, comment: Comment },
+  cleared: { comments: Comment[] },
+  filterAdded: { filter: CommentFilter },
+  filterRemoved: { filter: CommentFilter },
+}
+
 interface CommentPool {
+  readonly events: EventEmitter<CommentPoolEvents>;
+  readonly comments: ReadonlyArray<Comment>;
+  readonly filters: ReadonlyArray<CommentFilter>;
   load(comments: Comment[]): void;
   add(comment: Comment): void;
   has(comment: Comment): void;
-  remove(comment: Comment): void;
+  remove(comment: Comment): boolean;
   clear(): void;
   getByTime(startTime: number, endTime: number): Comment[];
+  addFilter(filter: CommentFilter): void;
+  hasFilter(filter: CommentFilter): boolean;
+  removeFilter(filter: CommentFilter): boolean;
+  clearFilters(): void;
 }
 
 interface Stage {
@@ -457,6 +476,8 @@ export {
   PositioningComment,
   PositioningCommentOptions,
   PositioningCommentOptionsDefault,
+  CommentFilter,
+  CommentPoolEvents,
   CommentPool,
   Stage,
   StageOptions,

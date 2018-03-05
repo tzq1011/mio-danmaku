@@ -40,6 +40,7 @@ import {
 } from "./types";
 
 import merge from "lodash/merge";
+import uniqueId from "lodash/uniqueId";
 import mixin from "./utils/mixin";
 import { createEventEmitter } from "./event-emitter";
 
@@ -88,9 +89,11 @@ const defaultOptions: {
 
 function createComment(options: CommentOptions = {}): Comment {
   const finalOptions = merge({}, defaultOptions.createComment, options);
+  const instanceId = uniqueId();
   const events: EventEmitter<CommentEvents> = createEventEmitter();
   const comment: Comment = {
     ...finalOptions,
+    instanceId,
     get events() {
       return events;
     },
