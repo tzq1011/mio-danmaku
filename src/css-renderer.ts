@@ -166,6 +166,7 @@ function createCSSRenderer(options: CSSRendererOptions): CSSRenderer {
     if (hasCommentTextTrait(comment)) {
       const textNode = document.createTextNode(comment.text);
       element.appendChild(textNode);
+      element.style.whiteSpace = "nowrap";
       element.style.color = comment.fontColor;
       element.style.fontSize = comment.fontSize + "px";
     }
