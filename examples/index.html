@@ -9,7 +9,7 @@
 <body>
   <script src="../dist/bundle.js"></script>
   <script>
-    const stage = { width: 800, height: 600, marginTop: 0, marginBottom: 0 };
+    const stage = mio.createStage({ width: 800, height: 600 });
     const renderer = mio.createCSSRenderer({ stage });
     document.body.appendChild(renderer.stageElement);
 

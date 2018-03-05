@@ -1,3 +1,5 @@
+import { createStage } from "./stage";
+
 import {
   createStackingComment,
   createScrollingComment,
@@ -6,6 +8,7 @@ import {
 import { createCSSRenderer } from "./css-renderer";
 
 (window as any).mio = {
+  createStage,
   createStackingComment,
   createScrollingComment,
   createCSSRenderer,
