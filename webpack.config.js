@@ -1,7 +1,7 @@
 const path = require('path');
 
 module.exports = {
-  devtool: "inline-source-map",
+  mode: "development",
   entry: './src/index.ts',
   output: {
     path: path.join(__dirname, 'dist'),
@@ -14,5 +14,10 @@ module.exports = {
     rules: [
       { test: /\.tsx?$/, use: 'ts-loader' }
     ]
+  },
+  devtool: "inline-source-map",
+  devServer: {
+    port: 9000,
+    contentBase: path.join(__dirname, "examples"),
   }
 };

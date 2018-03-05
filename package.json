@@ -10,13 +10,15 @@
   "license": "MIT",
   "dependencies": {
     "core-js": "^2.5.3",
-    "lodash": "^4.17.4"
+    "lodash": "^4.17.5"
   },
   "devDependencies": {
-    "@types/core-js": "^0.9.45",
-    "@types/lodash": "^4.14.100",
-    "ts-loader": "^3.4.0",
-    "typescript": "^2.7.1",
-    "webpack": "^3.10.0"
+    "@types/core-js": "^0.9.46",
+    "@types/lodash": "^4.14.104",
+    "ts-loader": "^4.0.1",
+    "typescript": "^2.7.2",
+    "webpack": "^4.1.0",
+    "webpack-cli": "^2.0.10",
+    "webpack-dev-server": "^3.1.0"
   }
 }

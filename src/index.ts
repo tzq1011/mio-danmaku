@@ -1,15 +1,14 @@
 import { createStage } from "./stage";
+import { createPlayer } from "./player";
 
 import {
   createStackingComment,
   createScrollingComment,
 } from "./comment-creators";
 
-import { createCSSRenderer } from "./css-renderer";
-
 (window as any).mio = {
   createStage,
   createStackingComment,
   createScrollingComment,
-  createCSSRenderer,
+  createPlayer,
 };

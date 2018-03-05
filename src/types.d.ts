@@ -434,6 +434,41 @@ interface Timer {
 
 type TimerOptions = Pick<Timer, "duration">;
 
+type TimeGetter = () => number;
+
+type PlayerState =
+  | "idle"
+  | "playing"
+  | "paused";
+
+type PlayerEvents = {
+  idle: null,
+  playing: null,
+  paused: null,
+};
+
+interface Player {
+  readonly state: PlayerState;
+  readonly events: EventEmitter<PlayerEvents>;
+  readonly element: HTMLElement;
+  readonly timeGetter: TimeGetter;
+  readonly stage: Stage;
+  readonly renderer: Renderer;
+  readonly commentPool: CommentPool;
+  play(): void;
+  pause(): void;
+  stop(): void;
+  setStage(stage: Stage): void;
+  setRenderer(renderer: Renderer): void;
+}
+
+interface PlayerOptions {
+  element: Player["element"];
+  timeGetter: Player["timeGetter"];
+  stage?: Player["stage"];
+  renderer?: Player["renderer"];
+}
+
 export {
   PartialDeep,
   EventListener,
@@ -513,4 +548,9 @@ export {
   TimerEvents,
   Timer,
   TimerOptions,
+  TimeGetter,
+  PlayerState,
+  PlayerEvents,
+  Player,
+  PlayerOptions,
 };
