@@ -3,13 +3,19 @@ import {
   CSSScrollingAnimation,
   CSSScrollingAnimationState,
   CSSScrollingAnimationEvents,
-  CSSScrollingAnimationOptions,
 } from "./types";
 
 import { createEventEmitter } from "./event-emitter";
 import domOperator from "./dom-operator";
 
-function createCSSScrollingAnimation(options: CSSScrollingAnimationOptions): CSSScrollingAnimation {
+interface Options {
+  element: CSSScrollingAnimation["element"];
+  duration: CSSScrollingAnimation["duration"];
+  fromX: CSSScrollingAnimation["fromX"];
+  toX: CSSScrollingAnimation["toX"];
+}
+
+function createCSSScrollingAnimation(options: Options): CSSScrollingAnimation {
   const _element = options.element;
   const _duration = options.duration;
   const _fromX = options.fromX;

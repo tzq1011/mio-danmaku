@@ -107,7 +107,7 @@ function createCommentPool(): CommentPool {
     });
   }
 
-  const pool: CommentPool = {
+  const commentPool: CommentPool = {
     get events() {
       return _events;
     },
@@ -129,7 +129,7 @@ function createCommentPool(): CommentPool {
     clearFilters,
   };
 
-  return pool;
+  return commentPool;
 }
 
 export {

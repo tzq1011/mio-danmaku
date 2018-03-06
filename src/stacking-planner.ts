@@ -2,9 +2,6 @@ import {
   Stage,
   StackingPlan,
   StackingPlanner,
-  StackingPlannerOptions,
-  StackingPlannerOptionsDefault,
-  StackingPlanningOptions,
 } from "./types";
 
 interface Row {
@@ -12,11 +9,20 @@ interface Row {
   bottomY: number;
 }
 
-const defaultOptions: StackingPlannerOptionsDefault = {
+interface Options {
+  stage: StackingPlanner["stage"];
+  direction?: StackingPlanner["direction"];
+}
+
+interface OptionsDefault {
+  direction: StackingPlanner["direction"];
+}
+
+const defaultOptions: OptionsDefault = {
   direction: "down",
 };
 
-function createStackingPlanner(options: StackingPlannerOptions): StackingPlanner {
+function createStackingPlanner(options: Options): StackingPlanner {
   const finalOptions = {
     ...defaultOptions,
     ...options,
@@ -26,8 +32,7 @@ function createStackingPlanner(options: StackingPlannerOptions): StackingPlanner
   const _direction: ("up" | "down") = finalOptions.direction;
   let _stage: Stage = finalOptions.stage;
 
-  function plan(opts: StackingPlanningOptions): StackingPlan {
-    const blockHeight = opts.blockHeight;
+  function plan(blockHeight: number): StackingPlan {
     const stageBodyTopY: number = _stage.marginTop;
     const stageBodyBottomY: number = _stage.height - _stage.marginBottom;
     const stageBodyHeight: number = stageBodyBottomY - stageBodyTopY;
@@ -170,24 +175,23 @@ function createStackingPlanner(options: StackingPlannerOptions): StackingPlanner
     return stackingPlan;
   }
 
-  function setStage(stage: Stage): void {
-    _stage = stage;
-  }
-
   const planner: StackingPlanner = {
     get stage() {
       return _stage;
+    },
+    set stage(stage: Stage) {
+      _stage = stage;
     },
     get direction() {
       return _direction;
     },
     plan,
-    setStage,
   };
 
   return planner;
 }
 
 export {
+  defaultOptions,
   createStackingPlanner,
 };

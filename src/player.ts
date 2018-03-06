@@ -2,7 +2,6 @@ import {
   Stage,
   Renderer,
   Player,
-  PlayerOptions,
   PlayerState,
   PlayerEvents,
   EventEmitter,
@@ -13,17 +12,24 @@ import { createCSSRenderer } from "./css-renderer";
 import { createCommentPool } from "./comment-pool";
 import { createEventEmitter } from "./event-emitter";
 
-function createPlayer(options: PlayerOptions): Player {
-  const _element = options.element;
-  const _timeGetter = options.timeGetter;
+interface Options {
+  stage: Player["stage"];
+  timeGetter: Player["timeGetter"];
+  renderer?: Player["renderer"];
+}
+
+function createPlayer(options: Options): Player {
   const _events: EventEmitter<PlayerEvents> = createEventEmitter();
+  const _timeGetter = options.timeGetter;
   const _commentPool = createCommentPool();
+
   let _state: PlayerState = "idle";
-  let _stage: Stage = options.stage || createStage();
+  let _stage: Stage = options.stage;
   let _renderer: Renderer = options.renderer || createCSSRenderer({ stage: _stage });
   let _prevTime: number = 0;
   let _timeUpdaterTimerId: number | undefined;
 
+  const _element = document.createElement("div");
   _element.style.width = _stage.width + "px";
   _element.style.height = _stage.height + "px";
 
@@ -39,10 +45,8 @@ function createPlayer(options: PlayerOptions): Player {
         .forEach((comment) => _renderer.unrenderComment(comment));
     }
 
-    const toBeRenderingComments = _commentPool.getByTime(_prevTime, time);
-    toBeRenderingComments.forEach((comment) => {
-      _renderer.renderComment(comment);
-    });
+    _commentPool.getByTime(_prevTime, time)
+      .forEach((comment) => _renderer.renderComment(comment));
 
     _prevTime = time;
   }
@@ -113,7 +117,7 @@ function createPlayer(options: PlayerOptions): Player {
   function setStage(stage: Stage): void {
     _element.style.width = stage.width + "px";
     _element.style.height = stage.height + "px";
-    _renderer.setStage(stage);
+    _renderer.stage = stage;
     _stage = stage;
   }
 
@@ -130,6 +134,18 @@ function createPlayer(options: PlayerOptions): Player {
   }
 
   const player: Player = {
+    get stage() {
+      return _stage;
+    },
+    set stage(stage: Stage) {
+      setStage(stage);
+    },
+    get renderer() {
+      return _renderer;
+    },
+    set renderer(renderer) {
+      setRenderer(renderer);
+    },
     get state() {
       return _state;
     },
@@ -142,20 +158,12 @@ function createPlayer(options: PlayerOptions): Player {
     get timeGetter() {
       return _timeGetter;
     },
-    get stage() {
-      return _stage;
-    },
-    get renderer() {
-      return _renderer;
-    },
     get commentPool() {
       return _commentPool;
     },
     play,
     pause,
     stop,
-    setStage,
-    setRenderer,
   };
 
   return player;

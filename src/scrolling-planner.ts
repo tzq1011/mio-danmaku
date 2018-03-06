@@ -2,18 +2,28 @@ import {
   Stage,
   ScrollingPlan,
   ScrollingPlanner,
-  ScrollingPlannerOptions,
-  ScrollingPlannerOptionsDefault,
-  ScrollingPlanningOptions,
 } from "./types";
 
-const defaultOptions: ScrollingPlannerOptionsDefault = {
+interface Options {
+  stage: ScrollingPlanner["stage"];
+  direction?: ScrollingPlanner["direction"];
+  basicSpeed?: ScrollingPlanner["basicSpeed"];
+  extraSpeedPerPixel?: ScrollingPlanner["extraSpeedPerPixel"];
+}
+
+interface OptionsDefault {
+  direction: ScrollingPlanner["direction"];
+  basicSpeed: ScrollingPlanner["basicSpeed"];
+  extraSpeedPerPixel: ScrollingPlanner["extraSpeedPerPixel"];
+}
+
+const defaultOptions: OptionsDefault = {
   direction: "left",
   basicSpeed: 120,
   extraSpeedPerPixel: 0.2,
 };
 
-function createScrollingPlanner(options: ScrollingPlannerOptions): ScrollingPlanner {
+function createScrollingPlanner(options: Options): ScrollingPlanner {
   const finalOptions = {
     ...defaultOptions,
     ...options,
@@ -24,8 +34,7 @@ function createScrollingPlanner(options: ScrollingPlannerOptions): ScrollingPlan
   let _basicSpeed: number = finalOptions.basicSpeed;
   let _extraSpeedPerPixel: number = finalOptions.extraSpeedPerPixel;
 
-  function plan(opts: ScrollingPlanningOptions): ScrollingPlan {
-    const blockWidth = opts.blockWidth;
+  function plan(blockWidth: number): ScrollingPlan {
     let fromX: number;
     let toX: number;
 
@@ -51,43 +60,45 @@ function createScrollingPlanner(options: ScrollingPlannerOptions): ScrollingPlan
       duration,
     };
 
+    Object.defineProperties(scrollingPlan, {
+      fromX: { writable: false },
+      toX: { writable: false },
+      speed: { writable: false },
+      duration: { writable: false },
+    });
+
     return scrollingPlan;
-  }
-
-  function setStage(stage: Stage): void {
-    _stage = stage;
-  }
-
-  function setBasicSpeed(speed: number): void {
-    _basicSpeed = speed;
-  }
-
-  function setExtraSpeedPerPixel(speed: number): void {
-    _extraSpeedPerPixel = speed;
   }
 
   const planner: ScrollingPlanner = {
     get stage() {
       return _stage;
     },
-    get direction() {
-      return _direction;
+    set stage(stage: Stage) {
+      _stage = stage;
     },
     get basicSpeed() {
       return _basicSpeed;
     },
+    set basicSpeed(speed: number) {
+      _basicSpeed = speed;
+    },
     get extraSpeedPerPixel() {
       return _extraSpeedPerPixel;
     },
+    set extraSpeedPerPixel(speed: number) {
+      _extraSpeedPerPixel = speed;
+    },
+    get direction() {
+      return _direction;
+    },
     plan,
-    setStage,
-    setBasicSpeed,
-    setExtraSpeedPerPixel,
   };
 
   return planner;
 }
 
 export {
+  defaultOptions,
   createScrollingPlanner,
 };

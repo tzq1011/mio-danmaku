@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,16 +7,17 @@
   <title>Document</title>
 </head>
 <body>
-  <div id="danmaku-player" style="background-color: #333;"></div>
+  <div id="danmaku-player" style="background-color: #333; width: 800px; height: 600px;"></div>
   <script src="bundle.js"></script>
   <script>
-    const element = document.getElementById("danmaku-player");
+    const container = document.getElementById("danmaku-player");
     
     let elapsedTimeWhenPaused = 0;
     let timeWhenPlaying;
 
     function timeGetter() {
       let elapsedTime = elapsedTimeWhenPaused;
+
       if (timeWhenPlaying != null) {
         elapsedTime += Date.now() - timeWhenPlaying;
       }
@@ -35,7 +36,9 @@
       player.pause();
     }
 
-    const player = mio.createPlayer({ element, timeGetter });
+    const stage = mio.createStage({ width: 800, height: 600 });
+    const player = mio.createPlayer({ stage, timeGetter });
+    container.appendChild(player.element);
 
     const xhr = new XMLHttpRequest();
     xhr.onload = () => {

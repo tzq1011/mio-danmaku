@@ -1,7 +1,3 @@
-type PartialDeep<T> = {
-  [P in keyof T]?: T[P];
-}
-
 type EventData = any;
 type EventSpecs = {
   [event: string]: EventData;
@@ -15,39 +11,36 @@ interface EventEmitter<ES extends EventSpecs> {
   emit<E extends keyof ES>(event: E, data: ES[E]): void;
 }
 
+interface Dimensions {
+  width: number;
+  height: number;
+}
+
+interface Position {
+  x: number;
+  y: number;
+}
+
+interface Shadow {
+  offsetX: number;
+  offsetY: number;
+  blur: number;
+  color: string;
+}
+
 type CommentEvents = {
   rendering: null,
-  renderingFinished: null,
   renderingCanceled: null,
+  renderingFinished: null,
   renderingEnded: null,
 }
 
 interface Comment {
+  readonly instanceId: string;
   readonly events: EventEmitter<CommentEvents>;
   readonly time: number;
-  readonly opacity: number;
-  readonly instanceId: string;
+  readonly extra: object;
 }
-
-type CommentOptionsDefault =
-  Pick<
-    Comment,
-    (
-      | "time"
-      | "opacity"
-    )
-  >;
-
-type CommentOptions =
-  PartialDeep<
-    Pick<
-      Comment,
-      (
-        | "time"
-        | "opacity"
-      )
-    >
-  >;
 
 interface CommentTextTrait {
   readonly text: string;
@@ -55,57 +48,33 @@ interface CommentTextTrait {
   readonly fontColor: string;
 }
 
-type CommentTextTraitOptions = PartialDeep<CommentTextTrait>;
-type CommentTextTraitOptionsDefault = CommentTextTrait;
-
 interface CommentPositionXTrait {
   readonly positionX: number;
 }
-
-type CommentPositionXTraitOptions = PartialDeep<CommentPositionXTrait>;
-type CommentPositionXTraitOptionsDefault = CommentPositionXTrait;
 
 interface CommentPositionYTrait {
   readonly positionY: number;
 }
 
-type CommentPositionYTraitOptions = PartialDeep<CommentPositionYTrait>;
-type CommentPositionTraitOptionsDefault = CommentPositionYTrait;
-
 interface CommentHorizontalAlignmentTrait {
   readonly horizontalAlignment: "left" | "center" | "right";
 }
-
-type CommentHorizontalAlignmentTraitOptions = PartialDeep<CommentHorizontalAlignmentTrait>;
-type CommentHorizontalAlignmentTraitOptionsDefault = CommentHorizontalAlignmentTrait;
 
 interface CommentVerticalAlignmentTrait {
   readonly verticalAlignment: "top" | "middle" | "bottom";
 }
 
-type CommentVerticalAlignmentTraitOptions = PartialDeep<CommentVerticalAlignmentTrait>;
-type CommentVerticalAlignmentTraitOptionsDefault = CommentVerticalAlignmentTrait;
-
 interface CommentStackingTrait {
   readonly stackingDirection: "up" | "down";
 }
-
-type CommentStackingTraitOptions = PartialDeep<CommentStackingTrait>;
-type CommentStackingTraitOptionsDefault = CommentStackingTrait;
 
 interface CommentScrollingTrait {
   readonly scrollingDirection: "left" | "right";
 }
 
-type CommentScrollingTraitOptions = PartialDeep<CommentScrollingTrait>;
-type CommentScrollingTraitOptionsDefault = CommentScrollingTrait;
-
 interface CommentLifetimeTrait {
   readonly lifetime: number;
 }
-
-type CommentLifetimeTraitOptions = PartialDeep<CommentLifetimeTrait>;
-type CommentLifetimeTraitOptionsDefault = CommentLifetimeTrait;
 
 type StackingComment =
   & Comment
@@ -114,37 +83,11 @@ type StackingComment =
   & CommentStackingTrait
   & CommentLifetimeTrait;
 
-type StackingCommentOptions =
-  & CommentOptions
-  & CommentTextTraitOptions
-  & CommentHorizontalAlignmentTraitOptions
-  & CommentStackingTraitOptions
-  & CommentLifetimeTraitOptions;
-
-type StackingCommentOptionsDefault =
-  & CommentOptionsDefault
-  & CommentTextTraitOptionsDefault
-  & CommentHorizontalAlignmentTraitOptionsDefault
-  & CommentStackingTraitOptionsDefault
-  & CommentLifetimeTraitOptionsDefault;
-
 type ScrollingComment =
   & Comment
   & CommentTextTrait
   & CommentStackingTrait
   & CommentScrollingTrait;
-
-type ScrollingCommentOptions =
-  & CommentOptions
-  & CommentTextTraitOptions
-  & CommentStackingTraitOptions
-  & CommentScrollingTraitOptions;
-
-type ScrollingCommentOptionsDefault =
-  & CommentOptionsDefault
-  & CommentTextTraitOptionsDefault
-  & CommentStackingTraitOptionsDefault
-  & CommentScrollingTraitOptionsDefault;
 
 type PositioningComment =
   & Comment
@@ -152,20 +95,6 @@ type PositioningComment =
   & CommentPositionXTrait
   & CommentPositionYTrait
   & CommentLifetimeTrait;
-
-type PositioningCommentOptions =
-  & CommentOptions
-  & CommentTextTraitOptions
-  & CommentPositionXTraitOptions
-  & CommentPositionYTraitOptions
-  & CommentLifetimeTraitOptions;
-
-type PositioningCommentOptionsDefault =
-  & CommentOptionsDefault
-  & CommentTextTraitOptionsDefault
-  & CommentPositionXTraitOptionsDefault
-  & CommentPositionTraitOptionsDefault
-  & CommentLifetimeTraitOptionsDefault;
 
 type CommentFilter = (comment: Comment) => boolean;
 
@@ -179,9 +108,9 @@ type CommentPoolEvents = {
 }
 
 interface CommentPool {
-  readonly events: EventEmitter<CommentPoolEvents>;
   readonly comments: ReadonlyArray<Comment>;
   readonly filters: ReadonlyArray<CommentFilter>;
+  readonly events: EventEmitter<CommentPoolEvents>;
   load(comments: Comment[]): void;
   add(comment: Comment): void;
   has(comment: Comment): void;
@@ -195,38 +124,10 @@ interface CommentPool {
 }
 
 interface Stage {
-  width: number;
-  height: number;
-  marginTop: number;
-  marginBottom: number;
-}
-
-type StageOptions =
-  PartialDeep<
-    Pick<
-      Stage,
-      (
-        | "width"
-        | "height"
-        | "marginTop"
-        | "marginBottom"
-      )
-    >
-  >;
-
-type StageOptionsDefault =
-  Pick<
-    Stage,
-    (
-      | "width"
-      | "height"
-      | "marginTop"
-      | "marginBottom"
-    )
-  >;
-
-interface StackingPlanningOptions {
-  blockHeight: number;
+  readonly width: number;
+  readonly height: number;
+  readonly marginTop: number;
+  readonly marginBottom: number;
 }
 
 interface StackingPlan {
@@ -237,27 +138,9 @@ interface StackingPlan {
 }
 
 interface StackingPlanner {
-  readonly stage: Stage;
+  stage: Stage;
   readonly direction: "up" | "down";
-  plan(options: StackingPlanningOptions): StackingPlan;
-  setStage(stage: Stage): void;
-}
-
-interface StackingPlannerOptions {
-  stage: StackingPlanner["stage"];
-  direction?: StackingPlanner["direction"];
-}
-
-type StackingPlannerOptionsDefault =
-  Pick<
-    StackingPlanner,
-    (
-      | "direction"
-    )
-  >;
-
-interface ScrollingPlanningOptions {
-  blockWidth: number;
+  plan(blockHeight: number): StackingPlan;
 }
 
 interface ScrollingPlan {
@@ -268,41 +151,11 @@ interface ScrollingPlan {
 }
 
 interface ScrollingPlanner {
-  readonly stage: Stage;
+  stage: Stage;
+  basicSpeed: number;
+  extraSpeedPerPixel: number;
   readonly direction: "left" | "right";
-  readonly basicSpeed: number;
-  readonly extraSpeedPerPixel: number;
-  plan(options: ScrollingPlanningOptions): ScrollingPlan;
-  setStage(stage: Stage): void;
-  setBasicSpeed(speed: number): void;
-  setExtraSpeedPerPixel(speed: number): void;
-}
-
-interface ScrollingPlannerOptions {
-  stage: ScrollingPlanner["stage"];
-  direction?: ScrollingPlanner["direction"];
-  basicSpeed?: ScrollingPlanner["basicSpeed"];
-  extraSpeedPerPixel?: ScrollingPlanner["extraSpeedPerPixel"];
-}
-
-type ScrollingPlannerOptionsDefault =
-  Pick<
-    ScrollingPlanner,
-    (
-      | "direction"
-      | "basicSpeed"
-      | "extraSpeedPerPixel"
-    )
-  >;
-
-interface Dimensions {
-  width: number;
-  height: number;
-}
-
-interface Position {
-  x: number;
-  y: number;
+  plan(blockWidth: number): ScrollingPlan;
 }
 
 interface CommentView {
@@ -323,37 +176,26 @@ type RendererEvents = {
   paused: null,
 };
 
-interface RendererStackingPlanners {
-  readonly up: StackingPlanner,
-  readonly down: StackingPlanner,
-  readonly upScrolling: StackingPlanner,
-  readonly downScrolling: StackingPlanner,
-}
-
-interface RendererScrollingPlanners {
-  readonly left: ScrollingPlanner,
-  readonly right: ScrollingPlanner,
-}
-
 interface Renderer {
-  readonly events: EventEmitter<RendererEvents>;
+  stage: Stage;
+  commentOpacity: number;
+  commentFontFamily: string | string[];
+  commentLineHeight: number;
+  commentTextShadow: Shadow | null;
+  commentScrollingBasicSpeed: number;
+  commentScrollingExtraSpeedPerPixel: number;
   readonly state: RendererState;
-  readonly stage: Stage;
+  readonly events: EventEmitter<RendererEvents>;
   readonly stageElement: HTMLElement;
-  readonly stackingPlanners: RendererStackingPlanners;
-  readonly scrollingPlanners: RendererScrollingPlanners;
   run(): void;
   pause(): void;
   stop(): void;
-  setStage(stage: Stage): void;
   renderComment(comment: Comment): CommentView;
   unrenderComment(comment: Comment): void;
   isCommentRendering(comment: Comment): boolean;
   getRenderingComments(): Comment[];
   getCommentView(comment: Comment): CommentView | null;
 }
-
-type RendererOptions = Pick<Renderer, "stage">;
 
 type DOMOperation<R = any> = (...args: any[]) => R;
 
@@ -394,18 +236,7 @@ interface CSSScrollingAnimation {
   cancel(): void;
 }
 
-type CSSScrollingAnimationOptions = Pick<
-  CSSScrollingAnimation,
-  (
-    | "element"
-    | "duration"
-    | "fromX"
-    | "toX"
-  )
->;
-
 type CSSRenderer = Renderer;
-type CSSRendererOptions = RendererOptions;
 
 type TimerState =
   | "idle"
@@ -432,8 +263,6 @@ interface Timer {
   cancel(): void;
 }
 
-type TimerOptions = Pick<Timer, "duration">;
-
 type TimeGetter = () => number;
 
 type PlayerState =
@@ -448,109 +277,61 @@ type PlayerEvents = {
 };
 
 interface Player {
+  stage: Stage;
+  renderer: Renderer;
   readonly state: PlayerState;
   readonly events: EventEmitter<PlayerEvents>;
   readonly element: HTMLElement;
   readonly timeGetter: TimeGetter;
-  readonly stage: Stage;
-  readonly renderer: Renderer;
   readonly commentPool: CommentPool;
   play(): void;
   pause(): void;
   stop(): void;
-  setStage(stage: Stage): void;
-  setRenderer(renderer: Renderer): void;
-}
-
-interface PlayerOptions {
-  element: Player["element"];
-  timeGetter: Player["timeGetter"];
-  stage?: Player["stage"];
-  renderer?: Player["renderer"];
 }
 
 export {
-  PartialDeep,
   EventListener,
   EventSpecs,
   EventEmitter,
+  Dimensions,
+  Position,
+  Shadow,
   CommentEvents,
   Comment,
-  CommentOptionsDefault,
-  CommentOptions,
   CommentTextTrait,
-  CommentTextTraitOptions,
-  CommentTextTraitOptionsDefault,
   CommentPositionXTrait,
-  CommentPositionXTraitOptions,
-  CommentPositionXTraitOptionsDefault,
   CommentPositionYTrait,
-  CommentPositionYTraitOptions,
-  CommentPositionTraitOptionsDefault,
   CommentHorizontalAlignmentTrait,
-  CommentHorizontalAlignmentTraitOptions,
-  CommentHorizontalAlignmentTraitOptionsDefault,
   CommentVerticalAlignmentTrait,
-  CommentVerticalAlignmentTraitOptions,
-  CommentVerticalAlignmentTraitOptionsDefault,
   CommentStackingTrait,
-  CommentStackingTraitOptions,
-  CommentStackingTraitOptionsDefault,
   CommentScrollingTrait,
-  CommentScrollingTraitOptions,
-  CommentScrollingTraitOptionsDefault,
   CommentLifetimeTrait,
-  CommentLifetimeTraitOptions,
-  CommentLifetimeTraitOptionsDefault,
   StackingComment,
-  StackingCommentOptions,
-  StackingCommentOptionsDefault,
   ScrollingComment,
-  ScrollingCommentOptions,
-  ScrollingCommentOptionsDefault,
   PositioningComment,
-  PositioningCommentOptions,
-  PositioningCommentOptionsDefault,
   CommentFilter,
   CommentPoolEvents,
   CommentPool,
   Stage,
-  StageOptions,
-  StageOptionsDefault,
-  StackingPlanningOptions,
   StackingPlan,
   StackingPlanner,
-  StackingPlannerOptions,
-  StackingPlannerOptionsDefault,
-  ScrollingPlanningOptions,
   ScrollingPlan,
   ScrollingPlanner,
-  ScrollingPlannerOptions,
-  ScrollingPlannerOptionsDefault,
-  Dimensions,
-  Position,
   CommentView,
   RendererState,
   RendererEvents,
-  RendererStackingPlanners,
-  RendererScrollingPlanners,
   Renderer,
-  RendererOptions,
   DOMOperation,
   DOMOperator,
   CSSScrollingAnimationState,
   CSSScrollingAnimationEvents,
   CSSScrollingAnimation,
-  CSSScrollingAnimationOptions,
   CSSRenderer,
-  CSSRendererOptions,
   TimerState,
   TimerEvents,
   Timer,
-  TimerOptions,
   TimeGetter,
   PlayerState,
   PlayerEvents,
   Player,
-  PlayerOptions,
 };

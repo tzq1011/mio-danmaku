@@ -2,13 +2,16 @@ import {
   Timer,
   TimerState,
   TimerEvents,
-  TimerOptions,
   EventEmitter,
 } from "./types";
 
 import { createEventEmitter } from "./event-emitter";
 
-function createTimer(options: TimerOptions): Timer {
+interface Options {
+  duration: Timer["duration"];
+}
+
+function createTimer(options: Options): Timer {
   const _duration = options.duration;
   const _events: EventEmitter<TimerEvents> = createEventEmitter();
 
