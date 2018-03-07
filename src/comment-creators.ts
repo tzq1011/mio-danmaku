@@ -84,8 +84,8 @@ const defaultOptions: {
   },
   mixinCommentTextTrait: {
     text: "Nya",
-    fontSize: 20,
-    fontColor: "#000",
+    fontSize: 25,
+    fontColor: "#fff",
   },
   mixinCommentPositionXTrait: {
     positionX: 0,
