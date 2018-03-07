@@ -637,6 +637,10 @@ function createCSSRenderer(options: Options): CSSRenderer {
     return [..._commentRenderingProcesses.keys()];
   }
 
+  function getRenderingCommentsCount(): number {
+    return _commentRenderingProcesses.size;
+  }
+
   function getCommentView(comment: Comment): CommentView | null {
     const process = _commentRenderingProcesses.get(comment);
     if (process == null) {
@@ -717,6 +721,7 @@ function createCSSRenderer(options: Options): CSSRenderer {
     unrenderComment,
     isCommentRendering,
     getRenderingComments,
+    getRenderingCommentsCount,
     getCommentView,
   };
 

@@ -7,6 +7,7 @@ import {
   EventEmitter,
 } from "./types";
 
+import merge from "lodash/merge";
 import { createStage } from "./stage";
 import { createCSSRenderer } from "./css-renderer";
 import { createCommentPool } from "./comment-pool";
@@ -16,16 +17,27 @@ interface Options {
   stage: Player["stage"];
   timeGetter: Player["timeGetter"];
   renderer?: Player["renderer"];
+  maxRenderingComments?: Player["maxRenderingComments"];
 }
 
+interface OptionsDefault {
+  maxRenderingComments: Player["maxRenderingComments"];
+}
+
+const defaultOptions: OptionsDefault = {
+  maxRenderingComments: 80,
+};
+
 function createPlayer(options: Options): Player {
+  const _finalOptions = merge({}, defaultOptions, options);
   const _events: EventEmitter<PlayerEvents> = createEventEmitter();
-  const _timeGetter = options.timeGetter;
+  const _timeGetter = _finalOptions.timeGetter;
   const _commentPool = createCommentPool();
 
   let _state: PlayerState = "idle";
-  let _stage: Stage = options.stage;
-  let _renderer: Renderer = options.renderer || createCSSRenderer({ stage: _stage });
+  let _stage: Stage = _finalOptions.stage;
+  let _renderer: Renderer = _finalOptions.renderer || createCSSRenderer({ stage: _stage });
+  let _maxRenderingComments: number = _finalOptions.maxRenderingComments;
   let _prevTime: number = 0;
   let _timeUpdaterTimerId: number | undefined;
 
@@ -45,8 +57,13 @@ function createPlayer(options: Options): Player {
         .forEach((comment) => _renderer.unrenderComment(comment));
     }
 
-    _commentPool.getByTime(_prevTime, time)
-      .forEach((comment) => _renderer.renderComment(comment));
+    const renderingCommentsCount = _renderer.getRenderingCommentsCount();
+    const maxNewComments: number = Math.max(_maxRenderingComments - renderingCommentsCount, 0);
+
+    if (maxNewComments > 0) {
+      _commentPool.getByTime(_prevTime, time, maxNewComments)
+        .forEach((comment) => _renderer.renderComment(comment));
+    }
 
     _prevTime = time;
   }
@@ -146,6 +163,12 @@ function createPlayer(options: Options): Player {
     set renderer(renderer) {
       setRenderer(renderer);
     },
+    get maxRenderingComments() {
+      return _maxRenderingComments;
+    },
+    set maxRenderingComments(max: number) {
+      _maxRenderingComments = max;
+    },
     get state() {
       return _state;
     },
@@ -170,5 +193,6 @@ function createPlayer(options: Options): Player {
 }
 
 export {
+  defaultOptions,
   createPlayer,
 };

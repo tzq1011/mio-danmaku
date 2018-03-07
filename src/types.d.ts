@@ -116,7 +116,7 @@ interface CommentPool {
   has(comment: Comment): void;
   remove(comment: Comment): boolean;
   clear(): void;
-  getByTime(startTime: number, endTime: number): Comment[];
+  getByTime(startTime: number, endTime: number, limit: number): Comment[];
   addFilter(filter: CommentFilter): void;
   hasFilter(filter: CommentFilter): boolean;
   removeFilter(filter: CommentFilter): boolean;
@@ -194,6 +194,7 @@ interface Renderer {
   unrenderComment(comment: Comment): void;
   isCommentRendering(comment: Comment): boolean;
   getRenderingComments(): Comment[];
+  getRenderingCommentsCount(): number;
   getCommentView(comment: Comment): CommentView | null;
 }
 
@@ -279,6 +280,7 @@ type PlayerEvents = {
 interface Player {
   stage: Stage;
   renderer: Renderer;
+  maxRenderingComments: number;
   readonly state: PlayerState;
   readonly events: EventEmitter<PlayerEvents>;
   readonly element: HTMLElement;

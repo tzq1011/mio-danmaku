@@ -59,7 +59,7 @@ function createCommentPool(): CommentPool {
     _events.emit("cleared", { comments });
   }
 
-  function getByTime(startTime: number, endTime: number): Comment[] {
+  function getByTime(startTime: number, endTime: number, limit: number): Comment[] {
     let index: number = sortedIndexBy(_comments, { time: startTime }, (c) => c.time);
     const comments: Comment[] = [];
 
@@ -70,6 +70,9 @@ function createCommentPool(): CommentPool {
         const isPassed = _filters.every((filter) => filter(comment));
         if (isPassed) {
           comments.push(comment);
+          if (comments.length >= limit) {
+            break;
+          }
         }
       }
 
