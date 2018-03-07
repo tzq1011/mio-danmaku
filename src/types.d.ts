@@ -294,6 +294,7 @@ interface Player {
   readonly events: EventEmitter<PlayerEvents>;
   readonly element: HTMLElement;
   readonly timeGetter: TimeGetter;
+  readonly time: number;
   readonly commentPool: CommentPool;
   play(): void;
   pause(): void;

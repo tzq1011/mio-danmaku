@@ -181,6 +181,9 @@ function createPlayer(options: Options): Player {
     get timeGetter() {
       return _timeGetter;
     },
+    get time() {
+      return _timeGetter();
+    },
     get commentPool() {
       return _commentPool;
     },
