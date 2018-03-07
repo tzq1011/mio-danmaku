@@ -175,7 +175,7 @@ function createCSSRenderer(options: Options): CSSRenderer {
   }
 
   function renderComment(comment: Comment): CommentView {
-    if (_state !== "running") {
+    if (_state !== "running" && _state !== "paused") {
       throw new Error(`Unexpected state: ${_state}`);
     }
 
@@ -428,6 +428,11 @@ function createCSSRenderer(options: Options): CSSRenderer {
             });
 
           tmpScrollingAnimation.run();
+
+          if (renderingState === "paused") {
+            tmpScrollingAnimation.pause();
+          }
+
           scrollingAnimation = tmpScrollingAnimation;
         }
 
@@ -453,6 +458,11 @@ function createCSSRenderer(options: Options): CSSRenderer {
           });
 
         tmpLifetimeTimer.run();
+
+        if (renderingState === "paused") {
+          tmpLifetimeTimer.pause();
+        }
+
         lifetimeTimer = tmpLifetimeTimer;
       }
     }
@@ -477,9 +487,7 @@ function createCSSRenderer(options: Options): CSSRenderer {
       animationCanceler = cancel;
     }
 
-    let renderingState: CommentRenderingState = "running";
-    let isMeasurementPaused: boolean = false;
-    let isAnimationPaused: boolean = false;
+    let renderingState: CommentRenderingState = (_state === "paused") ? "paused" : "running";
 
     const view: CommentView = {
       get isDestroyed(): boolean {
@@ -578,16 +586,6 @@ function createCSSRenderer(options: Options): CSSRenderer {
           throw new Error(`Unexpected state: ${renderingState}`);
         }
 
-        if (isMeasurementScheduled) {
-          cancelMeasurement();
-          isMeasurementPaused = true;
-        }
-
-        if (animationCanceler != null) {
-          animationCanceler();
-          isAnimationPaused = true;
-        }
-
         if (scrollingAnimation != null && scrollingAnimation.state === "running") {
           scrollingAnimation.pause();
         }
@@ -601,14 +599,6 @@ function createCSSRenderer(options: Options): CSSRenderer {
       resume(): void {
         if (renderingState !== "paused") {
           throw new Error(`Unexpected state: ${renderingState}`);
-        }
-
-        if (isMeasurementPaused) {
-          scheduleMeasurement();
-        }
-
-        if (isAnimationPaused) {
-          scheduleAnimation();
         }
 
         if (scrollingAnimation != null && scrollingAnimation.state === "paused") {
