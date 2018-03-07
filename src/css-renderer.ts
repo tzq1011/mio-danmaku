@@ -6,6 +6,7 @@ import {
   Dimensions,
   Position,
   Shadow,
+  Border,
   StackingPlan,
   ScrollingPlan,
   EventEmitter,
@@ -52,6 +53,9 @@ interface OptionsDefault {
   commentTextShadow: CSSRenderer["commentTextShadow"];
   commentScrollingBasicSpeed: CSSRenderer["commentScrollingBasicSpeed"];
   commentScrollingExtraSpeedPerPixel: CSSRenderer["commentScrollingExtraSpeedPerPixel"];
+  ownCommentBorder: CSSRenderer["ownCommentBorder"];
+  ownCommentPaddingLeft: CSSRenderer["ownCommentPaddingLeft"];
+  ownCommentPaddingRight: CSSRenderer["ownCommentPaddingRight"];
 }
 
 type CommentRenderingState =
@@ -75,17 +79,23 @@ const defaultOptions: OptionsDefault = {
   commentTextShadow: { offsetX: 0, offsetY: 0, blur: 3, color: "#000" },
   commentScrollingBasicSpeed: 120,
   commentScrollingExtraSpeedPerPixel: 0.2,
+  ownCommentBorder: { width: 1, color: "green" },
+  ownCommentPaddingLeft: 2,
+  ownCommentPaddingRight: 2,
 };
 
 function createCSSRenderer(options: Options): CSSRenderer {
-  const finalOptions = merge({}, defaultOptions, options);
+  const _finalOptions = merge({}, defaultOptions, options);
   const _events: EventEmitter<RendererEvents> = createEventEmitter();
 
-  let _stage: Stage = finalOptions.stage;
-  let _commentOpacity: number = finalOptions.commentOpacity;
-  let _commentFontFamily: string | string[] = finalOptions.commentFontFamily;
-  let _commentLineHeight: number = finalOptions.commentLineHeight;
-  let _commentTextShadow: Shadow | null = finalOptions.commentTextShadow;
+  let _stage: Stage = _finalOptions.stage;
+  let _commentOpacity: number = _finalOptions.commentOpacity;
+  let _commentFontFamily: string | string[] = _finalOptions.commentFontFamily;
+  let _commentLineHeight: number = _finalOptions.commentLineHeight;
+  let _commentTextShadow: Shadow | null = _finalOptions.commentTextShadow;
+  let _ownCommentBorder: Border | null = _finalOptions.ownCommentBorder;
+  let _ownCommentPaddingLeft: number = _finalOptions.ownCommentPaddingLeft;
+  let _ownCommentPaddingRight: number = _finalOptions.ownCommentPaddingRight;
   let _state: RendererState = "idle";
 
   const _stageElement = document.createElement("div");
@@ -112,14 +122,14 @@ function createCSSRenderer(options: Options): CSSRenderer {
     left: createScrollingPlanner({
       stage: _stage,
       direction: "left",
-      basicSpeed: finalOptions.commentScrollingBasicSpeed,
-      extraSpeedPerPixel: finalOptions.commentScrollingExtraSpeedPerPixel,
+      basicSpeed: _finalOptions.commentScrollingBasicSpeed,
+      extraSpeedPerPixel: _finalOptions.commentScrollingExtraSpeedPerPixel,
     }),
     right: createScrollingPlanner({
       stage: _stage,
       direction: "right",
-      basicSpeed: finalOptions.commentScrollingBasicSpeed,
-      extraSpeedPerPixel: finalOptions.commentScrollingExtraSpeedPerPixel,
+      basicSpeed: _finalOptions.commentScrollingBasicSpeed,
+      extraSpeedPerPixel: _finalOptions.commentScrollingExtraSpeedPerPixel,
     }),
   };
 
@@ -213,6 +223,16 @@ function createCSSRenderer(options: Options): CSSRenderer {
         } = _commentTextShadow;
 
         element.style.textShadow = `${offsetX}px ${offsetY}px ${blur}px ${color}`;
+      }
+
+      if (comment.isOwn) {
+        if (_ownCommentBorder != null) {
+          const border = _ownCommentBorder;
+          element.style.border = `${border.width}px solid ${border.color}`;
+        }
+
+        element.style.paddingLeft = _ownCommentPaddingLeft + "px";
+        element.style.paddingRight = _ownCommentPaddingRight + "px";
       }
     }
 
@@ -704,6 +724,24 @@ function createCSSRenderer(options: Options): CSSRenderer {
     },
     set commentScrollingExtraSpeedPerPixel(speed: number) {
       _scrollingPlanners.left.extraSpeedPerPixel = speed;
+    },
+    get ownCommentBorder() {
+      return _ownCommentBorder;
+    },
+    set ownCommentBorder(border: Border | null) {
+      _ownCommentBorder = border;
+    },
+    get ownCommentPaddingLeft() {
+      return _ownCommentPaddingLeft;
+    },
+    set ownCommentPaddingLeft(padding: number) {
+      _ownCommentPaddingLeft = padding;
+    },
+    get ownCommentPaddingRight() {
+      return _ownCommentPaddingRight;
+    },
+    set ownCommentPaddingRight(padding: number) {
+      _ownCommentPaddingRight = padding;
     },
     get state() {
       return _state;

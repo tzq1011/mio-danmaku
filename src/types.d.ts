@@ -22,10 +22,15 @@ interface Position {
 }
 
 interface Shadow {
-  offsetX: number;
-  offsetY: number;
-  blur: number;
-  color: string;
+  readonly offsetX: number;
+  readonly offsetY: number;
+  readonly blur: number;
+  readonly color: string;
+}
+
+interface Border {
+  readonly width: number;
+  readonly color: string;
 }
 
 type CommentEvents = {
@@ -39,6 +44,7 @@ interface Comment {
   readonly instanceId: string;
   readonly events: EventEmitter<CommentEvents>;
   readonly time: number;
+  readonly isOwn: boolean;
   readonly extra: object;
 }
 
@@ -184,6 +190,9 @@ interface Renderer {
   commentTextShadow: Shadow | null;
   commentScrollingBasicSpeed: number;
   commentScrollingExtraSpeedPerPixel: number;
+  ownCommentBorder: Border | null;
+  ownCommentPaddingLeft: number;
+  ownCommentPaddingRight: number;
   readonly state: RendererState;
   readonly events: EventEmitter<RendererEvents>;
   readonly stageElement: HTMLElement;
@@ -298,6 +307,7 @@ export {
   Dimensions,
   Position,
   Shadow,
+  Border,
   CommentEvents,
   Comment,
   CommentTextTrait,

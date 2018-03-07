@@ -22,6 +22,7 @@ import { createEventEmitter } from "./event-emitter";
 
 interface CommentOptionsDefault {
   time: Comment["time"];
+  isOwn: Comment["isOwn"];
   extra: Comment["extra"];
 }
 
@@ -80,6 +81,7 @@ const defaultOptions: {
 } = {
   createComment: {
     time: 0,
+    isOwn: false,
     extra: {},
   },
   mixinCommentTextTrait: {
@@ -119,6 +121,7 @@ function createComment(options: CommentOptions = {}): Comment {
     instanceId,
     events,
     time: finalOptions.time,
+    isOwn: finalOptions.isOwn,
     extra: finalOptions.extra,
   };
 
