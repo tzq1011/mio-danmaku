@@ -7,11 +7,18 @@
   <title>Document</title>
 </head>
 <body>
-  <div id="danmaku-player" style="background-color: #333; width: 800px; height: 600px;"></div>
-  <script src="bundle.js"></script>
+  <div id="danmaku-player" style="background-color: #333; width: 846px; height: 566px;"></div>
+  <script src="mio-danmaku.js"></script>
   <script>
+    const {
+      createStage,
+      createScrollingComment,
+      createStackingComment,
+      createPlayer,
+    } = mioDanmaku;
+
     const container = document.getElementById("danmaku-player");
-    
+
     let elapsedTimeWhenPaused = 0;
     let timeWhenPlaying;
 
@@ -36,8 +43,8 @@
       player.pause();
     }
 
-    const stage = mio.createStage({ width: 800, height: 600 });
-    const player = mio.createPlayer({ stage, timeGetter });
+    const stage = createStage({ width: 846, height: 566 });
+    const player = createPlayer({ stage, timeGetter });
     container.appendChild(player.element);
 
     const xhr = new XMLHttpRequest();
@@ -52,7 +59,7 @@
         const time = Math.round(pItems[0] * 1000);
         const type = pItems[1];
         const fontSize = pItems[2];
-        const fontColor = "#" + Number(pItems[3]).toString(16);
+        const fontColor = "#" + Number(pItems[3]).toString(16).padStart(6, "0");
 
         const commonOptions = {
           time,
@@ -64,7 +71,7 @@
         let comment;
 
         if (type === "1") {
-          comment = mio.createScrollingComment(commonOptions);
+          comment = createScrollingComment(commonOptions);
         } else if (type === "4") {
           const options = Object.assign(
             {},
@@ -72,7 +79,7 @@
             { stackingDirection: "up" }
           );
 
-          comment = mio.createStackingComment(options);
+          comment = createStackingComment(options);
         } else if (type === "5") {
           const options = Object.assign(
             {},
@@ -80,7 +87,7 @@
             { stackingDirection: "down" }
           );
 
-          comment = mio.createStackingComment(options);
+          comment = createStackingComment(options);
         }
 
         if (comment != null) {
@@ -95,6 +102,12 @@
     xhr.open("GET", "bilibili.xml");
     xhr.responseType = "document";
     xhr.send();
+
+    // player.play();
+    // player.renderer.renderComment(mioDanmaku.createScrollingComment({ text: "笑死了", isOwn: true }));
+    // setTimeout(() => {
+    //   player.renderer.renderComment(mioDanmaku.createScrollingComment({ text: "笑死了333", isOwn: true }));
+    // }, 1000);
 
   </script>
 </body>

@@ -1,18 +1,20 @@
-const path = require('path');
+const path = require("path");
 
 module.exports = {
   mode: "development",
-  entry: './src/index.ts',
+  entry: "./src/index.ts",
   output: {
-    path: path.join(__dirname, 'dist'),
-    filename: 'bundle.js'
+    path: path.join(__dirname, "dist"),
+    filename: "mio-danmaku.js",
+    library: "mioDanmaku",
+    libraryTarget: "umd",
   },
   resolve: {
-    extensions: ['.ts', '.tsx', '.js']
+    extensions: [".ts", ".tsx", ".js"]
   },
   module: {
     rules: [
-      { test: /\.tsx?$/, use: 'ts-loader' }
+      { test: /\.tsx?$/, use: "ts-loader" }
     ]
   },
   devtool: "inline-source-map",

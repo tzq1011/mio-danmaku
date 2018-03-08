@@ -136,17 +136,26 @@ interface Stage {
   readonly marginBottom: number;
 }
 
+type StackingFilter<B extends StackingBlock = StackingBlock> =
+  (block: B, topY: number, bottomY: number) => boolean;
+
+interface StackingBlock {
+  readonly width: number;
+  readonly height: number;
+}
+
 interface StackingPlan {
   readonly topY: number;
   readonly bottomY: number;
-  readonly isCanceled: boolean;
-  cancel(): void;
+  readonly isSpaceFreed: boolean;
+  freeSpace(): void;
 }
 
-interface StackingPlanner {
+interface StackingPlanner<B extends StackingBlock = StackingBlock> {
   stage: Stage;
+  filter: StackingFilter<B> | null;
   readonly direction: "up" | "down";
-  plan(blockHeight: number): StackingPlan;
+  plan(stackingBlock: B): StackingPlan;
 }
 
 interface ScrollingPlan {
@@ -326,6 +335,8 @@ export {
   CommentPoolEvents,
   CommentPool,
   Stage,
+  StackingFilter,
+  StackingBlock,
   StackingPlan,
   StackingPlanner,
   ScrollingPlan,

@@ -24,15 +24,15 @@ const defaultOptions: OptionsDefault = {
 };
 
 function createScrollingPlanner(options: Options): ScrollingPlanner {
-  const finalOptions = {
+  const _finalOptions = {
     ...defaultOptions,
     ...options,
   };
 
-  const _direction: ("left" | "right") = finalOptions.direction;
-  let _stage: Stage = finalOptions.stage;
-  let _basicSpeed: number = finalOptions.basicSpeed;
-  let _extraSpeedPerPixel: number = finalOptions.extraSpeedPerPixel;
+  const _direction: ("left" | "right") = _finalOptions.direction;
+  let _stage: Stage = _finalOptions.stage;
+  let _basicSpeed: number = _finalOptions.basicSpeed;
+  let _extraSpeedPerPixel: number = _finalOptions.extraSpeedPerPixel;
 
   function plan(blockWidth: number): ScrollingPlan {
     let fromX: number;
