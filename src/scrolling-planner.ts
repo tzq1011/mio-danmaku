@@ -1,24 +1,25 @@
 import {
-  Stage,
   ScrollingPlan,
   ScrollingPlanner,
 } from "./types";
 
 interface Options {
-  stage: ScrollingPlanner["stage"];
   direction?: ScrollingPlanner["direction"];
+  marqueeWidth?: ScrollingPlanner["marqueeWidth"];
   basicSpeed?: ScrollingPlanner["basicSpeed"];
   extraSpeedPerPixel?: ScrollingPlanner["extraSpeedPerPixel"];
 }
 
-interface OptionsDefault {
+interface DefaultOptions {
   direction: ScrollingPlanner["direction"];
+  marqueeWidth: ScrollingPlanner["marqueeWidth"];
   basicSpeed: ScrollingPlanner["basicSpeed"];
   extraSpeedPerPixel: ScrollingPlanner["extraSpeedPerPixel"];
 }
 
-const defaultOptions: OptionsDefault = {
+const defaultOptions: DefaultOptions = {
   direction: "left",
+  marqueeWidth: 800,
   basicSpeed: 120,
   extraSpeedPerPixel: 0.2,
 };
@@ -30,52 +31,52 @@ function createScrollingPlanner(options: Options): ScrollingPlanner {
   };
 
   const _direction: ("left" | "right") = _finalOptions.direction;
-  let _stage: Stage = _finalOptions.stage;
+  let _marqueeWidth: number = _finalOptions.marqueeWidth;
   let _basicSpeed: number = _finalOptions.basicSpeed;
   let _extraSpeedPerPixel: number = _finalOptions.extraSpeedPerPixel;
 
-  function plan(blockWidth: number): ScrollingPlan {
+  function scroll(contentWidth: number): ScrollingPlan {
     let fromX: number;
     let toX: number;
 
     if (_direction === "left") {
-      fromX = _stage.width;
-      toX = -blockWidth;
+      fromX = _marqueeWidth;
+      toX = -contentWidth;
     } else if (_direction === "right") {
-      fromX = -blockWidth;
-      toX = _stage.width;
+      fromX = -contentWidth;
+      toX = _marqueeWidth;
     } else {
       throw new Error(`Unexpected direction: ${_direction}`);
     }
 
-    const distance: number = _stage.width + blockWidth;
-    const extraSpeed: number = _extraSpeedPerPixel * blockWidth;
+    const distance: number = _marqueeWidth + contentWidth;
+    const extraSpeed: number = _extraSpeedPerPixel * contentWidth;
     const speed: number = _basicSpeed + extraSpeed;
     const duration: number = distance / speed * 1000;
 
-    const scrollingPlan: ScrollingPlan = {
+    const plan: ScrollingPlan = {
       fromX,
       toX,
       speed,
       duration,
     };
 
-    Object.defineProperties(scrollingPlan, {
+    Object.defineProperties(plan, {
       fromX: { writable: false },
       toX: { writable: false },
       speed: { writable: false },
       duration: { writable: false },
     });
 
-    return scrollingPlan;
+    return plan;
   }
 
   const planner: ScrollingPlanner = {
-    get stage() {
-      return _stage;
+    get marqueeWidth() {
+      return _marqueeWidth;
     },
-    set stage(stage: Stage) {
-      _stage = stage;
+    set marqueeWidth(width: number) {
+      _marqueeWidth = width;
     },
     get basicSpeed() {
       return _basicSpeed;
@@ -92,7 +93,7 @@ function createScrollingPlanner(options: Options): ScrollingPlanner {
     get direction() {
       return _direction;
     },
-    plan,
+    scroll,
   };
 
   return planner;

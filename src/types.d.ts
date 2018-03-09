@@ -160,11 +160,11 @@ interface ScrollingPlan {
 }
 
 interface ScrollingPlanner {
-  stage: number;
+  marqueeWidth: number;
   basicSpeed: number;
   extraSpeedPerPixel: number;
   readonly direction: "left" | "right";
-  plan(blockWidth: number): ScrollingPlan;
+  scroll(contentWidth: number): ScrollingPlan;
 }
 
 interface CommentView {
