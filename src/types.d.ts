@@ -45,7 +45,6 @@ interface Comment {
   readonly events: EventEmitter<CommentEvents>;
   readonly time: number;
   readonly isOwn: boolean;
-  readonly extra: object;
 }
 
 interface CommentTextTrait {
@@ -136,26 +135,21 @@ interface Stage {
   readonly marginBottom: number;
 }
 
-type StackingFilter<B extends StackingBlock = StackingBlock> =
-  (block: B, topY: number, bottomY: number) => boolean;
+type StackSpaceFilter = (topY: number, bottomY: number) => boolean;
 
-interface StackingBlock {
-  readonly width: number;
-  readonly height: number;
-}
-
-interface StackingPlan {
+interface StackSpace {
   readonly topY: number;
   readonly bottomY: number;
-  readonly isSpaceFreed: boolean;
-  freeSpace(): void;
+  readonly isFreed: boolean;
+  free(): void;
 }
 
-interface StackingPlanner<B extends StackingBlock = StackingBlock> {
-  stage: Stage;
-  filter: StackingFilter<B> | null;
+interface Stack {
+  height: number;
+  marginTop: number;
+  marginBottom: number;
   readonly direction: "up" | "down";
-  plan(stackingBlock: B): StackingPlan;
+  allocate(height: number, filter?: StackSpaceFilter): StackSpace;
 }
 
 interface ScrollingPlan {
@@ -166,7 +160,7 @@ interface ScrollingPlan {
 }
 
 interface ScrollingPlanner {
-  stage: Stage;
+  stage: number;
   basicSpeed: number;
   extraSpeedPerPixel: number;
   readonly direction: "left" | "right";
@@ -335,10 +329,9 @@ export {
   CommentPoolEvents,
   CommentPool,
   Stage,
-  StackingFilter,
-  StackingBlock,
-  StackingPlan,
-  StackingPlanner,
+  StackSpaceFilter,
+  StackSpace,
+  Stack,
   ScrollingPlan,
   ScrollingPlanner,
   CommentView,

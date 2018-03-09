@@ -23,7 +23,6 @@ import { createEventEmitter } from "./event-emitter";
 interface CommentOptionsDefault {
   time: Comment["time"];
   isOwn: Comment["isOwn"];
-  extra: Comment["extra"];
 }
 
 type CommentTextTraitOptionsDefault = CommentTextTrait;
@@ -82,7 +81,6 @@ const defaultOptions: {
   createComment: {
     time: 0,
     isOwn: false,
-    extra: {},
   },
   mixinCommentTextTrait: {
     text: "Nya",
@@ -122,7 +120,6 @@ function createComment(options: CommentOptions = {}): Comment {
     events,
     time: finalOptions.time,
     isOwn: finalOptions.isOwn,
-    extra: finalOptions.extra,
   };
 
   Object.defineProperties(comment, {
