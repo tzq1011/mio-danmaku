@@ -55,14 +55,14 @@ function createPlayer(options: Options): Player {
     if (time < _prevTime || (time - _prevTime > 500)) {
       _renderer.getRenderingComments()
         .forEach((comment) => _renderer.unrenderComment(comment));
-    }
+    } else {
+      const renderingCommentsCount = _renderer.getRenderingCommentsCount();
+      const maxNewComments: number = Math.max(_maxRenderingComments - renderingCommentsCount, 0);
 
-    const renderingCommentsCount = _renderer.getRenderingCommentsCount();
-    const maxNewComments: number = Math.max(_maxRenderingComments - renderingCommentsCount, 0);
-
-    if (maxNewComments > 0) {
-      _commentPool.getByTime(_prevTime, time, maxNewComments)
-        .forEach((comment) => _renderer.renderComment(comment));
+      if (maxNewComments > 0) {
+        _commentPool.getByTime(_prevTime, time, maxNewComments)
+          .forEach((comment) => _renderer.renderComment(comment));
+      }
     }
 
     _prevTime = time;
