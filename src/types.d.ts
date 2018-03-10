@@ -33,6 +33,8 @@ interface Border {
   readonly color: string;
 }
 
+type VerticalSpaceFilter = (topY: number, bottomY: number) => boolean;
+
 type CommentEvents = {
   rendering: null,
   renderingCanceled: null,
@@ -128,6 +130,13 @@ interface CommentPool {
   clearFilters(): void;
 }
 
+interface CommentView {
+  readonly isDestroyed: boolean;
+  measure(): Dimensions;
+  locate(): Position;
+  destroy(): void;
+}
+
 interface Stage {
   readonly width: number;
   readonly height: number;
@@ -135,21 +144,19 @@ interface Stage {
   readonly marginBottom: number;
 }
 
-type StackSpaceFilter = (topY: number, bottomY: number) => boolean;
-
-interface StackSpace {
+interface StackingPlan {
   readonly topY: number;
   readonly bottomY: number;
-  readonly isFreed: boolean;
-  free(): void;
+  readonly isCanceled: boolean;
+  cancel(): void;
 }
 
-interface Stack {
-  height: number;
-  marginTop: number;
-  marginBottom: number;
+interface StackingPlanner {
+  containerHeight: number;
+  containerMarginTop: number;
+  containerMarginBottom: number;
   readonly direction: "up" | "down";
-  allocate(height: number, filter?: StackSpaceFilter): StackSpace;
+  plan(blockHeight: number, spaceFilter?: VerticalSpaceFilter): StackingPlan;
 }
 
 interface ScrollingPlan {
@@ -164,14 +171,7 @@ interface ScrollingPlanner {
   basicSpeed: number;
   extraSpeedPerPixel: number;
   readonly direction: "left" | "right";
-  scroll(contentWidth: number): ScrollingPlan;
-}
-
-interface CommentView {
-  readonly isDestroyed: boolean;
-  measure(): Dimensions;
-  locate(): Position;
-  destroy(): void;
+  plan(contentWidth: number): ScrollingPlan;
 }
 
 type RendererState =
@@ -312,6 +312,7 @@ export {
   Position,
   Shadow,
   Border,
+  VerticalSpaceFilter,
   CommentEvents,
   Comment,
   CommentTextTrait,
@@ -328,13 +329,12 @@ export {
   CommentFilter,
   CommentPoolEvents,
   CommentPool,
+  CommentView,
   Stage,
-  StackSpaceFilter,
-  StackSpace,
-  Stack,
+  StackingPlan,
+  StackingPlanner,
   ScrollingPlan,
   ScrollingPlanner,
-  CommentView,
   RendererState,
   RendererEvents,
   Renderer,

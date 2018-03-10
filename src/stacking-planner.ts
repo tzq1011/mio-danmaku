@@ -1,54 +1,54 @@
 import {
-  Stack,
-  StackSpace,
-  StackSpaceFilter,
+  StackingPlan,
+  StackingPlanner,
+  VerticalSpaceFilter,
 } from "./types";
 
-interface Options {
-  height?: Stack["height"];
-  marginTop?: Stack["marginTop"];
-  marginBottom?: Stack["marginBottom"];
-  direction?: Stack["direction"];
+interface StackingPlannerOptions {
+  containerHeight?: StackingPlanner["containerHeight"];
+  containerMarginTop?: StackingPlanner["containerMarginTop"];
+  containerMarginBottom?: StackingPlanner["containerMarginBottom"];
+  direction?: StackingPlanner["direction"];
 }
 
 interface DefaultOptions {
-  height: Stack["height"];
-  marginTop: Stack["marginTop"];
-  marginBottom: Stack["marginBottom"];
-  direction: Stack["direction"];
+  containerHeight: StackingPlanner["containerHeight"];
+  containerMarginTop: StackingPlanner["containerMarginTop"];
+  containerMarginBottom: StackingPlanner["containerMarginBottom"];
+  direction: StackingPlanner["direction"];
 }
 
-interface Space {
+interface Row {
   topY: number;
   bottomY: number;
 }
 
 const defaultOptions: DefaultOptions = {
-  height: 800,
-  marginTop: 0,
-  marginBottom: 0,
+  containerHeight: 800,
+  containerMarginTop: 0,
+  containerMarginBottom: 0,
   direction: "up",
 };
 
-function createStack(options: Options): Stack {
+function createStackingPlanner(options: StackingPlannerOptions): StackingPlanner {
   const _finalOptions = {
     ...defaultOptions,
     ...options,
   };
 
   const _direction: ("up" | "down") = _finalOptions.direction;
-  const _columns: Space[][] = [];
+  const _columns: Row[][] = [];
 
-  let _height: number = _finalOptions.height;
-  let _marginTop: number = _finalOptions.marginTop;
-  let _marginBottom: number = _finalOptions.marginBottom;
+  let _containerHeight: number = _finalOptions.containerHeight;
+  let _containerMarginTop: number = _finalOptions.containerMarginTop;
+  let _containerMarginBottom: number = _finalOptions.containerMarginBottom;
 
   function _findAvailableSpace(
     height: number,
     minY: number,
     maxY: number,
-    filter?: StackSpaceFilter,
-  ): Space | null {
+    filter?: VerticalSpaceFilter,
+  ): Row | null {
     if (filter == null || height === 0) {
       return {
         topY: minY,
@@ -95,15 +95,15 @@ function createStack(options: Options): Stack {
     return null;
   }
 
-  function allocate(height: number, filter?: StackSpaceFilter): StackSpace {
-    const minY: number = _marginTop;
-    const maxY: number = _height - _marginBottom;
-    const maxHeight: number = _height - _marginTop - _marginBottom;
+  function plan(blockHeight: number, spaceFilter?: VerticalSpaceFilter): StackingPlan {
+    const minY: number = _containerMarginTop;
+    const maxY: number = _containerHeight - _containerMarginBottom;
+    const maxHeight: number = _containerHeight - _containerMarginTop - _containerMarginBottom;
 
     let topY: number | undefined;
     let bottomY: number | undefined;
-    let isFreed: boolean = false;
-    let free: (() => void) | undefined;
+    let isCanceled: boolean = false;
+    let cancel: (() => void) | undefined;
     let columnIndex: number = 0;
 
     do {
@@ -114,7 +114,7 @@ function createStack(options: Options): Stack {
       const rows = _columns[columnIndex];
       let newRowIndex: number | undefined;
 
-      if (height >= maxHeight) {
+      if (blockHeight >= maxHeight) {
         if (rows.length === 0) {
           newRowIndex = 0;
         }
@@ -129,11 +129,11 @@ function createStack(options: Options): Stack {
               break;
             }
 
-            if ((bottomY - row.bottomY) >= height) {
+            if ((bottomY - row.bottomY) >= blockHeight) {
               let isSpaceAvailable: boolean = false;
 
               if (columnIndex === 0) {
-                const availableSpace = _findAvailableSpace(height, row.bottomY, bottomY, filter);
+                const availableSpace = _findAvailableSpace(blockHeight, row.bottomY, bottomY, spaceFilter);
 
                 if (availableSpace != null) {
                   bottomY = availableSpace.bottomY;
@@ -154,12 +154,12 @@ function createStack(options: Options): Stack {
 
           if (
             newRowIndex == null &&
-            (bottomY - minY) >= height
+            (bottomY - minY) >= blockHeight
           ) {
             let isSpaceAvailable: boolean = false;
 
             if (columnIndex === 0) {
-              const availableSpace = _findAvailableSpace(height, minY, bottomY, filter);
+              const availableSpace = _findAvailableSpace(blockHeight, minY, bottomY, spaceFilter);
 
               if (availableSpace != null) {
                 bottomY = availableSpace.bottomY;
@@ -182,11 +182,11 @@ function createStack(options: Options): Stack {
               break;
             }
 
-            if ((row.topY - topY) >= height) {
+            if ((row.topY - topY) >= blockHeight) {
               let isSpaceAvailable: boolean = false;
 
               if (columnIndex === 0) {
-                const availableSpace = _findAvailableSpace(height, topY, row.topY, filter);
+                const availableSpace = _findAvailableSpace(blockHeight, topY, row.topY, spaceFilter);
 
                 if (availableSpace != null) {
                   topY = availableSpace.topY;
@@ -207,12 +207,12 @@ function createStack(options: Options): Stack {
 
           if (
             newRowIndex == null &&
-            (maxY - topY) >= height
+            (maxY - topY) >= blockHeight
           ) {
             let isSpaceAvailable: boolean = false;
 
             if (columnIndex === 0) {
-              const availableSpace = _findAvailableSpace(height, topY, maxY, filter);
+              const availableSpace = _findAvailableSpace(blockHeight, topY, maxY, spaceFilter);
 
               if (availableSpace != null) {
                 topY = availableSpace.topY;
@@ -235,22 +235,22 @@ function createStack(options: Options): Stack {
             throw new Error("BottomY not found.");
           }
 
-          topY = bottomY - height;
+          topY = bottomY - blockHeight;
         } else if (_direction === "down") {
           if (topY == null) {
             throw new Error("TopY not found.");
           }
 
-          bottomY = topY + height;
+          bottomY = topY + blockHeight;
         } else {
           throw new Error(`Unexpected direction: ${_direction}`);
         }
 
-        const newRow: Space = { topY, bottomY };
+        const newRow: Row = { topY, bottomY };
         rows.splice(newRowIndex, 0, newRow);
 
-        free = () => {
-          if (isFreed) {
+        cancel = () => {
+          if (isCanceled) {
             return;
           }
 
@@ -260,7 +260,7 @@ function createStack(options: Options): Stack {
           }
 
           rows.splice(rowIndex, 1);
-          isFreed = true;
+          isCanceled = true;
         };
 
         break;
@@ -272,57 +272,58 @@ function createStack(options: Options): Stack {
     if (
       topY == null ||
       bottomY == null ||
-      free == null
+      cancel == null
     ) {
       throw new Error("Unexpected results.");
     }
 
-    const space: StackSpace = {
-      get isFreed() {
-        return isFreed;
+    const stackingPlan: StackingPlan = {
+      get isCanceled() {
+        return isCanceled;
       },
       topY,
       bottomY,
-      free,
+      cancel,
     };
 
-    Object.defineProperties(space, {
+    Object.defineProperties(stackingPlan, {
       topY: { writable: false },
       bottomY: { writable: false },
     });
 
-    return space;
+    return stackingPlan;
   }
 
-  const stack: Stack = {
-    get height() {
-      return _height;
+  const planner: StackingPlanner = {
+    get containerHeight() {
+      return _containerHeight;
     },
-    set height(height: number) {
-      _height = height;
+    set containerHeight(height: number) {
+      _containerHeight = height;
     },
-    get marginTop() {
-      return _marginTop;
+    get containerMarginTop() {
+      return _containerMarginTop;
     },
-    set marginTop(marginTop: number) {
-      _marginTop = marginTop;
+    set containerMarginTop(margin: number) {
+      _containerMarginTop = margin;
     },
-    get marginBottom() {
-      return _marginBottom;
+    get containerMarginBottom() {
+      return _containerMarginBottom;
     },
-    set marginBottom(marginBottom: number) {
-      _marginBottom = marginBottom;
+    set containerMarginBottom(margin: number) {
+      _containerMarginBottom = margin;
     },
     get direction() {
       return _direction;
     },
-    allocate,
+    plan,
   };
 
-  return stack;
+  return planner;
 }
 
 export {
+  StackingPlannerOptions,
   defaultOptions,
-  createStack,
+  createStackingPlanner,
 };

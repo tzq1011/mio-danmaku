@@ -20,8 +20,8 @@ interface DefaultOptions {
 const defaultOptions: DefaultOptions = {
   direction: "left",
   marqueeWidth: 800,
-  basicSpeed: 120,
-  extraSpeedPerPixel: 0.2,
+  basicSpeed: 0.120,
+  extraSpeedPerPixel: 0.0002,
 };
 
 function createScrollingPlanner(options: Options): ScrollingPlanner {
@@ -35,7 +35,7 @@ function createScrollingPlanner(options: Options): ScrollingPlanner {
   let _basicSpeed: number = _finalOptions.basicSpeed;
   let _extraSpeedPerPixel: number = _finalOptions.extraSpeedPerPixel;
 
-  function scroll(contentWidth: number): ScrollingPlan {
+  function plan(contentWidth: number): ScrollingPlan {
     let fromX: number;
     let toX: number;
 
@@ -52,23 +52,23 @@ function createScrollingPlanner(options: Options): ScrollingPlanner {
     const distance: number = _marqueeWidth + contentWidth;
     const extraSpeed: number = _extraSpeedPerPixel * contentWidth;
     const speed: number = _basicSpeed + extraSpeed;
-    const duration: number = distance / speed * 1000;
+    const duration: number = distance / speed;
 
-    const plan: ScrollingPlan = {
+    const scrollingPlan: ScrollingPlan = {
       fromX,
       toX,
       speed,
       duration,
     };
 
-    Object.defineProperties(plan, {
+    Object.defineProperties(scrollingPlan, {
       fromX: { writable: false },
       toX: { writable: false },
       speed: { writable: false },
       duration: { writable: false },
     });
 
-    return plan;
+    return scrollingPlan;
   }
 
   const planner: ScrollingPlanner = {
@@ -93,7 +93,7 @@ function createScrollingPlanner(options: Options): ScrollingPlanner {
     get direction() {
       return _direction;
     },
-    scroll,
+    plan,
   };
 
   return planner;
