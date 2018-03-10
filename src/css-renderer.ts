@@ -7,19 +7,17 @@ import {
   Position,
   Shadow,
   Border,
-  StackingFilter,
-  StackingBlock,
   StackingPlan,
+  StackingPlanner,
+  ScrollingPlanner,
   ScrollingPlan,
   EventEmitter,
   RendererState,
   RendererEvents,
   CSSRenderer,
   CSSScrollingAnimation,
-  StackingPlanner,
+  VerticalSpaceFilter,
 } from "./types";
-
-import merge from "lodash/merge";
 
 import {
   hasCommentTextTrait,
@@ -34,7 +32,7 @@ import {
 
 import { createTimer } from "./timer";
 import { createEventEmitter } from "./event-emitter";
-import { createStackingPlanner } from "./stacking-planner";
+import { createStackingPlanner, StackingPlannerOptions } from "./stacking-planner";
 import { createScrollingPlanner } from "./scrolling-planner";
 import { createCSSScrollingAnimation } from "./css-scrolling-animation";
 import domOperator from "./dom-operator";
@@ -49,7 +47,7 @@ interface Options {
   commentScrollingExtraSpeedPerPixel?: CSSRenderer["commentScrollingExtraSpeedPerPixel"];
 }
 
-interface OptionsDefault {
+interface DefaultOptions {
   commentOpacity: CSSRenderer["commentOpacity"];
   commentFontFamily: CSSRenderer["commentFontFamily"];
   commentLineHeight: CSSRenderer["commentLineHeight"];
@@ -59,18 +57,6 @@ interface OptionsDefault {
   ownCommentBorder: CSSRenderer["ownCommentBorder"];
   ownCommentPaddingLeft: CSSRenderer["ownCommentPaddingLeft"];
   ownCommentPaddingRight: CSSRenderer["ownCommentPaddingRight"];
-}
-
-interface ScrollingStackingBlock extends StackingBlock {
-  scrollingPlan: ScrollingPlan;
-}
-
-interface ScrollingCommentRenderingStatus {
-  readonly width: number;
-  readonly height: number;
-  readonly positionY: number;
-  readonly scrollingPlan: ScrollingPlan;
-  readonly scrollingAnimation: CSSScrollingAnimation;
 }
 
 type CommentRenderingState =
@@ -87,20 +73,33 @@ interface CommentRenderingProcess {
   cancel: () => void;
 }
 
-const defaultOptions: OptionsDefault = {
+interface ScrollingCommentStatus {
+  readonly width: number;
+  readonly height: number;
+  readonly initialY: number;
+  readonly scrollingPlan: ScrollingPlan;
+  readonly scrollingDirection: "left" | "right";
+  readonly scrollingAnimation: CSSScrollingAnimation;
+}
+
+const defaultOptions: DefaultOptions = {
   commentOpacity: 1,
-  commentFontFamily: ["黑体", "Microsoft Yahei", "sans-serif"],
+  commentFontFamily: ["Microsoft Yahei", "sans-serif"],
   commentLineHeight: 1.2,
   commentTextShadow: { offsetX: 0, offsetY: 0, blur: 3, color: "#000" },
-  commentScrollingBasicSpeed: 120,
-  commentScrollingExtraSpeedPerPixel: 0.2,
+  commentScrollingBasicSpeed: 0.120,
+  commentScrollingExtraSpeedPerPixel: 0.0002,
   ownCommentBorder: { width: 1, color: "green" },
   ownCommentPaddingLeft: 2,
   ownCommentPaddingRight: 2,
 };
 
 function createCSSRenderer(options: Options): CSSRenderer {
-  const _finalOptions = merge({}, defaultOptions, options);
+  const _finalOptions = {
+    ...defaultOptions,
+    ...options,
+  };
+
   const _events: EventEmitter<RendererEvents> = createEventEmitter();
 
   let _stage: Stage = _finalOptions.stage;
@@ -108,6 +107,8 @@ function createCSSRenderer(options: Options): CSSRenderer {
   let _commentFontFamily: string | string[] = _finalOptions.commentFontFamily;
   let _commentLineHeight: number = _finalOptions.commentLineHeight;
   let _commentTextShadow: Shadow | null = _finalOptions.commentTextShadow;
+  let _commentScrollingBasicSpeed: number = _finalOptions.commentScrollingBasicSpeed;
+  let _commentScrollingExtraSpeedPerPixel: number = _finalOptions.commentScrollingExtraSpeedPerPixel;
   let _ownCommentBorder: Border | null = _finalOptions.ownCommentBorder;
   let _ownCommentPaddingLeft: number = _finalOptions.ownCommentPaddingLeft;
   let _ownCommentPaddingRight: number = _finalOptions.ownCommentPaddingRight;
@@ -126,96 +127,44 @@ function createCSSRenderer(options: Options): CSSRenderer {
   _stageElement.style.msUserSelect = "none";
   _stageElement.style.userSelect = "none";
 
-  const _commentRenderingProcesses: Map<Comment, CommentRenderingProcess> = new Map();
-  const _scrollingCommentRenderingStatuses: Set<ScrollingCommentRenderingStatus> = new Set();
-
-  function _scrollingStackingFilter(
-    block: ScrollingStackingBlock,
-    blockTopY: number,
-    blockBottomY: number,
-  ): boolean {
-    const blockScrollingPlan = block.scrollingPlan;
-
-    for (const status of _scrollingCommentRenderingStatuses) {
-      const commentWidth = status.width;
-      const commentHeight = status.height;
-      const commentTopY = status.positionY;
-      const commentBottomY = commentTopY + commentHeight;
-      const commentScrollingPlan = status.scrollingPlan;
-      const commentScrollingAnimation = status.scrollingAnimation;
-
-      if (!(blockTopY < commentBottomY && blockBottomY > commentTopY)) {
-        continue;
-      }
-
-      const blockScrollingDirection = (blockScrollingPlan.fromX - blockScrollingPlan.toX) > 0 ? "left" : "right";
-      const commentScrollingDirection = (commentScrollingPlan.fromX - commentScrollingPlan.toX) > 0 ? "left" : "right";
-
-      if (blockScrollingDirection !== commentScrollingDirection) {
-        return false;
-      }
-
-      if (blockScrollingPlan.speed <= commentScrollingPlan.speed) {
-        continue;
-      }
-
-      const commentLeftX = commentScrollingAnimation.currentX;
-      const commentRightX = commentLeftX + commentWidth;
-      let distance: number;
-
-      if (blockScrollingDirection === "left") {
-        distance = blockScrollingPlan.fromX - commentRightX;
-      } else if (blockScrollingDirection === "right") {
-        distance = commentLeftX - blockScrollingPlan.fromX + block.width;
-      } else {
-        throw new Error(`Unexpected direction: ${blockScrollingDirection}`);
-      }
-
-      const speedDiff: number = blockScrollingPlan.speed - commentScrollingPlan.speed;
-      const collisionTime: number = distance / speedDiff * 1000;
-      const commentScrollingRemainingTime: number =
-        commentScrollingAnimation.duration - commentScrollingAnimation.elapsedTime;
-
-      if (collisionTime < commentScrollingRemainingTime) {
-        return false;
-      }
-    }
-
-    return true;
-  }
-
-  const _stackingPlanners = {
-    up: createStackingPlanner({ stage: _stage, direction: "up" }),
-    down: createStackingPlanner({ stage: _stage, direction: "down" }),
+  const _commentStackingPlannerOptionsUp: StackingPlannerOptions = {
+    containerHeight: _stage.height,
+    containerMarginTop: _stage.marginTop,
+    containerMarginBottom: _stage.marginBottom,
+    direction: "up" as "up",
   };
 
-  const _scrollingPlanners = {
+  const _commentStackingPlannerOptionsDown: StackingPlannerOptions = {
+    containerHeight: _stage.height,
+    containerMarginTop: _stage.marginTop,
+    containerMarginBottom: _stage.marginBottom,
+    direction: "down" as "down",
+  };
+
+  const _commentStackingPlanners = {
+    up: createStackingPlanner(_commentStackingPlannerOptionsUp),
+    down: createStackingPlanner(_commentStackingPlannerOptionsDown),
+    upScrolling: createStackingPlanner(_commentStackingPlannerOptionsUp),
+    downScrolling: createStackingPlanner(_commentStackingPlannerOptionsDown),
+  };
+
+  const _commentScrollingPlanners = {
     left: createScrollingPlanner({
-      stage: _stage,
       direction: "left",
-      basicSpeed: _finalOptions.commentScrollingBasicSpeed,
-      extraSpeedPerPixel: _finalOptions.commentScrollingExtraSpeedPerPixel,
+      marqueeWidth: _stage.width,
+      basicSpeed: _commentScrollingBasicSpeed,
+      extraSpeedPerPixel: _commentScrollingExtraSpeedPerPixel,
     }),
     right: createScrollingPlanner({
-      stage: _stage,
       direction: "right",
-      basicSpeed: _finalOptions.commentScrollingBasicSpeed,
-      extraSpeedPerPixel: _finalOptions.commentScrollingExtraSpeedPerPixel,
+      marqueeWidth: _stage.width,
+      basicSpeed: _commentScrollingBasicSpeed,
+      extraSpeedPerPixel: _commentScrollingExtraSpeedPerPixel,
     }),
   };
 
-  const _scrollingStackingPlanners = {
-    up: createStackingPlanner<ScrollingStackingBlock>({
-      stage: _stage,
-      filter: _scrollingStackingFilter,
-      direction: "up",
-    }),
-    down: createStackingPlanner<ScrollingStackingBlock>({
-      stage: _stage,
-      filter: _scrollingStackingFilter,
-      direction: "down",
-    }),
-  };
+  const _commentRenderingProcesses: Map<Comment, CommentRenderingProcess> = new Map();
+  const _scrollingCommentStatuses: Set<ScrollingCommentStatus> = new Set();
 
   function run(): void {
     if (_state !== "idle" && _state !== "paused") {
@@ -368,8 +317,8 @@ function createCSSRenderer(options: Options): CSSRenderer {
     }
 
     let isArranged: boolean = false;
-    let positionX: number = 0;
-    let positionY: number = 0;
+    let initialX: number = 0;
+    let initialY: number = 0;
     let stackingPlan: StackingPlan | undefined;
     let scrollingPlan: ScrollingPlan | undefined;
 
@@ -389,22 +338,22 @@ function createCSSRenderer(options: Options): CSSRenderer {
       }
 
       if (hasCommentPositionXTrait(comment)) {
-        positionX = comment.positionX;
+        initialX = comment.positionX;
       }
 
       if (hasCommentPositionYTrait(comment)) {
-        positionY = comment.positionY;
+        initialY = comment.positionY;
       }
 
       if (hasCommentHorizontalAlignmentTrait(comment)) {
         const alignment: ("left" | "center" | "right") = comment.horizontalAlignment;
 
         if (alignment === "left") {
-          positionX = 0;
+          initialX = 0;
         } else if (alignment === "center") {
-          positionX = (_stage.width / 2) - (width / 2);
+          initialX = (_stage.width / 2) - (width / 2);
         } else if (alignment === "right") {
-          positionX = _stage.width - width;
+          initialX = _stage.width - width;
         } else {
           throw new Error(`Unexpected alignment: ${alignment}`);
         }
@@ -414,55 +363,110 @@ function createCSSRenderer(options: Options): CSSRenderer {
         const alignment: ("top" | "middle" | "bottom") = comment.verticalAlignment;
 
         if (alignment === "top") {
-          positionY = _stage.marginTop;
+          initialY = _stage.marginTop;
         } else if (alignment === "middle") {
           const stageBodyHeight: number = _stage.height - _stage.marginTop - _stage.marginBottom;
-          positionY = _stage.marginTop + (stageBodyHeight / 2) - (height / 2);
+          initialY = _stage.marginTop + (stageBodyHeight / 2) - (height / 2);
         } else if (alignment === "bottom") {
-          positionY = _stage.height - _stage.marginBottom - height;
+          initialY = _stage.height - _stage.marginBottom - height;
         } else {
           throw new Error(`Unexpected alignment: ${alignment}`);
         }
       }
 
       if (hasCommentScrollingTrait(comment)) {
-        const direction: ("left" | "right") = comment.scrollingDirection;
-        let plannerKey: keyof typeof _scrollingPlanners;
+        const scrollingDirection: ("left" | "right") = comment.scrollingDirection;
+        let scrollingPlanner: ScrollingPlanner;
 
-        if (direction === "left") {
-          plannerKey = "left";
-        } else if (direction === "right") {
-          plannerKey = "right";
+        if (scrollingDirection === "left") {
+          scrollingPlanner = _commentScrollingPlanners.left;
+        } else if (scrollingDirection === "right") {
+          scrollingPlanner = _commentScrollingPlanners.right;
         } else {
-          throw new Error(`Unexpected direction: ${direction}`);
+          throw new Error(`Unexpected direction: ${scrollingDirection}`);
         }
 
-        const planner = _scrollingPlanners[plannerKey];
-        scrollingPlan = planner.plan(width);
-        positionX = scrollingPlan.fromX;
+        scrollingPlan = scrollingPlanner.plan(width);
+        initialX = scrollingPlan.fromX;
       }
 
       if (hasCommentStackingTrait(comment)) {
-        const direction: ("up" | "down") = comment.stackingDirection;
-        let plannerKey: (keyof typeof _stackingPlanners) & (keyof typeof _scrollingStackingPlanners);
+        const hasScrollingTrait = hasCommentScrollingTrait(comment);
+        const stackingDirection: ("up" | "down") = comment.stackingDirection;
+        let stackingPlannerId: keyof typeof _commentStackingPlanners;
 
-        if (direction === "up") {
-          plannerKey = "up";
-        } else if (direction === "down") {
-          plannerKey = "down";
+        if (stackingDirection === "up") {
+          stackingPlannerId = hasScrollingTrait ? "upScrolling" : "up";
+        } else if (stackingDirection === "down") {
+          stackingPlannerId = hasScrollingTrait ? "downScrolling" : "down";
         } else {
-          throw new Error(`Unexpected direction: ${direction}`);
+          throw new Error(`Unexpected direction: ${stackingDirection}`);
         }
 
-        if (scrollingPlan != null) {
-          const planner = _scrollingStackingPlanners[plannerKey];
-          stackingPlan = planner.plan({ width, height, scrollingPlan });
-        } else {
-          const planner = _stackingPlanners[plannerKey];
-          stackingPlan = planner.plan({ width, height });
+        const stackingPlanner = _commentStackingPlanners[stackingPlannerId];
+        let antiCollisionFilter: VerticalSpaceFilter | undefined;
+
+        if (hasCommentScrollingTrait(comment)) {
+          const scrollingDirection = comment.scrollingDirection;
+
+          antiCollisionFilter = (topY: number, bottomY: number): boolean => {
+            if (width == null) {
+              throw new Error("Width not found.");
+            }
+
+            if (scrollingPlan == null) {
+              throw new Error("ScrollingPlan not found.");
+            }
+
+            for (const status of _scrollingCommentStatuses) {
+              const targetWidth = status.width;
+              const targetHeight = status.height;
+              const targetTopY = status.initialY;
+              const targetBottomY = targetTopY + targetHeight;
+              const targetScrollingPlan = status.scrollingPlan;
+              const targetScrollingDirection = status.scrollingDirection;
+              const targetScrollingAnimation = status.scrollingAnimation;
+
+              if (!(topY < targetBottomY && bottomY > targetTopY)) {
+                continue;
+              }
+
+              if (scrollingDirection !== targetScrollingDirection) {
+                return false;
+              }
+
+              if (scrollingPlan.speed <= targetScrollingPlan.speed) {
+                continue;
+              }
+
+              const targetLeftX = targetScrollingAnimation.currentX;
+              const targetRightX = targetLeftX + targetWidth;
+              let distance: number;
+
+              if (scrollingDirection === "left") {
+                distance = scrollingPlan.fromX - targetRightX;
+              } else if (scrollingDirection === "right") {
+                distance = targetLeftX - scrollingPlan.fromX + width;
+              } else {
+                throw new Error(`Unexpected direction: ${scrollingDirection}`);
+              }
+
+              const speedDiff: number = scrollingPlan.speed - targetScrollingPlan.speed;
+              const collisionTime: number = distance / speedDiff;
+              const targetScrollingRemainingTime: number =
+                targetScrollingAnimation.duration - targetScrollingAnimation.elapsedTime;
+
+              if (collisionTime < targetScrollingRemainingTime) {
+                return false;
+              }
+            }
+
+            return true;
+          };
         }
 
-        positionY = stackingPlan.topY;
+        stackingPlan = stackingPlanner.plan(height, antiCollisionFilter);
+        initialY = stackingPlan.topY;
       }
 
       if (!isAnimated && animationCanceler == null) {
@@ -494,11 +498,15 @@ function createCSSRenderer(options: Options): CSSRenderer {
         throw new Error("Invalid dimensions.");
       }
 
-      element.style.left = positionX + "px";
-      element.style.top = positionY + "px";
+      element.style.left = initialX + "px";
+      element.style.top = initialY + "px";
       element.style.visibility = "visible";
 
-      if (scrollingPlan != null) {
+      if (hasCommentScrollingTrait(comment)) {
+        if (scrollingPlan == null) {
+          throw new Error("ScrollingPlan not found.");
+        }
+
         const tmpScrollingAnimation = createCSSScrollingAnimation({
           element,
           duration: scrollingPlan.duration,
@@ -506,14 +514,16 @@ function createCSSRenderer(options: Options): CSSRenderer {
           toX: scrollingPlan.toX,
         });
 
+        scrollingAnimation = tmpScrollingAnimation;
+
         if (stackingPlan != null) {
-          const inboundTime = (width / scrollingPlan.speed * 1000);
+          const inboundTime = (width / scrollingPlan.speed);
           const inboundTimer = createTimer({ duration: inboundTime });
 
           inboundTimer.events
             .on("ended", () => {
-              if (stackingPlan != null && !stackingPlan.isSpaceFreed) {
-                stackingPlan.freeSpace();
+              if (stackingPlan != null && !stackingPlan.isCanceled) {
+                stackingPlan.cancel();
               }
             });
 
@@ -533,41 +543,42 @@ function createCSSRenderer(options: Options): CSSRenderer {
                 inboundTimer.cancel();
               }
             });
-
-          tmpScrollingAnimation.run();
-
-          if (renderingState === "paused") {
-            tmpScrollingAnimation.pause();
-          }
-
-          scrollingAnimation = tmpScrollingAnimation;
         }
 
         tmpScrollingAnimation.events.on("ended", () => {
+          _scrollingCommentStatuses.delete(scrollingCommentStatus);
+
           if (tmpScrollingAnimation.state === "finished") {
-            _scrollingCommentRenderingStatuses.delete(scrollingCommentRenderingStatus);
             endRendering(true);
           }
         });
 
-        const scrollingCommentRenderingStatus: ScrollingCommentRenderingStatus = {
+        const scrollingCommentStatus: ScrollingCommentStatus = {
           width,
           height,
-          positionY,
+          initialY,
           scrollingPlan,
+          scrollingDirection: comment.scrollingDirection,
           scrollingAnimation: tmpScrollingAnimation,
         };
 
-        _scrollingCommentRenderingStatuses.add(scrollingCommentRenderingStatus);
+        _scrollingCommentStatuses.add(scrollingCommentStatus);
+
+        tmpScrollingAnimation.run();
+
+        if (renderingState === "paused") {
+          tmpScrollingAnimation.pause();
+        }
       }
 
       if (hasCommentLifetimeTrait(comment) && !hasCommentScrollingTrait(comment)) {
         const tmpLifetimeTimer = createTimer({ duration: comment.lifetime });
+        lifetimeTimer = tmpLifetimeTimer;
 
         tmpLifetimeTimer.events
           .on("ended", () => {
-            if (stackingPlan != null && !stackingPlan.isSpaceFreed) {
-              stackingPlan.freeSpace();
+            if (stackingPlan != null && !stackingPlan.isCanceled) {
+              stackingPlan.cancel();
             }
 
             if (tmpLifetimeTimer.state === "finished") {
@@ -580,8 +591,6 @@ function createCSSRenderer(options: Options): CSSRenderer {
         if (renderingState === "paused") {
           tmpLifetimeTimer.pause();
         }
-
-        lifetimeTimer = tmpLifetimeTimer;
       }
     }
 
@@ -635,8 +644,8 @@ function createCSSRenderer(options: Options): CSSRenderer {
           arrange();
         }
 
-        let x: number = positionX;
-        let y: number = positionY; // tslint:disable-line:prefer-const
+        let x: number = initialX;
+        let y: number = initialY; // tslint:disable-line:prefer-const
 
         if (scrollingAnimation != null) {
           x = scrollingAnimation.currentX;
@@ -690,6 +699,8 @@ function createCSSRenderer(options: Options): CSSRenderer {
         renderingState = "canceled";
         comment.events.emit("renderingCanceled", null);
       }
+
+      comment.events.emit("renderingEnded", null);
     }
 
     const process: CommentRenderingProcess = {
@@ -768,13 +779,25 @@ function createCSSRenderer(options: Options): CSSRenderer {
     return process.view;
   }
 
+  function _setStageForStackingPlanner(planner: StackingPlanner, stage: Stage) {
+    planner.containerHeight = stage.height;
+    planner.containerMarginTop = stage.marginTop;
+    planner.containerMarginBottom = stage.marginBottom;
+  }
+
+  function _setStageForScrollingPlanner(planner: ScrollingPlanner, stage: Stage) {
+    planner.marqueeWidth = stage.width;
+  }
+
   function setStage(stage: Stage): void {
-    _stackingPlanners.up.stage = stage;
-    _stackingPlanners.down.stage = stage;
-    _scrollingPlanners.left.stage = stage;
-    _scrollingPlanners.right.stage = stage;
-    _scrollingStackingPlanners.up.stage = stage;
-    _scrollingStackingPlanners.down.stage = stage;
+    _setStageForStackingPlanner(_commentStackingPlanners.up, stage);
+    _setStageForStackingPlanner(_commentStackingPlanners.upScrolling, stage);
+    _setStageForStackingPlanner(_commentStackingPlanners.down, stage);
+    _setStageForStackingPlanner(_commentStackingPlanners.downScrolling, stage);
+
+    _setStageForScrollingPlanner(_commentScrollingPlanners.left, stage);
+    _setStageForScrollingPlanner(_commentScrollingPlanners.right, stage);
+
     _stageElement.style.width = stage.width + "px";
     _stageElement.style.height = stage.height + "px";
     _stage = stage;
@@ -812,16 +835,20 @@ function createCSSRenderer(options: Options): CSSRenderer {
       _commentTextShadow = shadow;
     },
     get commentScrollingBasicSpeed() {
-      return _scrollingPlanners.left.basicSpeed;
+      return _commentScrollingBasicSpeed;
     },
     set commentScrollingBasicSpeed(speed: number) {
-      _scrollingPlanners.left.extraSpeedPerPixel = speed;
+      _commentScrollingBasicSpeed = speed;
+      _commentScrollingPlanners.left.basicSpeed = speed;
+      _commentScrollingPlanners.right.basicSpeed = speed;
     },
     get commentScrollingExtraSpeedPerPixel() {
-      return _scrollingPlanners.left.extraSpeedPerPixel;
+      return _commentScrollingExtraSpeedPerPixel;
     },
     set commentScrollingExtraSpeedPerPixel(speed: number) {
-      _scrollingPlanners.left.extraSpeedPerPixel = speed;
+      _commentScrollingExtraSpeedPerPixel = speed;
+      _commentScrollingPlanners.left.extraSpeedPerPixel = speed;
+      _commentScrollingPlanners.right.extraSpeedPerPixel = speed;
     },
     get ownCommentBorder() {
       return _ownCommentBorder;
