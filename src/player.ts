@@ -1,5 +1,4 @@
 import {
-  Stage,
   Renderer,
   Player,
   PlayerState,
@@ -7,43 +6,58 @@ import {
   EventEmitter,
 } from "./types";
 
-import merge from "lodash/merge";
-import { createStage } from "./stage";
-import { createCSSRenderer } from "./css-renderer";
 import { createCommentPool } from "./comment-pool";
+import { createCSSRenderer } from "./css-renderer";
 import { createEventEmitter } from "./event-emitter";
 
-interface Options {
-  stage: Player["stage"];
+interface PlayerOptions {
   timeGetter: Player["timeGetter"];
+  width?: Player["width"];
+  height?: Player["height"];
   renderer?: Player["renderer"];
   maxRenderingComments?: Player["maxRenderingComments"];
 }
 
-interface OptionsDefault {
+interface DefaultOptions {
+  width: Player["width"];
+  height: Player["height"];
   maxRenderingComments: Player["maxRenderingComments"];
 }
 
-const defaultOptions: OptionsDefault = {
+const defaultOptions: DefaultOptions = {
+  width: 800,
+  height: 600,
   maxRenderingComments: 80,
 };
 
-function createPlayer(options: Options): Player {
-  const _finalOptions = merge({}, defaultOptions, options);
+function createPlayer(options: PlayerOptions): Player {
+  const _finalOptions = {
+    ...defaultOptions,
+    ...options,
+  };
+
   const _events: EventEmitter<PlayerEvents> = createEventEmitter();
   const _timeGetter = _finalOptions.timeGetter;
   const _commentPool = createCommentPool();
 
   let _state: PlayerState = "idle";
-  let _stage: Stage = _finalOptions.stage;
-  let _renderer: Renderer = _finalOptions.renderer || createCSSRenderer({ stage: _stage });
+  let _width: number = _finalOptions.width;
+  let _height: number = _finalOptions.height;
   let _maxRenderingComments: number = _finalOptions.maxRenderingComments;
   let _prevTime: number = 0;
   let _timeUpdaterTimerId: number | undefined;
 
+  let _renderer: Renderer =
+    _finalOptions.renderer ||
+    createCSSRenderer({
+      screenWidth: _width,
+      screenHeight: _height,
+    });
+
   const _element = document.createElement("div");
-  _element.style.width = _stage.width + "px";
-  _element.style.height = _stage.height + "px";
+  _element.style.width = _width + "px";
+  _element.style.height = _height + "px";
+  _element.style.pointerEvents = "none";
 
   function _updateTime(): void {
     const time = _timeGetter();
@@ -85,7 +99,7 @@ function createPlayer(options: Options): Player {
     }
 
     if (_state === "idle") {
-      _element.appendChild(_renderer.stageElement);
+      _element.appendChild(_renderer.screenElement);
     }
 
     if (_renderer.state !== "running") {
@@ -125,17 +139,20 @@ function createPlayer(options: Options): Player {
       _renderer.stop();
     }
 
-    _element.removeChild(_renderer.stageElement);
+    _element.removeChild(_renderer.screenElement);
 
     _state = "idle";
     _events.emit("idle", null);
   }
 
-  function setStage(stage: Stage): void {
-    _element.style.width = stage.width + "px";
-    _element.style.height = stage.height + "px";
-    _renderer.stage = stage;
-    _stage = stage;
+  function resize(width: number, height: number): void {
+    _element.style.width = _width + "px";
+    _element.style.height = _height + "px";
+
+    _renderer.resizeScreen(width, height);
+
+    _width = width;
+    _height = height;
   }
 
   function setRenderer(renderer: Renderer): void {
@@ -151,11 +168,17 @@ function createPlayer(options: Options): Player {
   }
 
   const player: Player = {
-    get stage() {
-      return _stage;
+    get width() {
+      return _width;
     },
-    set stage(stage: Stage) {
-      setStage(stage);
+    set width(width: number) {
+      _width = width;
+    },
+    get height() {
+      return _height;
+    },
+    set height(height: number) {
+      _height = height;
     },
     get renderer() {
       return _renderer;
@@ -178,11 +201,11 @@ function createPlayer(options: Options): Player {
     get element() {
       return _element;
     },
-    get timeGetter() {
-      return _timeGetter;
-    },
     get time() {
       return _timeGetter();
+    },
+    get timeGetter() {
+      return _timeGetter;
     },
     get commentPool() {
       return _commentPool;
@@ -190,10 +213,15 @@ function createPlayer(options: Options): Player {
     play,
     pause,
     stop,
+    resize,
   };
 
   return player;
 }
+
+export {
+  PlayerOptions,
+};
 
 export {
   defaultOptions,

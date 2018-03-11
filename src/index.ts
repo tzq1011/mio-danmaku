@@ -1,4 +1,3 @@
-import { createStage } from "./stage";
 import { createCSSRenderer } from "./css-renderer";
 import { createPlayer } from "./player";
 
@@ -14,10 +13,7 @@ import {
   isPositioningComment,
 } from "./comment-assertors";
 
-isStackingComment(false);
-
 export {
-  createStage,
   createStackingComment,
   createScrollingComment,
   createPositioningComment,

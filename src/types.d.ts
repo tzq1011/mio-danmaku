@@ -35,7 +35,7 @@ interface Border {
 
 type VerticalSpaceFilter = (topY: number, bottomY: number) => boolean;
 
-type CommentEvents = {
+interface CommentEvents {
   rendering: null,
   renderingCanceled: null,
   renderingFinished: null,
@@ -105,7 +105,7 @@ type PositioningComment =
 
 type CommentFilter = (comment: Comment) => boolean;
 
-type CommentPoolEvents = {
+interface CommentPoolEvents {
   loaded: { comments: Comment[] };
   added: { index: number, comment: Comment },
   removed: { index: number, comment: Comment },
@@ -135,13 +135,6 @@ interface CommentView {
   measure(): Dimensions;
   locate(): Position;
   destroy(): void;
-}
-
-interface Stage {
-  readonly width: number;
-  readonly height: number;
-  readonly marginTop: number;
-  readonly marginBottom: number;
 }
 
 interface StackingPlan {
@@ -179,14 +172,15 @@ type RendererState =
   | "running"
   | "paused";
 
-type RendererEvents = {
+interface RendererEvents {
   idle: null,
   running: null,
   paused: null,
-};
+}
 
 interface Renderer {
-  stage: Stage;
+  screenMarginTop: number;
+  screenMarginBottom: number;
   commentOpacity: number;
   commentFontFamily: string | string[];
   commentLineHeight: number;
@@ -198,10 +192,13 @@ interface Renderer {
   ownCommentPaddingRight: number;
   readonly state: RendererState;
   readonly events: EventEmitter<RendererEvents>;
-  readonly stageElement: HTMLElement;
+  readonly screenWidth: number;
+  readonly screenHeight: number;
+  readonly screenElement: HTMLElement;
   run(): void;
   pause(): void;
   stop(): void;
+  resizeScreen(width: number, height: number): void;
   renderComment(comment: Comment): CommentView;
   unrenderComment(comment: Comment): void;
   isCommentRendering(comment: Comment): boolean;
@@ -258,13 +255,13 @@ type TimerState =
   | "canceled"
   | "finished";
 
-type TimerEvents = {
+interface TimerEvents {
   running: null,
   paused: null,
   canceled: null,
   finished: null,
   ended: null,
-};
+}
 
 interface Timer {
   readonly state: TimerState;
@@ -283,25 +280,27 @@ type PlayerState =
   | "playing"
   | "paused";
 
-type PlayerEvents = {
+interface PlayerEvents {
   idle: null,
   playing: null,
   paused: null,
-};
+}
 
 interface Player {
-  stage: Stage;
   renderer: Renderer;
   maxRenderingComments: number;
   readonly state: PlayerState;
   readonly events: EventEmitter<PlayerEvents>;
+  readonly width: number;
+  readonly height: number;
   readonly element: HTMLElement;
-  readonly timeGetter: TimeGetter;
   readonly time: number;
+  readonly timeGetter: TimeGetter;
   readonly commentPool: CommentPool;
   play(): void;
   pause(): void;
   stop(): void;
+  resize(width: number, height: number): void;
 }
 
 export {
@@ -330,7 +329,6 @@ export {
   CommentPoolEvents,
   CommentPool,
   CommentView,
-  Stage,
   StackingPlan,
   StackingPlanner,
   ScrollingPlan,

@@ -1,23 +1,26 @@
 import {
   Timer,
-  Stage,
-  Comment,
-  CommentView,
-  Dimensions,
-  Position,
   Shadow,
   Border,
+  Position,
+  Dimensions,
+  EventEmitter,
+  Comment,
+  CommentView,
   StackingPlan,
   StackingPlanner,
-  ScrollingPlanner,
   ScrollingPlan,
-  EventEmitter,
+  ScrollingPlanner,
   RendererState,
   RendererEvents,
   CSSRenderer,
   CSSScrollingAnimation,
   VerticalSpaceFilter,
 } from "./types";
+
+import { StackingPlannerOptions } from "./stacking-planner";
+
+import clone from "lodash/clone";
 
 import {
   hasCommentTextTrait,
@@ -32,22 +35,32 @@ import {
 
 import { createTimer } from "./timer";
 import { createEventEmitter } from "./event-emitter";
-import { createStackingPlanner, StackingPlannerOptions } from "./stacking-planner";
+import { createStackingPlanner } from "./stacking-planner";
 import { createScrollingPlanner } from "./scrolling-planner";
 import { createCSSScrollingAnimation } from "./css-scrolling-animation";
 import domOperator from "./dom-operator";
 
-interface Options {
-  stage: CSSRenderer["stage"];
+interface CSSRendererOptions {
+  screenWidth?: CSSRenderer["screenWidth"];
+  screenHeight?: CSSRenderer["screenHeight"];
+  screenMarginTop?: CSSRenderer["screenMarginTop"];
+  screenMarginBottom?: CSSRenderer["screenMarginBottom"];
   commentOpacity?: CSSRenderer["commentOpacity"];
   commentFontFamily?: CSSRenderer["commentFontFamily"];
   commentLineHeight?: CSSRenderer["commentLineHeight"];
   commentTextShadow?: CSSRenderer["commentTextShadow"];
   commentScrollingBasicSpeed?: CSSRenderer["commentScrollingBasicSpeed"];
   commentScrollingExtraSpeedPerPixel?: CSSRenderer["commentScrollingExtraSpeedPerPixel"];
+  ownCommentBorder?: CSSRenderer["ownCommentBorder"];
+  ownCommentPaddingLeft?: CSSRenderer["ownCommentPaddingLeft"];
+  ownCommentPaddingRight?: CSSRenderer["ownCommentPaddingRight"];
 }
 
 interface DefaultOptions {
+  screenWidth: CSSRenderer["screenWidth"];
+  screenHeight: CSSRenderer["screenHeight"];
+  screenMarginTop: CSSRenderer["screenMarginTop"];
+  screenMarginBottom: CSSRenderer["screenMarginBottom"];
   commentOpacity: CSSRenderer["commentOpacity"];
   commentFontFamily: CSSRenderer["commentFontFamily"];
   commentLineHeight: CSSRenderer["commentLineHeight"];
@@ -83,6 +96,10 @@ interface ScrollingCommentStatus {
 }
 
 const defaultOptions: DefaultOptions = {
+  screenWidth: 800,
+  screenHeight: 600,
+  screenMarginTop: 0,
+  screenMarginBottom: 0,
   commentOpacity: 1,
   commentFontFamily: ["Microsoft Yahei", "sans-serif"],
   commentLineHeight: 1.2,
@@ -94,15 +111,22 @@ const defaultOptions: DefaultOptions = {
   ownCommentPaddingRight: 2,
 };
 
-function createCSSRenderer(options: Options): CSSRenderer {
+function createCSSRenderer(options: CSSRendererOptions = {}): CSSRenderer {
   const _finalOptions = {
     ...defaultOptions,
     ...options,
   };
 
+  _finalOptions.commentFontFamily = clone(_finalOptions.commentFontFamily);
+  _finalOptions.commentTextShadow = clone(_finalOptions.commentTextShadow);
+  _finalOptions.ownCommentBorder = clone(_finalOptions.ownCommentBorder);
+
   const _events: EventEmitter<RendererEvents> = createEventEmitter();
 
-  let _stage: Stage = _finalOptions.stage;
+  let _screenWidth: number = _finalOptions.screenWidth;
+  let _screenHeight: number = _finalOptions.screenHeight;
+  let _screenMarginTop: number = _finalOptions.screenMarginTop;
+  let _screenMarginBottom: number = _finalOptions.screenMarginBottom;
   let _commentOpacity: number = _finalOptions.commentOpacity;
   let _commentFontFamily: string | string[] = _finalOptions.commentFontFamily;
   let _commentLineHeight: number = _finalOptions.commentLineHeight;
@@ -114,50 +138,50 @@ function createCSSRenderer(options: Options): CSSRenderer {
   let _ownCommentPaddingRight: number = _finalOptions.ownCommentPaddingRight;
   let _state: RendererState = "idle";
 
-  const _stageElement = document.createElement("div");
-  _stageElement.style.position = "relative";
-  _stageElement.style.overflow = "hidden";
-  _stageElement.style.display = "none";
-  _stageElement.style.width = _stage.width + "px";
-  _stageElement.style.height = _stage.height + "px";
-  _stageElement.style.pointerEvents = "none";
+  const _screenElement = document.createElement("div");
+  _screenElement.style.position = "relative";
+  _screenElement.style.overflow = "hidden";
+  _screenElement.style.display = "none";
+  _screenElement.style.width = _screenWidth + "px";
+  _screenElement.style.height = _screenHeight + "px";
+  _screenElement.style.pointerEvents = "none";
 
-  (_stageElement.style as any).MozUserSelect = "none";
-  _stageElement.style.webkitUserSelect = "none";
-  _stageElement.style.msUserSelect = "none";
-  _stageElement.style.userSelect = "none";
+  (_screenElement.style as any).MozUserSelect = "none";
+  _screenElement.style.webkitUserSelect = "none";
+  _screenElement.style.msUserSelect = "none";
+  _screenElement.style.userSelect = "none";
 
   const _commentStackingPlannerOptionsUp: StackingPlannerOptions = {
-    containerHeight: _stage.height,
-    containerMarginTop: _stage.marginTop,
-    containerMarginBottom: _stage.marginBottom,
-    direction: "up" as "up",
+    containerHeight: _screenHeight,
+    containerMarginTop: _screenMarginTop,
+    containerMarginBottom: _screenMarginBottom,
+    direction: "up",
   };
 
   const _commentStackingPlannerOptionsDown: StackingPlannerOptions = {
-    containerHeight: _stage.height,
-    containerMarginTop: _stage.marginTop,
-    containerMarginBottom: _stage.marginBottom,
-    direction: "down" as "down",
+    containerHeight: _screenHeight,
+    containerMarginTop: _screenMarginTop,
+    containerMarginBottom: _screenMarginBottom,
+    direction: "down",
   };
 
   const _commentStackingPlanners = {
     up: createStackingPlanner(_commentStackingPlannerOptionsUp),
-    down: createStackingPlanner(_commentStackingPlannerOptionsDown),
     upScrolling: createStackingPlanner(_commentStackingPlannerOptionsUp),
+    down: createStackingPlanner(_commentStackingPlannerOptionsDown),
     downScrolling: createStackingPlanner(_commentStackingPlannerOptionsDown),
   };
 
   const _commentScrollingPlanners = {
     left: createScrollingPlanner({
       direction: "left",
-      marqueeWidth: _stage.width,
+      marqueeWidth: _screenWidth,
       basicSpeed: _commentScrollingBasicSpeed,
       extraSpeedPerPixel: _commentScrollingExtraSpeedPerPixel,
     }),
     right: createScrollingPlanner({
       direction: "right",
-      marqueeWidth: _stage.width,
+      marqueeWidth: _screenWidth,
       basicSpeed: _commentScrollingBasicSpeed,
       extraSpeedPerPixel: _commentScrollingExtraSpeedPerPixel,
     }),
@@ -171,7 +195,7 @@ function createCSSRenderer(options: Options): CSSRenderer {
       throw new Error(`Unexpected state: ${_state}`);
     }
 
-    _stageElement.style.display = "block";
+    _screenElement.style.display = "block";
 
     _commentRenderingProcesses.forEach((process) => {
       if (process.state === "paused") {
@@ -209,10 +233,26 @@ function createCSSRenderer(options: Options): CSSRenderer {
       }
     });
 
-    _stageElement.style.display = "none";
+    _screenElement.style.display = "none";
 
     _state = "idle";
     _events.emit("idle", null);
+  }
+
+  function resizeScreen(width: number, height: number): void {
+    _commentStackingPlanners.up.containerHeight = height;
+    _commentStackingPlanners.upScrolling.containerHeight = height;
+    _commentStackingPlanners.down.containerHeight = height;
+    _commentStackingPlanners.downScrolling.containerHeight = height;
+
+    _commentScrollingPlanners.left.marqueeWidth = width;
+    _commentScrollingPlanners.right.marqueeWidth = width;
+
+    _screenElement.style.width = width + "px";
+    _screenElement.style.height = height + "px";
+
+    _screenWidth = width;
+    _screenHeight = height;
   }
 
   function renderComment(comment: Comment): CommentView {
@@ -230,6 +270,7 @@ function createCSSRenderer(options: Options): CSSRenderer {
     element.style.position = "absolute";
     element.style.display = "inline-block";
     element.style.opacity = String(_commentOpacity);
+    element.style.pointerEvents = "none";
 
     if (hasCommentTextTrait(comment)) {
       const textNode = document.createTextNode(comment.text);
@@ -267,7 +308,7 @@ function createCSSRenderer(options: Options): CSSRenderer {
       }
     }
 
-    _stageElement.appendChild(element);
+    _screenElement.appendChild(element);
 
     let isMeasured: boolean = false;
     let isMeasurementScheduled: boolean = false;
@@ -351,9 +392,9 @@ function createCSSRenderer(options: Options): CSSRenderer {
         if (alignment === "left") {
           initialX = 0;
         } else if (alignment === "center") {
-          initialX = (_stage.width / 2) - (width / 2);
+          initialX = (_screenWidth / 2) - (width / 2);
         } else if (alignment === "right") {
-          initialX = _stage.width - width;
+          initialX = _screenWidth - width;
         } else {
           throw new Error(`Unexpected alignment: ${alignment}`);
         }
@@ -363,12 +404,12 @@ function createCSSRenderer(options: Options): CSSRenderer {
         const alignment: ("top" | "middle" | "bottom") = comment.verticalAlignment;
 
         if (alignment === "top") {
-          initialY = _stage.marginTop;
+          initialY = _screenMarginTop;
         } else if (alignment === "middle") {
-          const stageBodyHeight: number = _stage.height - _stage.marginTop - _stage.marginBottom;
-          initialY = _stage.marginTop + (stageBodyHeight / 2) - (height / 2);
+          const screenBodyHeight: number = _screenHeight - _screenMarginTop - _screenMarginBottom;
+          initialY = _screenMarginTop + (screenBodyHeight / 2) - (height / 2);
         } else if (alignment === "bottom") {
-          initialY = _stage.height - _stage.marginBottom - height;
+          initialY = _screenHeight - _screenMarginBottom - height;
         } else {
           throw new Error(`Unexpected alignment: ${alignment}`);
         }
@@ -517,7 +558,7 @@ function createCSSRenderer(options: Options): CSSRenderer {
         scrollingAnimation = tmpScrollingAnimation;
 
         if (stackingPlan != null) {
-          const inboundTime = (width / scrollingPlan.speed);
+          const inboundTime = width / scrollingPlan.speed;
           const inboundTimer = createTimer({ duration: inboundTime });
 
           inboundTimer.events
@@ -577,10 +618,6 @@ function createCSSRenderer(options: Options): CSSRenderer {
 
         tmpLifetimeTimer.events
           .on("ended", () => {
-            if (stackingPlan != null && !stackingPlan.isCanceled) {
-              stackingPlan.cancel();
-            }
-
             if (tmpLifetimeTimer.state === "finished") {
               endRendering(true);
             }
@@ -689,7 +726,11 @@ function createCSSRenderer(options: Options): CSSRenderer {
         lifetimeTimer.cancel();
       }
 
-      _stageElement.removeChild(element);
+      if (stackingPlan != null && !stackingPlan.isCanceled) {
+        stackingPlan.cancel();
+      }
+
+      _screenElement.removeChild(element);
       _commentRenderingProcesses.delete(comment);
 
       if (isFinished) {
@@ -746,6 +787,7 @@ function createCSSRenderer(options: Options): CSSRenderer {
     };
 
     _commentRenderingProcesses.set(comment, process);
+
     scheduleMeasurement();
     comment.events.emit("rendering", null);
     return view;
@@ -772,43 +814,41 @@ function createCSSRenderer(options: Options): CSSRenderer {
 
   function getCommentView(comment: Comment): CommentView | null {
     const process = _commentRenderingProcesses.get(comment);
-    if (process == null) {
-      return null;
+    if (process != null) {
+      return process.view;
     }
 
-    return process.view;
+    return null;
   }
 
-  function _setStageForStackingPlanner(planner: StackingPlanner, stage: Stage) {
-    planner.containerHeight = stage.height;
-    planner.containerMarginTop = stage.marginTop;
-    planner.containerMarginBottom = stage.marginBottom;
+  function _setScreenMarginTop(margin: number): void {
+    _commentStackingPlanners.up.containerMarginTop = margin;
+    _commentStackingPlanners.upScrolling.containerMarginTop = margin;
+    _commentStackingPlanners.down.containerMarginTop = margin;
+    _commentStackingPlanners.downScrolling.containerMarginTop = margin;
+    _screenMarginTop = margin;
   }
 
-  function _setStageForScrollingPlanner(planner: ScrollingPlanner, stage: Stage) {
-    planner.marqueeWidth = stage.width;
-  }
-
-  function setStage(stage: Stage): void {
-    _setStageForStackingPlanner(_commentStackingPlanners.up, stage);
-    _setStageForStackingPlanner(_commentStackingPlanners.upScrolling, stage);
-    _setStageForStackingPlanner(_commentStackingPlanners.down, stage);
-    _setStageForStackingPlanner(_commentStackingPlanners.downScrolling, stage);
-
-    _setStageForScrollingPlanner(_commentScrollingPlanners.left, stage);
-    _setStageForScrollingPlanner(_commentScrollingPlanners.right, stage);
-
-    _stageElement.style.width = stage.width + "px";
-    _stageElement.style.height = stage.height + "px";
-    _stage = stage;
+  function _setScreenMarginBottom(margin: number): void {
+    _commentStackingPlanners.up.containerMarginBottom = margin;
+    _commentStackingPlanners.upScrolling.containerMarginBottom = margin;
+    _commentStackingPlanners.down.containerMarginBottom = margin;
+    _commentStackingPlanners.downScrolling.containerMarginBottom = margin;
+    _screenMarginBottom = margin;
   }
 
   const renderer: CSSRenderer = {
-    get stage() {
-      return _stage;
+    get screenMarginTop() {
+      return _screenMarginTop;
     },
-    set stage(stage: Stage) {
-      setStage(stage);
+    set screenMarginTop(margin: number) {
+      _setScreenMarginTop(margin);
+    },
+    get screenMarginBottom() {
+      return _screenMarginBottom;
+    },
+    set screenMarginBottom(margin: number) {
+      _setScreenMarginBottom(margin);
     },
     get commentOpacity() {
       return _commentOpacity;
@@ -820,7 +860,7 @@ function createCSSRenderer(options: Options): CSSRenderer {
       return _commentFontFamily;
     },
     set commentFontFamily(fontFamily: string | string[]) {
-      _commentFontFamily = fontFamily;
+      _commentFontFamily = clone(fontFamily);
     },
     get commentLineHeight() {
       return _commentLineHeight;
@@ -832,29 +872,29 @@ function createCSSRenderer(options: Options): CSSRenderer {
       return _commentTextShadow;
     },
     set commentTextShadow(shadow: Shadow | null) {
-      _commentTextShadow = shadow;
+      _commentTextShadow = clone(shadow);
     },
     get commentScrollingBasicSpeed() {
       return _commentScrollingBasicSpeed;
     },
     set commentScrollingBasicSpeed(speed: number) {
-      _commentScrollingBasicSpeed = speed;
       _commentScrollingPlanners.left.basicSpeed = speed;
       _commentScrollingPlanners.right.basicSpeed = speed;
+      _commentScrollingBasicSpeed = speed;
     },
     get commentScrollingExtraSpeedPerPixel() {
       return _commentScrollingExtraSpeedPerPixel;
     },
     set commentScrollingExtraSpeedPerPixel(speed: number) {
-      _commentScrollingExtraSpeedPerPixel = speed;
       _commentScrollingPlanners.left.extraSpeedPerPixel = speed;
       _commentScrollingPlanners.right.extraSpeedPerPixel = speed;
+      _commentScrollingExtraSpeedPerPixel = speed;
     },
     get ownCommentBorder() {
       return _ownCommentBorder;
     },
     set ownCommentBorder(border: Border | null) {
-      _ownCommentBorder = border;
+      _ownCommentBorder = clone(border);
     },
     get ownCommentPaddingLeft() {
       return _ownCommentPaddingLeft;
@@ -874,12 +914,19 @@ function createCSSRenderer(options: Options): CSSRenderer {
     get events() {
       return _events;
     },
-    get stageElement() {
-      return _stageElement;
+    get screenWidth() {
+      return _screenWidth;
+    },
+    get screenHeight() {
+      return _screenHeight;
+    },
+    get screenElement() {
+      return _screenElement;
     },
     run,
     pause,
     stop,
+    resizeScreen,
     renderComment,
     unrenderComment,
     isCommentRendering,
@@ -890,6 +937,10 @@ function createCSSRenderer(options: Options): CSSRenderer {
 
   return renderer;
 }
+
+export {
+  CSSRendererOptions,
+};
 
 export {
   defaultOptions,
