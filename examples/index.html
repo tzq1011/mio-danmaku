@@ -7,45 +7,64 @@
   <title>Document</title>
 </head>
 <body>
-  <div id="danmaku-player" style="background-color: #333; width: 846px; height: 566px;"></div>
+  <style>
+    #container { background-color: #000; }
+    #video { position: absolute; }
+    #comments { position: absolute; pointer-events: none; }
+  </style>
+  <div id="container">
+    <video id="video" controls webkit-playsinline></video>
+    <div id="comments"></div>
+  </div>
   <script src="mio-danmaku.js"></script>
   <script>
     const {
-      createStage,
-      createScrollingComment,
       createStackingComment,
+      createScrollingComment,
+      createPositioningComment,
       createPlayer,
     } = mioDanmaku;
 
-    const container = document.getElementById("danmaku-player");
-
-    let elapsedTimeWhenPaused = 0;
-    let timeWhenPlaying;
-
+    const containerElement = document.getElementById("container");
+    const videoElement = document.getElementById("video");
+    const commentsElement = document.getElementById("comments");
+  
     function timeGetter() {
-      let elapsedTime = elapsedTimeWhenPaused;
-
-      if (timeWhenPlaying != null) {
-        elapsedTime += Date.now() - timeWhenPlaying;
-      }
-
-      return elapsedTime;
+      return videoElement.currentTime * 1000;
     }
 
-    function play() {
-      timeWhenPlaying = Date.now();
-      player.play();
+    const danmakuPlayer = createPlayer({ timeGetter });
+    commentsElement.appendChild(danmakuPlayer.element);
+    danmakuPlayer.renderer.screenMarginBottom = 40;
+
+    videoElement.addEventListener("playing", () => {
+        if (danmakuPlayer.state !== "playing") {
+          danmakuPlayer.play();
+        }
+      });
+
+    videoElement.addEventListener("pause", () => {
+        if (danmakuPlayer.state !== "paused") {
+          danmakuPlayer.pause();
+        }
+      });
+
+    const videoUrl = "https://images.apple.com/media/cn/macbook-pro/2016/b4a9efaa_6fe5_4075_a9d0_8e4592d6146c/films/design/macbook-pro-design-tft-cn-20161026_1536x640h.mp4";
+    // const videoUrl = "video.mp4";
+    videoElement.src = videoUrl;
+    videoElement.play();
+
+    function resize(width, height) {
+      containerElement.style.width = width + "px";
+      containerElement.style.height = height + "px";
+      videoElement.style.width = width + "px";
+      videoElement.style.height = height + "px";
+      commentsElement.style.width = width + "px";
+      commentsElement.style.height = height + "px";
+      danmakuPlayer.resize(width, height);
     }
 
-    function pause() {
-      elapsedTimeWhenPaused = timeGetter();
-      timeWhenPlaying = undefined;
-      player.pause();
-    }
-
-    const stage = createStage({ width: 846, height: 566 });
-    const player = createPlayer({ stage, timeGetter });
-    container.appendChild(player.element);
+    resize(846, 568);
 
     const xhr = new XMLHttpRequest();
     xhr.onload = () => {
@@ -71,7 +90,13 @@
         let comment;
 
         if (type === "1") {
-          comment = createScrollingComment(commonOptions);
+          const options = Object.assign(
+            {},
+            commonOptions,
+            { scrollingDirection: "left" }
+          );
+
+          comment = createScrollingComment(options);
         } else if (type === "4") {
           const options = Object.assign(
             {},
@@ -95,20 +120,14 @@
         }
       });
 
-      player.commentPool.load(comments);
-      play();
+      danmakuPlayer.commentPool.load(comments);
     };
 
     xhr.open("GET", "bilibili.xml");
     xhr.responseType = "document";
     xhr.send();
 
-    // player.play();
-    // player.renderer.renderComment(mioDanmaku.createScrollingComment({ text: "笑死了", isOwn: true }));
-    // setTimeout(() => {
-    //   player.renderer.renderComment(mioDanmaku.createScrollingComment({ text: "笑死了333", isOwn: true }));
-    // }, 1000);
-
+    // danmakuPlayer.commentPool.add(createStackingComment({ time: 3000 }));
   </script>
 </body>
 </html>
