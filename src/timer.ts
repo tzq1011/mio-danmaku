@@ -7,11 +7,11 @@ import {
 
 import { createEventEmitter } from "./event-emitter";
 
-interface Options {
+interface TimerOptions {
   duration: Timer["duration"];
 }
 
-function createTimer(options: Options): Timer {
+function createTimer(options: TimerOptions): Timer {
   const _duration = options.duration;
   const _events: EventEmitter<TimerEvents> = createEventEmitter();
 
@@ -116,6 +116,10 @@ function createTimer(options: Options): Timer {
 
   return timer;
 }
+
+export {
+  TimerOptions,
+};
 
 export {
   createTimer,

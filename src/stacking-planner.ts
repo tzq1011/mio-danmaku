@@ -30,7 +30,7 @@ const defaultOptions: DefaultOptions = {
   direction: "up",
 };
 
-function createStackingPlanner(options: StackingPlannerOptions): StackingPlanner {
+function createStackingPlanner(options: StackingPlannerOptions = {}): StackingPlanner {
   const _finalOptions = {
     ...defaultOptions,
     ...options,
@@ -324,6 +324,9 @@ function createStackingPlanner(options: StackingPlannerOptions): StackingPlanner
 
 export {
   StackingPlannerOptions,
+};
+
+export {
   defaultOptions,
   createStackingPlanner,
 };

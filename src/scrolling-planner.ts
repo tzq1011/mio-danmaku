@@ -3,7 +3,7 @@ import {
   ScrollingPlanner,
 } from "./types";
 
-interface Options {
+interface ScrollingPlannerOptions {
   direction?: ScrollingPlanner["direction"];
   marqueeWidth?: ScrollingPlanner["marqueeWidth"];
   basicSpeed?: ScrollingPlanner["basicSpeed"];
@@ -24,7 +24,7 @@ const defaultOptions: DefaultOptions = {
   extraSpeedPerPixel: 0.0002,
 };
 
-function createScrollingPlanner(options: Options): ScrollingPlanner {
+function createScrollingPlanner(options: ScrollingPlannerOptions = {}): ScrollingPlanner {
   const _finalOptions = {
     ...defaultOptions,
     ...options,
@@ -98,6 +98,10 @@ function createScrollingPlanner(options: Options): ScrollingPlanner {
 
   return planner;
 }
+
+export {
+  ScrollingPlannerOptions,
+};
 
 export {
   defaultOptions,
