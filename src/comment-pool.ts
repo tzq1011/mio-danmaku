@@ -1,12 +1,13 @@
 import {
   Comment,
   CommentPool,
-  CommentFilter,
   CommentPoolEvents,
+  CommentFilter,
   EventEmitter,
 } from "./types";
 
 import sortedIndexBy from "lodash/sortedIndexBy";
+
 import { createEventEmitter } from "./event-emitter";
 
 function createCommentPool(): CommentPool {
