@@ -105,6 +105,10 @@ function createPlayer(options: PlayerOptions): Player {
   }
 
   function play(): void {
+    if (_state === "playing") {
+      return;
+    }
+
     if (_state !== "idle" && _state !== "paused") {
       throw new Error(`Unexpected state: ${_state}`);
     }
@@ -128,6 +132,10 @@ function createPlayer(options: PlayerOptions): Player {
   }
 
   function pause(): void {
+    if (_state === "paused") {
+      return;
+    }
+
     if (_state !== "playing") {
       throw new Error(`Unexpected state: ${_state}`);
     }
@@ -145,6 +153,10 @@ function createPlayer(options: PlayerOptions): Player {
   }
 
   function stop(): void {
+    if (_state === "idle") {
+      return;
+    }
+
     if (_state !== "playing" && _state !== "paused") {
       throw new Error(`Unexpected state: ${_state}`);
     }

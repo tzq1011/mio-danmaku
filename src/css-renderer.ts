@@ -186,6 +186,10 @@ function createCSSRenderer(options: CSSRendererOptions = {}): CSSRenderer {
   const _scrollingCommentStatuses: Set<ScrollingCommentStatus> = new Set();
 
   function run(): void {
+    if (_state === "running") {
+      return;
+    }
+
     if (_state !== "idle" && _state !== "paused") {
       throw new Error(`Unexpected state: ${_state}`);
     }
@@ -203,6 +207,10 @@ function createCSSRenderer(options: CSSRendererOptions = {}): CSSRenderer {
   }
 
   function pause(): void {
+    if (_state === "paused") {
+      return;
+    }
+
     if (_state !== "running") {
       throw new Error(`Unexpected state: ${_state}`);
     }
@@ -218,6 +226,10 @@ function createCSSRenderer(options: CSSRendererOptions = {}): CSSRenderer {
   }
 
   function stop(): void {
+    if (_state === "idle") {
+      return;
+    }
+
     if (_state !== "running" && _state !== "paused") {
       throw new Error(`Unexpected state: ${_state}`);
     }

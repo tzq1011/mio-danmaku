@@ -82,6 +82,10 @@ function createCSSScrollingAnimation(options: Options): CSSScrollingAnimation {
   }
 
   function run(): void {
+    if (_state === "running") {
+      return;
+    }
+
     if (_state !== "idle" && _state !== "paused") {
       throw new Error(`Unexpected state: ${_state}.`);
     }
@@ -152,6 +156,10 @@ function createCSSScrollingAnimation(options: Options): CSSScrollingAnimation {
   }
 
   function pause(): void {
+    if (_state === "paused") {
+      return;
+    }
+
     if (_state !== "running") {
       throw new Error(`Unexpected state: ${_state}.`);
     }
@@ -177,6 +185,10 @@ function createCSSScrollingAnimation(options: Options): CSSScrollingAnimation {
   }
 
   function cancel(): void {
+    if (_state === "canceled") {
+      return;
+    }
+
     if (
       _state !== "running" &&
       _state !== "paused"
