@@ -82,14 +82,25 @@ function createPlayer(options: PlayerOptions): Player {
     _prevTime = time;
   }
 
-  function _scheduleTimeUpdater(): void {
-    _timeUpdaterTimerId = setInterval(_updateTime, 100);
+  function _runTimeUpdater(): void {
+    if (_timeUpdaterTimerId == null) {
+      _updateTime();
+      _timeUpdaterTimerId = setInterval(_updateTime, 100);
+    }
   }
 
-  function _cancelTimeUpdater(): void {
+  function _stopTimeUpdater(): void {
     if (_timeUpdaterTimerId != null) {
       clearInterval(_timeUpdaterTimerId);
       _timeUpdaterTimerId = undefined;
+    }
+  }
+
+  function _onVisibilityChange(): void {
+    if (document.hidden) {
+      _stopTimeUpdater();
+    } else {
+      _runTimeUpdater();
     }
   }
 
@@ -106,8 +117,11 @@ function createPlayer(options: PlayerOptions): Player {
       _renderer.run();
     }
 
-    _updateTime();
-    _scheduleTimeUpdater();
+    if (!document.hidden) {
+      _runTimeUpdater();
+    }
+
+    document.addEventListener("visibilitychange", _onVisibilityChange);
 
     _state = "playing";
     _events.emit("playing", null);
@@ -118,7 +132,9 @@ function createPlayer(options: PlayerOptions): Player {
       throw new Error(`Unexpected state: ${_state}`);
     }
 
-    _cancelTimeUpdater();
+    document.removeEventListener("visibilitychange", _onVisibilityChange);
+
+    _stopTimeUpdater();
 
     if (_renderer.state !== "paused") {
       _renderer.pause();
@@ -133,7 +149,9 @@ function createPlayer(options: PlayerOptions): Player {
       throw new Error(`Unexpected state: ${_state}`);
     }
 
-    _cancelTimeUpdater();
+    document.removeEventListener("visibilitychange", _onVisibilityChange);
+
+    _stopTimeUpdater();
 
     if (_renderer.state !== "idle") {
       _renderer.stop();
@@ -155,7 +173,7 @@ function createPlayer(options: PlayerOptions): Player {
     _height = height;
   }
 
-  function setRenderer(renderer: Renderer): void {
+  function _setRenderer(renderer: Renderer): void {
     if (_state !== "idle") {
       throw new Error(`Unexpected state: ${_state}`);
     }
@@ -184,7 +202,7 @@ function createPlayer(options: PlayerOptions): Player {
       return _renderer;
     },
     set renderer(renderer) {
-      setRenderer(renderer);
+      _setRenderer(renderer);
     },
     get maxRenderingComments() {
       return _maxRenderingComments;
