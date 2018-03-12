@@ -287,8 +287,8 @@ function createStackingPlanner(options: StackingPlannerOptions = {}): StackingPl
     };
 
     Object.defineProperties(stackingPlan, {
-      topY: { writable: false },
-      bottomY: { writable: false },
+      topY: { configurable: false },
+      bottomY: { configurable: false },
     });
 
     return stackingPlan;

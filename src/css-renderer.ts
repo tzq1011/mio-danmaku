@@ -18,9 +18,8 @@ import {
   VerticalSpaceFilter,
 } from "./types";
 
+import isReadonlyArray from "./utils/isReadonlyArray";
 import { StackingPlannerOptions } from "./stacking-planner";
-
-import clone from "lodash/clone";
 
 import {
   hasCommentTextTrait,
@@ -101,12 +100,12 @@ const defaultOptions: DefaultOptions = {
   screenMarginTop: 0,
   screenMarginBottom: 0,
   commentOpacity: 1,
-  commentFontFamily: ["Microsoft Yahei", "sans-serif"],
+  commentFontFamily: Object.freeze(["Microsoft Yahei", "sans-serif"]),
   commentLineHeight: 1.2,
-  commentTextShadow: { offsetX: 0, offsetY: 0, blur: 3, color: "#000" },
+  commentTextShadow: Object.freeze({ offsetX: 0, offsetY: 0, blur: 3, color: "#000" }),
   commentScrollingBasicSpeed: 0.120,
   commentScrollingExtraSpeedPerPixel: 0.0002,
-  ownCommentBorder: { width: 1, color: "green" },
+  ownCommentBorder: Object.freeze({ width: 1, color: "green" }),
   ownCommentPaddingLeft: 2,
   ownCommentPaddingRight: 2,
 };
@@ -117,10 +116,6 @@ function createCSSRenderer(options: CSSRendererOptions = {}): CSSRenderer {
     ...options,
   };
 
-  _finalOptions.commentFontFamily = clone(_finalOptions.commentFontFamily);
-  _finalOptions.commentTextShadow = clone(_finalOptions.commentTextShadow);
-  _finalOptions.ownCommentBorder = clone(_finalOptions.ownCommentBorder);
-
   const _events: EventEmitter<RendererEvents> = createEventEmitter();
 
   let _screenWidth: number = _finalOptions.screenWidth;
@@ -128,7 +123,7 @@ function createCSSRenderer(options: CSSRendererOptions = {}): CSSRenderer {
   let _screenMarginTop: number = _finalOptions.screenMarginTop;
   let _screenMarginBottom: number = _finalOptions.screenMarginBottom;
   let _commentOpacity: number = _finalOptions.commentOpacity;
-  let _commentFontFamily: string | string[] = _finalOptions.commentFontFamily;
+  let _commentFontFamily: string | ReadonlyArray<string> = _finalOptions.commentFontFamily;
   let _commentLineHeight: number = _finalOptions.commentLineHeight;
   let _commentTextShadow: Shadow | null = _finalOptions.commentTextShadow;
   let _commentScrollingBasicSpeed: number = _finalOptions.commentScrollingBasicSpeed;
@@ -280,7 +275,7 @@ function createCSSRenderer(options: CSSRendererOptions = {}): CSSRenderer {
       element.style.fontSize = comment.fontSize + "px";
 
       element.style.fontFamily =
-        Array.isArray(_commentFontFamily)
+        isReadonlyArray(_commentFontFamily)
           ? _commentFontFamily.join(",")
           : _commentFontFamily;
 
@@ -859,8 +854,8 @@ function createCSSRenderer(options: CSSRendererOptions = {}): CSSRenderer {
     get commentFontFamily() {
       return _commentFontFamily;
     },
-    set commentFontFamily(fontFamily: string | string[]) {
-      _commentFontFamily = clone(fontFamily);
+    set commentFontFamily(fontFamily: string | ReadonlyArray<string>) {
+      _commentFontFamily = fontFamily;
     },
     get commentLineHeight() {
       return _commentLineHeight;
@@ -872,7 +867,7 @@ function createCSSRenderer(options: CSSRendererOptions = {}): CSSRenderer {
       return _commentTextShadow;
     },
     set commentTextShadow(shadow: Shadow | null) {
-      _commentTextShadow = clone(shadow);
+      _commentTextShadow = shadow;
     },
     get commentScrollingBasicSpeed() {
       return _commentScrollingBasicSpeed;
@@ -894,7 +889,7 @@ function createCSSRenderer(options: CSSRendererOptions = {}): CSSRenderer {
       return _ownCommentBorder;
     },
     set ownCommentBorder(border: Border | null) {
-      _ownCommentBorder = clone(border);
+      _ownCommentBorder = border;
     },
     get ownCommentPaddingLeft() {
       return _ownCommentPaddingLeft;
