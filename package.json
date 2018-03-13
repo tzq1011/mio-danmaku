@@ -1,20 +1,29 @@
 {
-  "name": "miodanmaku",
+  "name": "mio-danmaku",
   "version": "0.1.0",
   "description": "",
-  "main": "js/index.js",
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "",
+  "author": "PPC <tzq1011@163.com>",
   "license": "MIT",
+  "repository": "tzq1011/mio-danmaku",
   "dependencies": {
-    "core-js": "^2.5.3",
+    "babel-runtime": "^6.26.0",
     "lodash": "^4.17.5"
   },
   "devDependencies": {
-    "@types/core-js": "^0.9.46",
     "@types/lodash": "^4.14.104",
+    "babel-core": "^6.26.0",
+    "babel-loader": "^7.1.4",
+    "babel-plugin-transform-runtime": "^6.23.0",
+    "babel-preset-env": "^1.6.1",
+    "gulp": "^3.9.1",
+    "gulp-babel": "^7.0.1",
+    "gulp-typescript": "^4.0.1",
+    "merge2": "^1.2.1",
     "ts-loader": "^4.0.1",
     "typescript": "^2.7.2",
     "webpack": "^4.1.0",
