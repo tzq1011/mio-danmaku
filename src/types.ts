@@ -1,6 +1,7 @@
 type EventData = any;
-type EventSpecs = {
-  [event: string]: EventData;
+
+interface EventSpecs {
+  [event: string]: any;
 }
 
 type EventListener<D extends EventData> = (data: D) => void;
@@ -36,10 +37,10 @@ interface Border {
 type VerticalSpaceFilter = (topY: number, bottomY: number) => boolean;
 
 interface CommentEvents {
-  rendering: null,
-  renderingCanceled: null,
-  renderingFinished: null,
-  renderingEnded: null,
+  rendering: null;
+  renderingCanceled: null;
+  renderingFinished: null;
+  renderingEnded: null;
 }
 
 interface Comment {
@@ -107,11 +108,11 @@ type CommentFilter = (comment: Comment) => boolean;
 
 interface CommentPoolEvents {
   loaded: { comments: Comment[] };
-  added: { index: number, comment: Comment },
-  removed: { index: number, comment: Comment },
-  cleared: { comments: Comment[] },
-  filterAdded: { filter: CommentFilter },
-  filterRemoved: { filter: CommentFilter },
+  added: { index: number, comment: Comment };
+  removed: { index: number, comment: Comment };
+  cleared: { comments: Comment[] };
+  filterAdded: { filter: CommentFilter };
+  filterRemoved: { filter: CommentFilter };
 }
 
 interface CommentPool {
@@ -173,9 +174,9 @@ type RendererState =
   | "paused";
 
 interface RendererEvents {
-  idle: null,
-  running: null,
-  paused: null,
+  idle: null;
+  running: null;
+  paused: null;
 }
 
 interface Renderer {
@@ -223,18 +224,18 @@ type CSSScrollingAnimationState =
   | "finished";
 
 interface CSSScrollingAnimationEvents {
-  running: null,
-  runningStrict: null,
-  paused: null,
-  canceled: null,
-  finished: null,
-  ended: null,
+  running: null;
+  runningStrict: null;
+  paused: null;
+  canceled: null;
+  finished: null;
+  ended: null;
 }
 
 interface CSSScrollingAnimation {
   readonly state: CSSScrollingAnimationState;
   readonly isPending: boolean;
-  readonly events: EventEmitter<CSSScrollingAnimationEvents>
+  readonly events: EventEmitter<CSSScrollingAnimationEvents>;
   readonly element: HTMLElement;
   readonly duration: number;
   readonly fromX: number;
@@ -256,11 +257,11 @@ type TimerState =
   | "finished";
 
 interface TimerEvents {
-  running: null,
-  paused: null,
-  canceled: null,
-  finished: null,
-  ended: null,
+  running: null;
+  paused: null;
+  canceled: null;
+  finished: null;
+  ended: null;
 }
 
 interface Timer {
@@ -281,9 +282,9 @@ type PlayerState =
   | "paused";
 
 interface PlayerEvents {
-  idle: null,
-  playing: null,
-  paused: null,
+  idle: null;
+  playing: null;
+  paused: null;
 }
 
 interface Player {
@@ -304,8 +305,9 @@ interface Player {
 }
 
 export {
-  EventListener,
+  EventData,
   EventSpecs,
+  EventListener,
   EventEmitter,
   Dimensions,
   Position,

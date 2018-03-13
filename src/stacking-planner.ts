@@ -11,7 +11,7 @@ interface StackingPlannerOptions {
   direction?: StackingPlanner["direction"];
 }
 
-interface DefaultOptions {
+interface DefaultStackingPlannerOptions {
   containerHeight: StackingPlanner["containerHeight"];
   containerMarginTop: StackingPlanner["containerMarginTop"];
   containerMarginBottom: StackingPlanner["containerMarginBottom"];
@@ -23,7 +23,7 @@ interface Row {
   bottomY: number;
 }
 
-const defaultOptions: DefaultOptions = {
+const defaultOptions: DefaultStackingPlannerOptions = {
   containerHeight: 800,
   containerMarginTop: 0,
   containerMarginBottom: 0,
@@ -324,6 +324,7 @@ function createStackingPlanner(options: StackingPlannerOptions = {}): StackingPl
 
 export {
   StackingPlannerOptions,
+  DefaultStackingPlannerOptions,
 };
 
 export {

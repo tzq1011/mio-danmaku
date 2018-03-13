@@ -10,14 +10,14 @@ interface ScrollingPlannerOptions {
   extraSpeedPerPixel?: ScrollingPlanner["extraSpeedPerPixel"];
 }
 
-interface DefaultOptions {
+interface DefaultScrollingPlannerOptions {
   direction: ScrollingPlanner["direction"];
   marqueeWidth: ScrollingPlanner["marqueeWidth"];
   basicSpeed: ScrollingPlanner["basicSpeed"];
   extraSpeedPerPixel: ScrollingPlanner["extraSpeedPerPixel"];
 }
 
-const defaultOptions: DefaultOptions = {
+const defaultOptions: DefaultScrollingPlannerOptions = {
   direction: "left",
   marqueeWidth: 800,
   basicSpeed: 0.120,
@@ -101,6 +101,7 @@ function createScrollingPlanner(options: ScrollingPlannerOptions = {}): Scrollin
 
 export {
   ScrollingPlannerOptions,
+  DefaultScrollingPlannerOptions,
 };
 
 export {

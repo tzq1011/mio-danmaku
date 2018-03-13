@@ -55,7 +55,7 @@ interface CSSRendererOptions {
   ownCommentPaddingRight?: CSSRenderer["ownCommentPaddingRight"];
 }
 
-interface DefaultOptions {
+interface DefaultCSSRendererOptions {
   screenWidth: CSSRenderer["screenWidth"];
   screenHeight: CSSRenderer["screenHeight"];
   screenMarginTop: CSSRenderer["screenMarginTop"];
@@ -94,7 +94,7 @@ interface ScrollingCommentStatus {
   readonly scrollingAnimation: CSSScrollingAnimation;
 }
 
-const defaultOptions: DefaultOptions = {
+const defaultOptions: DefaultCSSRendererOptions = {
   screenWidth: 800,
   screenHeight: 600,
   screenMarginTop: 0,
@@ -947,6 +947,7 @@ function createCSSRenderer(options: CSSRendererOptions = {}): CSSRenderer {
 
 export {
   CSSRendererOptions,
+  DefaultCSSRendererOptions,
 };
 
 export {

@@ -18,13 +18,13 @@ interface PlayerOptions {
   maxRenderingComments?: Player["maxRenderingComments"];
 }
 
-interface DefaultOptions {
+interface DefaultPlayerOptions {
   width: Player["width"];
   height: Player["height"];
   maxRenderingComments: Player["maxRenderingComments"];
 }
 
-const defaultOptions: DefaultOptions = {
+const defaultOptions: DefaultPlayerOptions = {
   width: 800,
   height: 600,
   maxRenderingComments: 80,
@@ -251,6 +251,7 @@ function createPlayer(options: PlayerOptions): Player {
 
 export {
   PlayerOptions,
+  DefaultPlayerOptions,
 };
 
 export {

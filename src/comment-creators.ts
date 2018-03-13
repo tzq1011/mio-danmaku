@@ -20,32 +20,44 @@ import uniqueId from "lodash/uniqueId";
 import mixin from "./utils/mixin";
 import { createEventEmitter } from "./event-emitter";
 
-interface DefaultCommentOptions {
-  time: Comment["time"];
-  isOwn: Comment["isOwn"];
+interface CommentOptions {
+  time?: Comment["time"];
+  isOwn?: Comment["isOwn"];
 }
 
-type DefaultCommentTextTraitOptions = CommentTextTrait;
-type DefaultCommentPositionXTraitOptions = CommentPositionXTrait;
-type DefaultCommentPositionYTraitOptions = CommentPositionYTrait;
-type DefaultCommentHorizontalAlignmentTraitOptions = CommentHorizontalAlignmentTrait;
-type DefaultCommentVerticalAlignmentTraitOptions = CommentVerticalAlignmentTrait;
-type DefaultCommentStackingTraitOptions = CommentStackingTrait;
-type DefaultCommentScrollingTraitOptions = CommentScrollingTrait;
-type DefaultCommentLifetimeTraitOptions = CommentLifetimeTrait;
-type DefaultStackingCommentOptions = StackingComment;
-type DefaultScrollingCommentOptions = ScrollingComment;
-type DefaultPositioningCommentOptions = PositioningComment;
+interface CommentTextTraitOptions {
+  text?: CommentTextTrait["text"];
+  fontSize?: CommentTextTrait["fontSize"];
+  fontColor?: CommentTextTrait["fontColor"];
+}
 
-type CommentOptions = Partial<DefaultCommentOptions>;
-type CommentTextTraitOptions = Partial<DefaultCommentTextTraitOptions>;
-type CommentPositionXTraitOptions = Partial<DefaultCommentPositionXTraitOptions>;
-type CommentPositionYTraitOptions = Partial<DefaultCommentPositionYTraitOptions>;
-type CommentHorizontalAlignmentTraitOptions = Partial<DefaultCommentHorizontalAlignmentTraitOptions>;
-type CommentVerticalAlignmentTraitOptions = Partial<DefaultCommentVerticalAlignmentTraitOptions>;
-type CommentStackingTraitOptions = Partial<DefaultCommentStackingTraitOptions>;
-type CommentScrollingTraitOptions = Partial<DefaultCommentScrollingTraitOptions>;
-type CommentLifetimeTraitOptions = Partial<DefaultCommentLifetimeTraitOptions>;
+interface CommentPositionXTraitOptions {
+  positionX?: CommentPositionXTrait["positionX"];
+}
+
+interface CommentPositionYTraitOptions {
+  positionY?: CommentPositionYTrait["positionY"];
+}
+
+interface CommentHorizontalAlignmentTraitOptions {
+  horizontalAlignment?: CommentHorizontalAlignmentTrait["horizontalAlignment"];
+}
+
+interface CommentVerticalAlignmentTraitOptions {
+  verticalAlignment?: CommentVerticalAlignmentTrait["verticalAlignment"];
+}
+
+interface CommentStackingTraitOptions {
+  stackingDirection?: CommentStackingTrait["stackingDirection"];
+}
+
+interface CommentScrollingTraitOptions {
+  scrollingDirection?: CommentScrollingTrait["scrollingDirection"];
+}
+
+interface CommentLifetimeTraitOptions {
+  lifetime?: CommentLifetimeTrait["lifetime"];
+}
 
 type StackingCommentOptions =
   & CommentOptions
@@ -66,6 +78,45 @@ type PositioningCommentOptions =
   & CommentPositionXTraitOptions
   & CommentPositionYTraitOptions
   & CommentLifetimeTraitOptions;
+
+interface DefaultCommentOptions {
+  time: Comment["time"];
+  isOwn: Comment["isOwn"];
+}
+
+interface DefaultCommentTextTraitOptions {
+  text: CommentTextTrait["text"];
+  fontSize: CommentTextTrait["fontSize"];
+  fontColor: CommentTextTrait["fontColor"];
+}
+
+interface DefaultCommentPositionXTraitOptions {
+  positionX: CommentPositionXTrait["positionX"];
+}
+
+interface DefaultCommentPositionYTraitOptions {
+  positionY: CommentPositionYTrait["positionY"];
+}
+
+interface DefaultCommentHorizontalAlignmentTraitOptions {
+  horizontalAlignment: CommentHorizontalAlignmentTrait["horizontalAlignment"];
+}
+
+interface DefaultCommentVerticalAlignmentTraitOptions {
+  verticalAlignment: CommentVerticalAlignmentTrait["verticalAlignment"];
+}
+
+interface DefaultCommentStackingTraitOptions {
+  stackingDirection: CommentStackingTrait["stackingDirection"];
+}
+
+interface DefaultCommentScrollingTraitOptions {
+  scrollingDirection: CommentScrollingTrait["scrollingDirection"];
+}
+
+interface DefaultCommentLifetimeTraitOptions {
+  lifetime: CommentLifetimeTrait["lifetime"];
+}
 
 const defaultCommentOptions: DefaultCommentOptions = {
   time: 0,
@@ -304,7 +355,7 @@ function mixinCommentLifetimeTrait<C extends Comment>(
   return newComment;
 }
 
-function createStackingComment(options: StackingCommentOptions): StackingComment {
+function createStackingComment(options: StackingCommentOptions = {}): StackingComment {
   const comment = createComment(options);
   return mixin(
     comment,
@@ -315,7 +366,7 @@ function createStackingComment(options: StackingCommentOptions): StackingComment
   );
 }
 
-function createScrollingComment(options: ScrollingCommentOptions): ScrollingComment {
+function createScrollingComment(options: ScrollingCommentOptions = {}): ScrollingComment {
   const comment = createComment(options);
   return mixin(
     comment,
@@ -325,7 +376,7 @@ function createScrollingComment(options: ScrollingCommentOptions): ScrollingComm
   );
 }
 
-function createPositioningComment(options: PositioningCommentOptions): PositioningComment {
+function createPositioningComment(options: PositioningCommentOptions = {}): PositioningComment {
   const comment = createComment(options);
   return mixin(
     comment,
@@ -349,6 +400,15 @@ export {
   StackingCommentOptions,
   ScrollingCommentOptions,
   PositioningCommentOptions,
+  DefaultCommentOptions,
+  DefaultCommentTextTraitOptions,
+  DefaultCommentPositionXTraitOptions,
+  DefaultCommentPositionYTraitOptions,
+  DefaultCommentHorizontalAlignmentTraitOptions,
+  DefaultCommentVerticalAlignmentTraitOptions,
+  DefaultCommentStackingTraitOptions,
+  DefaultCommentScrollingTraitOptions,
+  DefaultCommentLifetimeTraitOptions,
 };
 
 export {
