@@ -1,20 +1,44 @@
 const gulp = require("gulp");
-const ts = require("gulp-typescript");
-const babel = require("gulp-babel");
+const gulpTypeScript = require("gulp-typescript");
+const gulpSourceMaps = require("gulp-sourcemaps");
+const gulpBabel = require("gulp-babel");
 const merge = require("merge2");
 
-const tsProject = ts.createProject("tsconfig.json");
+const esmTSProject = gulpTypeScript.createProject("tsconfig.json", { declaration: true });
+const umdTSProject = gulpTypeScript.createProject("tsconfig.json", { declaration: true });
 
-gulp.task("build-lib", () => {
-  const tsResult = tsProject.src()
-    .pipe(tsProject());
+gulp.task("build-esm", () => {
+  const tsResult =
+    esmTSProject.src()
+      .pipe(gulpSourceMaps.init())
+      .pipe(esmTSProject());
 
-  const jsStream = tsResult.js
-    .pipe(babel())
-    .pipe(gulp.dest("lib"));
+  return merge([
+    tsResult.js
+      .pipe(gulpBabel())
+      .pipe(gulpSourceMaps.write("."))
+      .pipe(gulp.dest("built/esm")),
 
-  const dtsStream = tsResult.dts
-    .pipe(gulp.dest("lib"));
+    tsResult.dts
+      .pipe(gulp.dest("built/esm"))
+  ])
+});
 
-  return merge([jsStream, dtsStream]);
+gulp.task("build-umd", () => {
+  const tsResult =
+    umdTSProject.src()
+      .pipe(gulpSourceMaps.init())
+      .pipe(umdTSProject());
+
+  return merge([
+    tsResult.js
+      .pipe(gulpBabel({
+        plugins: ["babel-plugin-transform-es2015-modules-umd"]
+      }))
+      .pipe(gulpSourceMaps.write("."))
+      .pipe(gulp.dest("built/umd")),
+
+    tsResult.dts
+      .pipe(gulp.dest("built/umd"))
+  ])
 });
