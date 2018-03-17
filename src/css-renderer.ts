@@ -80,9 +80,14 @@ type CommentRenderingState =
 interface CommentRenderingProcess {
   readonly state: CommentRenderingState;
   readonly view: CommentView;
+  readonly comment: Comment;
   pause: () => void;
   resume: () => void;
   cancel: () => void;
+}
+
+interface CommentRenderingProcesses {
+  [commentId: string]: CommentRenderingProcess;
 }
 
 interface ScrollingCommentStatus {
@@ -93,6 +98,8 @@ interface ScrollingCommentStatus {
   readonly scrollingDirection: "left" | "right";
   readonly scrollingAnimation: CSSScrollingAnimation;
 }
+
+declare const Promise: any;
 
 const defaultOptions: DefaultCSSRendererOptions = {
   screenWidth: 800,
@@ -109,6 +116,8 @@ const defaultOptions: DefaultCSSRendererOptions = {
   ownCommentPaddingLeft: 2,
   ownCommentPaddingRight: 2,
 };
+
+const hasOwnProperty = Object.prototype.hasOwnProperty;
 
 function createCSSRenderer(options: CSSRendererOptions = {}): CSSRenderer {
   const _finalOptions = {
@@ -182,8 +191,41 @@ function createCSSRenderer(options: CSSRendererOptions = {}): CSSRenderer {
     }),
   };
 
-  const _commentRenderingProcesses: Map<Comment, CommentRenderingProcess> = new Map();
-  const _scrollingCommentStatuses: Set<ScrollingCommentStatus> = new Set();
+  const _commentRenderingProcessMap: CommentRenderingProcesses = Object.create(null);
+  let _commentRenderingProcessCount: number = 0;
+
+  function _getCommentRenderingProcesses(): CommentRenderingProcess[] {
+    return Object.keys(_commentRenderingProcessMap)
+      .map((commentId) => {
+        return _commentRenderingProcessMap[commentId];
+      });
+  }
+
+  function _hasCommentRenderingProcess(comment: Comment): boolean {
+    return hasOwnProperty.call(_commentRenderingProcessMap, comment.instanceId);
+  }
+
+  function _setCommentRenderingProcess(comment: Comment, process: CommentRenderingProcess): void {
+    if (!_hasCommentRenderingProcess(comment)) {
+      _commentRenderingProcessCount++;
+    }
+
+    _commentRenderingProcessMap[comment.instanceId] = process;
+  }
+
+  function _getCommentRenderingProcess(comment: Comment): CommentRenderingProcess | null {
+    return _commentRenderingProcessMap[comment.instanceId] || null;
+  }
+
+  function _removeCommentRenderingProcess(comment: Comment): void {
+    if (_hasCommentRenderingProcess(comment)) {
+      _commentRenderingProcessCount--;
+    }
+
+    delete _commentRenderingProcessMap[comment.instanceId];
+  }
+
+  const _scrollingCommentStatuses: ScrollingCommentStatus[] = [];
 
   function run(): void {
     if (_state === "running") {
@@ -196,11 +238,12 @@ function createCSSRenderer(options: CSSRendererOptions = {}): CSSRenderer {
 
     _screenElement.style.display = "block";
 
-    _commentRenderingProcesses.forEach((process) => {
-      if (process.state === "paused") {
-        process.resume();
-      }
-    });
+    _getCommentRenderingProcesses()
+      .forEach((process) => {
+        if (process.state === "paused") {
+          process.resume();
+        }
+      });
 
     _state = "running";
     _events.emit("running", null);
@@ -215,11 +258,12 @@ function createCSSRenderer(options: CSSRendererOptions = {}): CSSRenderer {
       throw new Error(`Unexpected state: ${_state}`);
     }
 
-    _commentRenderingProcesses.forEach((process) => {
-      if (process.state === "running") {
-        process.pause();
-      }
-    });
+    _getCommentRenderingProcesses()
+      .forEach((process) => {
+        if (process.state === "running") {
+          process.pause();
+        }
+      });
 
     _state = "paused";
     _events.emit("paused", null);
@@ -234,11 +278,12 @@ function createCSSRenderer(options: CSSRendererOptions = {}): CSSRenderer {
       throw new Error(`Unexpected state: ${_state}`);
     }
 
-    _commentRenderingProcesses.forEach((process) => {
-      if (process.state === "running" || process.state === "paused") {
-        process.cancel();
-      }
-    });
+    _getCommentRenderingProcesses()
+      .forEach((process) => {
+        if (process.state === "running" || process.state === "paused") {
+          process.cancel();
+        }
+      });
 
     _screenElement.style.display = "none";
 
@@ -267,7 +312,7 @@ function createCSSRenderer(options: CSSRendererOptions = {}): CSSRenderer {
       throw new Error(`Unexpected state: ${_state}`);
     }
 
-    const existingProcess = _commentRenderingProcesses.get(comment);
+    const existingProcess = _getCommentRenderingProcess(comment);
     if (existingProcess != null) {
       return existingProcess.view;
     }
@@ -594,7 +639,10 @@ function createCSSRenderer(options: CSSRendererOptions = {}): CSSRenderer {
         }
 
         tmpScrollingAnimation.events.on("ended", () => {
-          _scrollingCommentStatuses.delete(scrollingCommentStatus);
+          const index = _scrollingCommentStatuses.indexOf(scrollingCommentStatus);
+          if (index !== -1) {
+            _scrollingCommentStatuses.splice(index, 1);
+          }
 
           if (tmpScrollingAnimation.state === "finished") {
             endRendering(true);
@@ -610,7 +658,7 @@ function createCSSRenderer(options: CSSRendererOptions = {}): CSSRenderer {
           scrollingAnimation: tmpScrollingAnimation,
         };
 
-        _scrollingCommentStatuses.add(scrollingCommentStatus);
+        _scrollingCommentStatuses.push(scrollingCommentStatus);
 
         tmpScrollingAnimation.run();
 
@@ -641,14 +689,23 @@ function createCSSRenderer(options: CSSRendererOptions = {}): CSSRenderer {
     function scheduleAnimation(): void {
       let isCanceled: boolean = false;
 
-      Promise.resolve().then(() => {
+      function executor() {
         if (isCanceled) {
           return;
         }
 
         animationCanceler = undefined;
         animate();
-      });
+      }
+
+      if (
+        typeof Promise === "function" &&
+        typeof Promise.resolve === "function"
+      ) {
+        Promise.resolve().then(executor);
+      } else {
+        setTimeout(executor, 0);
+      }
 
       function cancel(): void {
         isCanceled = true;
@@ -738,7 +795,7 @@ function createCSSRenderer(options: CSSRendererOptions = {}): CSSRenderer {
       }
 
       _screenElement.removeChild(element);
-      _commentRenderingProcesses.delete(comment);
+      _removeCommentRenderingProcess(comment);
 
       if (isFinished) {
         renderingState = "finished";
@@ -755,9 +812,8 @@ function createCSSRenderer(options: CSSRendererOptions = {}): CSSRenderer {
       get state() {
         return renderingState;
       },
-      get view() {
-        return view;
-      },
+      view,
+      comment,
       pause(): void {
         if (renderingState !== "running") {
           throw new Error(`Unexpected state: ${renderingState}`);
@@ -793,7 +849,12 @@ function createCSSRenderer(options: CSSRendererOptions = {}): CSSRenderer {
       },
     };
 
-    _commentRenderingProcesses.set(comment, process);
+    Object.defineProperties(process, {
+      view: { configurable: false },
+      comment: { configurable: false },
+    });
+
+    _setCommentRenderingProcess(comment, process);
 
     scheduleMeasurement();
     comment.events.emit("rendering", null);
@@ -801,26 +862,26 @@ function createCSSRenderer(options: CSSRendererOptions = {}): CSSRenderer {
   }
 
   function unrenderComment(comment: Comment): void {
-    const process = _commentRenderingProcesses.get(comment);
+    const process = _getCommentRenderingProcess(comment);
     if (process != null) {
       process.cancel();
     }
   }
 
   function isCommentRendering(comment: Comment): boolean {
-    return _commentRenderingProcesses.has(comment);
+    return _hasCommentRenderingProcess(comment);
   }
 
   function getRenderingComments(): Comment[] {
-    return [..._commentRenderingProcesses.keys()];
+    return _getCommentRenderingProcesses().map((process) => process.comment);
   }
 
   function getRenderingCommentsCount(): number {
-    return _commentRenderingProcesses.size;
+    return _commentRenderingProcessCount;
   }
 
   function getCommentView(comment: Comment): CommentView | null {
-    const process = _commentRenderingProcesses.get(comment);
+    const process = _getCommentRenderingProcess(comment);
     if (process != null) {
       return process.view;
     }

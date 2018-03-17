@@ -1,3 +1,5 @@
+/// <reference types="binary-search/binary-search"/>
+
 import {
   Comment,
   CommentPool,
@@ -6,7 +8,7 @@ import {
   EventEmitter,
 } from "./types";
 
-import sortedIndexBy from "lodash/sortedIndexBy";
+import binarySearch from "binary-search";
 
 import { createEventEmitter } from "./event-emitter";
 
@@ -35,7 +37,8 @@ function createCommentPool(): CommentPool {
   }
 
   function add(comment: Comment): void {
-    const index = sortedIndexBy(_comments, comment, (c) => c.time);
+    let index: number = binarySearch(_comments, comment, (c1, c2) => c1.time - c2.time);
+    index = index > 0 ? index : Math.abs(index + 1);
     _comments.splice(index, 0, comment);
     _events.emit("added", { index, comment });
   }
@@ -61,7 +64,8 @@ function createCommentPool(): CommentPool {
   }
 
   function getByTime(startTime: number, endTime: number, limit: number): Comment[] {
-    let index: number = sortedIndexBy(_comments, { time: startTime }, (c) => c.time);
+    let index: number = binarySearch(_comments, { time: startTime }, (c1, c2) => c1.time - c2.time);
+    index = index > 0 ? index : Math.abs(index + 1);
     const comments: Comment[] = [];
 
     while (index < _comments.length) {

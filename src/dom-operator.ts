@@ -1,17 +1,17 @@
 import {
   DOMOperation,
+  DOMOperationCallback,
   DOMOperator,
 } from "./types";
 
 interface Task {
-  operation: DOMOperation;
-  resolve(value?: any): void;
-  reject(reason?: any): void;
+  readonly operation: DOMOperation;
+  readonly callback?: DOMOperationCallback;
 }
 
 interface Group {
-  tasks: Array<Task | null>;
-  operations: Array<DOMOperation | null>;
+  readonly tasks: Array<Task | null>;
+  readonly operations: Array<DOMOperation | null>;
 }
 
 const mutationGroup: Group = { tasks: [], operations: [] };
@@ -21,6 +21,8 @@ let isExecutionScheduled: boolean = false;
 
 function execute() {
   isExecutionScheduled = false;
+  const callbacks: Array<() => void> = [];
+
   groups.forEach((group) => {
     for (const task of group.tasks) {
       if (task == null) {
@@ -29,12 +31,20 @@ function execute() {
 
       try {
         const result = task.operation();
-        task.resolve(result);
+
+        if (task.callback != null) {
+          const callback = task.callback;
+          callbacks.push(() => callback(null, result));
+        }
       } catch (e) {
-        task.reject(e);
+        if (task.callback != null) {
+          const callback = task.callback;
+          callbacks.push(() => callback(e));
+        }
       }
     }
 
+    callbacks.forEach((callback) => callback());
     group.tasks.length = 0;
     group.operations.length = 0;
   });
@@ -49,32 +59,26 @@ function scheduleExecution(): void {
   isExecutionScheduled = true;
 }
 
-function mutate<R>(operation: () => R): Promise<R> {
-  return new Promise((resolve, reject) => {
-    const task: Task = {
-      operation,
-      resolve,
-      reject,
-    };
+function mutate<R>(operation: DOMOperation<R>, callback?: DOMOperationCallback<R>): void {
+  const task: Task = {
+    operation,
+    callback,
+  };
 
-    mutationGroup.tasks.push(task);
-    mutationGroup.operations.push(operation);
-    scheduleExecution();
-  });
+  mutationGroup.tasks.push(task);
+  mutationGroup.operations.push(operation);
+  scheduleExecution();
 }
 
-function measure<R>(operation: () => R): Promise<R> {
-  return new Promise((resolve, reject) => {
-    const task: Task = {
-      operation,
-      resolve,
-      reject,
-    };
+function measure<R>(operation: DOMOperation<R>, callback?: DOMOperationCallback<R>): void {
+  const task: Task = {
+    operation,
+    callback,
+  };
 
-    measurementGroup.tasks.push(task);
-    measurementGroup.operations.push(operation);
-    scheduleExecution();
-  });
+  measurementGroup.tasks.push(task);
+  measurementGroup.operations.push(operation);
+  scheduleExecution();
 }
 
 function cancel(operation: DOMOperation): void {

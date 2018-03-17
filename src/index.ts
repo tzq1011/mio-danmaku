@@ -1,3 +1,5 @@
+export { Comment } from "./types";
+
 import { createCSSRenderer } from "./css-renderer";
 import { createPlayer } from "./player";
 

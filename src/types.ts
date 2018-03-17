@@ -210,9 +210,14 @@ interface Renderer {
 
 type DOMOperation<R = any> = (...args: any[]) => R;
 
+interface DOMOperationCallback<R = any> {
+  (error: null, result: R): void;
+  (error: Error): void;
+}
+
 interface DOMOperator {
-  measure<R>(operation: DOMOperation<R>): Promise<R>;
-  mutate<R>(operation: DOMOperation<R>): Promise<R>;
+  measure<R>(operation: DOMOperation<R>, callback?: DOMOperationCallback<R>): void;
+  mutate<R>(operation: DOMOperation<R>, callback?: DOMOperationCallback<R>): void;
   cancel(operation: DOMOperation): void;
 }
 
@@ -339,6 +344,7 @@ export {
   RendererEvents,
   Renderer,
   DOMOperation,
+  DOMOperationCallback,
   DOMOperator,
   CSSScrollingAnimationState,
   CSSScrollingAnimationEvents,

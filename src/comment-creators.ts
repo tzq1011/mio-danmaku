@@ -15,7 +15,7 @@ import {
   EventEmitter,
 } from "./types";
 
-import uniqueId from "lodash/uniqueId";
+import assign from "object-assign";
 
 import mixin from "./utils/mixin";
 import { createEventEmitter } from "./event-emitter";
@@ -157,13 +157,15 @@ const defaultCommentLifetimeTraitOptions: DefaultCommentLifetimeTraitOptions = {
   lifetime: 5000,
 };
 
+let instanceNumber: number = 0;
+
 function createComment(options: CommentOptions = {}): Comment {
   const finalOptions = {
     ...defaultCommentOptions,
     ...options,
   };
 
-  const instanceId = uniqueId();
+  const instanceId = `Comment${++instanceNumber}`;
   const events: EventEmitter<CommentEvents> = createEventEmitter();
 
   const comment: Comment = {
@@ -198,7 +200,7 @@ function mixinCommentTextTrait<C extends Comment>(
     fontColor: finalOptions.fontColor,
   };
 
-  const newComment = Object.assign(comment, trait);
+  const newComment = assign(comment, trait);
   Object.defineProperties(newComment, {
     text: { configurable: false },
     fontSize: { configurable: false },
@@ -221,7 +223,7 @@ function mixinCommentPositionXTrait<C extends Comment>(
     positionX: finalOptions.positionX,
   };
 
-  const newComment = Object.assign(comment, trait);
+  const newComment = assign(comment, trait);
   Object.defineProperties(newComment, {
     positionX: { configurable: false },
   });
@@ -242,7 +244,7 @@ function mixinCommentPositionYTrait<C extends Comment>(
     positionY: finalOptions.positionY,
   };
 
-  const newComment = Object.assign(comment, trait);
+  const newComment = assign(comment, trait);
   Object.defineProperties(newComment, {
     positionY: { configurable: false },
   });
@@ -263,7 +265,7 @@ function mixinCommentHorizontalAlignmentTrait<C extends Comment>(
     horizontalAlignment: finalOptions.horizontalAlignment,
   };
 
-  const newComment = Object.assign(comment, trait);
+  const newComment = assign(comment, trait);
   Object.defineProperties(newComment, {
     horizontalAlignment: { configurable: false },
   });
@@ -284,7 +286,7 @@ function mixinCommentVerticalAlignmentTrait<C extends Comment>(
     verticalAlignment: finalOptions.verticalAlignment,
   };
 
-  const newComment = Object.assign(comment, trait);
+  const newComment = assign(comment, trait);
   Object.defineProperties(newComment, {
     verticalAlignment: { configurable: false },
   });
@@ -305,7 +307,7 @@ function mixinCommentStackingTrait<C extends Comment>(
     stackingDirection: finalOptions.stackingDirection,
   };
 
-  const newComment = Object.assign(comment, trait);
+  const newComment = assign(comment, trait);
   Object.defineProperties(newComment, {
     stackingDirection: { configurable: false },
   });
@@ -326,7 +328,7 @@ function mixinCommentScrollingTrait<C extends Comment>(
     scrollingDirection: finalOptions.scrollingDirection,
   };
 
-  const newComment = Object.assign(comment, trait);
+  const newComment = assign(comment, trait);
   Object.defineProperties(newComment, {
     scrollingDirection: { configurable: false },
   });
@@ -347,7 +349,7 @@ function mixinCommentLifetimeTrait<C extends Comment>(
     lifetime: finalOptions.lifetime,
   };
 
-  const newComment = Object.assign(comment, trait);
+  const newComment = assign(comment, trait);
   Object.defineProperties(newComment, {
     lifetime: { configurable: false },
   });

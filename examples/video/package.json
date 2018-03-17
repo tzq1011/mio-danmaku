@@ -1,0 +1,23 @@
+{
+  "name": "video",
+  "version": "0.1.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "rollup -c"
+  },
+  "author": "PPC <tzq1011@163.com>",
+  "license": "MIT",
+  "devDependencies": {
+    "http-server": "^0.11.1",
+    "rollup": "^0.57.1",
+    "rollup-plugin-commonjs": "^9.1.0",
+    "rollup-plugin-node-resolve": "^3.2.0",
+    "typescript": "^2.7.2"
+  },
+  "dependencies": {
+    "rollup-plugin-typescript2": "^0.12.0",
+    "tslib": "^1.9.0"
+  }
+}

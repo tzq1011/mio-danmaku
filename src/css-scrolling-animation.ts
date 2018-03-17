@@ -124,24 +124,23 @@ function createCSSScrollingAnimation(options: CSSScrollingAnimationOptions): CSS
 
     let isCanceled: boolean = false;
 
-    domOperator.measure(reflow)
-      .then(() => {
-        if (isCanceled) {
-          return;
-        }
+    domOperator.measure(reflow, () => {
+      if (isCanceled) {
+        return;
+      }
 
-        const transform = `translateX(${_toX}px)`;
-        if (_element.style.webkitTransition != null) {
-          _element.style.webkitTransition = `-webkit-transform linear ${remainingTime}ms`;
-          _element.style.webkitTransform = transform;
-        } else {
-          _element.style.transition = `transform linear ${remainingTime}ms`;
-          _element.style.transform = transform;
-        }
+      const transform = `translateX(${_toX}px)`;
+      if (_element.style.webkitTransition != null) {
+        _element.style.webkitTransition = `-webkit-transform linear ${remainingTime}ms`;
+        _element.style.webkitTransform = transform;
+      } else {
+        _element.style.transition = `transform linear ${remainingTime}ms`;
+        _element.style.transform = transform;
+      }
 
-        _runningCanceler = undefined;
-        _onRunning();
-      });
+      _runningCanceler = undefined;
+      _onRunning();
+    });
 
     _runningCanceler = () => {
       if (isCanceled) {

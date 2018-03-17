@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+</head>
+<body>
+  <style>
+    #container { background-color: #000; }
+    #video { position: absolute; }
+    #comments { position: absolute; pointer-events: none; z-index: 100 }
+  </style>
+  <div id="container">
+    <video id="video" controls webkit-playsinline></video>
+    <div id="comments"></div>
+  </div>
+  <script src="bundle.js"></script>
+</body>
+</html>
