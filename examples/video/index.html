@@ -1,21 +1,320 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <title>Document</title>
+  <title>MioDanmaku Example</title>
+  <link rel="stylesheet" href="assets/normalize.css">
+  <link rel="stylesheet" href="assets/index.css">
 </head>
 <body>
-  <style>
-    #container { background-color: #000; }
-    #video { position: absolute; }
-    #comments { position: absolute; pointer-events: none; z-index: 100 }
-  </style>
-  <div id="container">
-    <video id="video" controls webkit-playsinline></video>
-    <div id="comments"></div>
+
+<div class="container">
+  <!-- Headline -->
+  <h1 class="headline">MioDanmaku</h1>
+  <!-- //Headline -->
+  <!-- Description -->
+  <p class="description">
+    A simple JavaScript library for playing danmaku.
+    <a href="https://github.com/tzq1011/mio-danmaku" target="_blank">@Github</a>
+  </p>
+  <!-- //Description -->
+  <div class="divider"></div>
+  <!-- Screen -->
+  <div class="screen">
+    <video class="screen-video" controls></video>
+    <div class="screen-comments"></div>
   </div>
-  <script src="bundle.js"></script>
+  <!-- //Screen -->
+  <div class="divider"></div>
+  <div class="functionalArea">
+    <!-- Left Column -->
+    <div class="functionalArea-leftCol">
+      <!-- Comments -->
+      <div class="table comments">
+        <div class="table-head">
+          <div class="table-row">
+            <div class="table-col comments-timeCol">Time</div>
+            <div class="table-col comments-textCol">Comment</div>
+          </div>
+        </div>
+        <div class="table-body comments-body">
+          <ul class="table-entries comments-entries">
+            <li class="table-row">
+              <div class="table-col comments-timeCol">00:00</div>
+              <div class="table-col comments-textCol">Hello</div>
+            </li>
+            <li class="table-row">
+              <div class="table-col comments-timeCol">00:00</div>
+              <div class="table-col comments-textCol">Hello</div>
+            </li>
+          </ul>
+        </div>
+        <div class="table-foot">
+          Showing 1 to 10 of 1000 entries.
+          <a href="#">Clear</a>
+        </div>
+      </div>
+      <!-- //Comments -->
+    </div>
+    <!-- //Left Column -->
+    <!-- Right Column -->
+    <div class="functionalArea-rightCol">
+      <!-- Posting -->
+      <fieldset class="fieldset posting">
+        <legend>Post a Comment</legend>
+        <div class="formRow">
+          <label class="formRow-head">Type</label>
+          <div class="formRow-body">
+            <select class="select">
+              <option>Scrolling Comment</option>
+              <option>Stacking Comment</option>
+              <option>Positioning Comment</option>
+            </select>
+          </div>
+        </div>
+        <div class="formRow">
+          <label class="formRow-head">Text</label>
+          <div class="formRow-body">
+            <input class="inputText" value="Nya">
+          </div>
+        </div>
+        <div class="formRow">
+          <label class="formRow-head">Font Size</label>
+          <div class="formRow-body">
+            <input class="inputNumber" type="number" value="25">
+            px
+          </div>
+        </div>
+        <div class="formRow">
+          <label class="formRow-head">Text Color</label>
+          <div class="formRow-body">
+            <input class="inputText" value="#FFFFFF">
+            <input type="color" value="#FFFFFF">
+          </div>
+        </div>
+        <div class="formRow">
+          <label class="formRow-head">Stacking Direction</label>
+          <div class="formRow-body">
+            <select class="select">
+              <option>Up</option>
+            </select>
+          </div>
+        </div>
+        <div class="formRow">
+          <label class="formRow-head">Scrolling Direction</label>
+          <div class="formRow-body">
+            <select class="select">
+              <option>Left</option>
+              <option>Right</option>
+            </select>
+          </div>
+        </div>
+        <div class="formRow">
+          <label class="formRow-head">Horizontal Alignment</label>
+          <div class="formRow-body">
+            <select class="select">
+              <option>Left</option>
+              <option>Center</option>
+              <option>Right</option>
+            </select>
+          </div>
+        </div>
+        <div class="formRow">
+          <label class="formRow-head">Vertical Alignment</label>
+          <div class="formRow-body">
+            <select class="select">
+              <option>Top</option>
+              <option>Middle</option>
+              <option>Bottom</option>
+            </select>
+          </div>
+        </div>
+        <div class="formRow">
+          <label class="formRow-head">Position X</label>
+          <div class="formRow-body">
+            <input class="inputNumber" type="number" value="100">
+            px
+          </div>
+        </div>
+        <div class="formRow">
+          <label class="formRow-head">Position Y</label>
+          <div class="formRow-body">
+            <input class="inputNumber" type="number" value="100">
+            px
+          </div>
+        </div>
+        <div class="formRow">
+          <label class="formRow-head">Lifetime</label>
+          <div class="formRow-body">
+            <input class="inputNumber" type="number" value="5000">
+            ms
+          </div>
+        </div>
+        <button class="button fieldset-rightTop">Post</button>
+        <button class="button fieldset-rightBottom">Post</button>
+      </fieldset>
+      <!-- //Posting -->
+      <!-- Resources -->
+      <fieldset class="fieldset resources" style="margin-top: 15px;">
+        <legend>Resources</legend>
+        <div class="formRow">
+          <label class="formRow-head">Video URL</label>
+          <div class="formRow-body">
+            <input class="inputText" type="text" value="https://github.io">
+            <select class="select">
+              <option value="">Presets</option>
+              <option value="">悪役にキスシーンを</option>
+            </select>
+            <button class="button">Load</button>
+          </div>
+        </div>
+        <div class="formRow">
+          <label class="formRow-head">Comments URL</label>
+          <div class="formRow-body">
+            <input class="inputText" type="text" value="https://github.io">
+            <select class="select">
+              <option value="">Presets</option>
+              <option value="">悪役にキスシーンを</option>
+            </select>
+            <button class="button">Load</button>
+            <p>
+            Only comments come from the Bilibili.com are supported.
+            </p>
+          </div>
+          <div class="resources-note">
+            About the resources in presets:<br>
+            The video "悪役にキスシーンを" is referenced from the <a href="#">Youtube.com</a>.<br>
+            The comments of "悪役にキスシーンを" are referenced from the <a href="#">Bilibili.com</a>.<br>
+            All rights to the resources above belong to the original author.<br>
+          </div>
+        </div>
+      </fieldset>
+      <!-- //Resources -->
+      <!-- Rendering Options for All Comments -->
+      <fieldset class="fieldset resizing" style="margin-top: 15px;">
+        <legend>Rendering Options for All Comments</legend>
+        <div class="formRow">
+          <label class="formRow-head">Opacity</label>
+          <div class="formRow-body">
+            0 <input class="inputRange" type="range"> 1
+          </div>
+        </div>
+        <div class="formRow">
+          <label class="formRow-head">Font Family</label>
+          <div class="formRow-body">
+            <input class="inputNumber" type="text" value="Microsoft Yahei">
+            <select>
+              <option value="">Presets</option>
+              <option>Microsoft Yahei</option>
+              <option>SimHei</option>
+            </select>
+          </div>
+        </div>
+        <div class="formRow">
+          <label class="formRow-head">Line Height</label>
+          <div class="formRow-body">
+            <input class="inputNumber" type="text" value="1.2">
+            times the font size.
+          </div>
+        </div>
+        <div class="formRow">
+          <label class="formRow-head">Text Shadow</label>
+          <div class="formRow-body">
+            <input class="inputNumber" type="text" value="0 0 2 #00000">
+            <select>
+              <option value="">Presets</option>
+              <option>0 0 2 #00000</option>
+            </select>
+          </div>
+        </div>
+        <div class="formRow">
+          <label class="formRow-head">Max Concurrent</label>
+          <div class="formRow-body">
+            <input class="inputNumber" type="number" value="80">
+            comments
+          </div>
+        </div>
+        <div class="fieldset-rightBottom">
+          <button class="button">Reset</button>
+          <button class="button">Apply</button>
+        </div>
+      </fieldset>
+      <!-- //Rendering Options for All Comments -->
+      <!-- Rendering Options for Scrolling Comments -->
+      <fieldset class="fieldset resizing" style="margin-top: 15px;">
+        <legend>Rendering Options for Scrolling Comments</legend>
+        <div class="formRow">
+          <label class="formRow-head">Speed</label>
+          <div class="formRow-body">
+            10% <input class="inputRange" type="range"> 200%
+            <p>This is a shortcut to adjust the following options.</p>
+          </div>
+        </div>
+        <div class="formRow">
+          <label class="formRow-head">Basic Speed</label>
+          <div class="formRow-body">
+            <input class="inputNumber" type="number" value="0.002">
+            px/ms
+          </div>
+        </div>
+        <div class="formRow">
+          <label class="formRow-head">Extra Speed Per Pixel</label>
+          <div class="formRow-body">
+            <input class="inputNumber" type="number" value="0.2">
+            px/ms
+          </div>
+        </div>
+        <div class="fieldset-rightBottom">
+          <button class="button">Reset</button>
+          <button class="button">Apply</button>
+        </div>
+      </fieldset>
+      <!-- //Rendering Options for Scrolling Comments -->
+      <!-- Rendering Options for Screen -->
+      <fieldset class="fieldset resizing" style="margin-top: 15px;">
+        <legend>Rendering Options for Screen</legend>
+        <div class="formRow">
+          <label class="formRow-head">Width</label>
+          <div class="formRow-body">
+            <input class="inputNumber" type="number" value="800">
+            px
+          </div>
+        </div>
+        <div class="formRow">
+          <label class="formRow-head">Height</label>
+          <div class="formRow-body">
+            <input class="inputNumber" type="number" value="600">
+            px
+          </div>
+        </div>
+        <div class="formRow">
+          <label class="formRow-head">Top Margin</label>
+          <div class="formRow-body">
+            <input class="inputNumber" type="number" value="0">
+            px
+          </div>
+        </div>
+        <div class="formRow">
+          <label class="formRow-head">Bottom Margin</label>
+          <div class="formRow-body">
+            <input class="inputNumber" type="number" value="0">
+            px
+          </div>
+        </div>
+        <div class="fieldset-rightBottom">
+          <button class="button">Reset</button>
+          <button class="button">Apply</button>
+        </div>
+      </fieldset>
+      <!-- //Rendering Options for Screen -->
+    </div>
+    <!-- //Right Column -->
+  </div>
+  <div class="footer">
+    Made with ♥ by <a target="_blank" href="https://github.com/tzq1011">PPC</a>
+  </div>
+</div>
 </body>
 </html>
