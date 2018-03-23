@@ -11,43 +11,48 @@
 <body>
 
 <div class="container">
-  <!-- Headline -->
-  <h1 class="headline">MioDanmaku</h1>
-  <!-- //Headline -->
-  <!-- Description -->
-  <p class="description">
-    A simple JavaScript library for playing danmaku.
-    <a href="https://github.com/tzq1011/mio-danmaku" target="_blank">@Github</a>
-  </p>
-  <!-- //Description -->
+  <!-- Header -->
+  <div class="header">
+    <!-- Headline -->
+    <h1 class="headline">MioDanmaku</h1>
+    <!-- //Headline -->
+    <!-- Description -->
+    <p class="description">
+      A simple JavaScript library for playing danmaku.
+      <a href="https://github.com/tzq1011/mio-danmaku" target="_blank">@Github</a>
+    </p>
+    <!-- //Description -->
+  </div>
+  <!-- //Header -->
   <div class="divider"></div>
   <!-- Screen -->
-  <div class="screen">
-    <video class="screen-video" controls></video>
-    <div class="screen-comments"></div>
+  <div id="screen" class="screen">
+    <video id="screenVideo" class="screen-video" controls></video>
+    <div id="screenComments" class="screen-comments"></div>
   </div>
   <!-- //Screen -->
   <div class="divider"></div>
+  <!-- Functional Area -->
   <div class="functionalArea">
     <!-- Left Column -->
     <div class="functionalArea-leftCol">
-      <!-- Comments -->
-      <div class="table comments">
+      <!-- Comment List -->
+      <div class="table commentList">
         <div class="table-head">
           <div class="table-row">
-            <div class="table-col comments-timeCol">Time</div>
-            <div class="table-col comments-textCol">Comment</div>
+            <div class="table-col commentList-timeCol">Time</div>
+            <div class="table-col commentList-textCol">Comment</div>
           </div>
         </div>
-        <div class="table-body comments-body">
-          <ul class="table-entries comments-entries">
+        <div class="table-body commentList-body">
+          <ul class="table-entries commentList-entries">
             <li class="table-row">
-              <div class="table-col comments-timeCol">00:00</div>
-              <div class="table-col comments-textCol">Hello</div>
+              <div class="table-col commentList-timeCol">00:00</div>
+              <div class="table-col commentList-textCol">Hello</div>
             </li>
             <li class="table-row">
-              <div class="table-col comments-timeCol">00:00</div>
-              <div class="table-col comments-textCol">Hello</div>
+              <div class="table-col commentList-timeCol">00:00</div>
+              <div class="table-col commentList-textCol">Hello</div>
             </li>
           </ul>
         </div>
@@ -56,12 +61,12 @@
           <a href="#">Clear</a>
         </div>
       </div>
-      <!-- //Comments -->
+      <!-- //Comment List -->
     </div>
     <!-- //Left Column -->
     <!-- Right Column -->
     <div class="functionalArea-rightCol">
-      <!-- Posting -->
+      <!-- Post a Comments -->
       <fieldset class="fieldset posting">
         <legend>Post a Comment</legend>
         <div class="formRow">
@@ -155,45 +160,43 @@
         <button class="button fieldset-rightTop">Post</button>
         <button class="button fieldset-rightBottom">Post</button>
       </fieldset>
-      <!-- //Posting -->
-      <!-- Resources -->
+      <!-- //Post a Comments -->
+      <!-- Resources for Testing -->
       <fieldset class="fieldset resources" style="margin-top: 15px;">
-        <legend>Resources</legend>
+        <legend>Resources for Testing</legend>
         <div class="formRow">
           <label class="formRow-head">Video URL</label>
           <div class="formRow-body">
-            <input class="inputText" type="text" value="https://github.io">
-            <select class="select">
+            <input id="videoURLInput" class="inputText" type="text">
+            <select id="videoURLSelect" class="select">
               <option value="">Presets</option>
-              <option value="">悪役にキスシーンを</option>
+              <option value="assets/video.mp4" selected>Kiss the Villain</option>
             </select>
-            <button class="button">Load</button>
+            <button id="videoLoadingButton" class="button">Load</button>
           </div>
         </div>
         <div class="formRow">
           <label class="formRow-head">Comments URL</label>
           <div class="formRow-body">
-            <input class="inputText" type="text" value="https://github.io">
-            <select class="select">
+            <input id="commentsURLInput" class="inputText" type="text">
+            <select id="commentsURLSelect" class="select">
               <option value="">Presets</option>
-              <option value="">悪役にキスシーンを</option>
+              <option value="assets/bilibili.xml" selected>Kiss the Villain</option>
             </select>
-            <button class="button">Load</button>
-            <p>
-            Only comments come from the Bilibili.com are supported.
-            </p>
+            <button id="commentsLoadingButton" class="button">Load</button>
+            <p>Only comments come from the bilibili.com are supported.</p>
           </div>
           <div class="resources-note">
-            About the resources in presets:<br>
-            The video "悪役にキスシーンを" is referenced from the <a href="#">Youtube.com</a>.<br>
-            The comments of "悪役にキスシーンを" are referenced from the <a href="#">Bilibili.com</a>.<br>
+            The video "Kiss the Villain" is referenced from the <a href="#">Youtube.com</a>.<br>
+            The video "Macbook Pro 2017" is referenced from the <a href="#">Apple.com</a>.<br>
+            The comments of "Kiss the Villain" are referenced from the <a href="#">Bilibili.com</a>.<br>
             All rights to the resources above belong to the original author.<br>
           </div>
         </div>
       </fieldset>
-      <!-- //Resources -->
+      <!-- //Resources for Testing -->
       <!-- Rendering Options for All Comments -->
-      <fieldset class="fieldset resizing" style="margin-top: 15px;">
+      <fieldset class="fieldset" style="margin-top: 15px;">
         <legend>Rendering Options for All Comments</legend>
         <div class="formRow">
           <label class="formRow-head">Opacity</label>
@@ -223,10 +226,7 @@
           <label class="formRow-head">Text Shadow</label>
           <div class="formRow-body">
             <input class="inputNumber" type="text" value="0 0 2 #00000">
-            <select>
-              <option value="">Presets</option>
-              <option>0 0 2 #00000</option>
-            </select>
+            format: offsetX offsetY blur color
           </div>
         </div>
         <div class="formRow">
@@ -243,7 +243,7 @@
       </fieldset>
       <!-- //Rendering Options for All Comments -->
       <!-- Rendering Options for Scrolling Comments -->
-      <fieldset class="fieldset resizing" style="margin-top: 15px;">
+      <fieldset class="fieldset" style="margin-top: 15px;">
         <legend>Rendering Options for Scrolling Comments</legend>
         <div class="formRow">
           <label class="formRow-head">Speed</label>
@@ -273,7 +273,7 @@
       </fieldset>
       <!-- //Rendering Options for Scrolling Comments -->
       <!-- Rendering Options for Screen -->
-      <fieldset class="fieldset resizing" style="margin-top: 15px;">
+      <fieldset class="fieldset" style="margin-top: 15px;">
         <legend>Rendering Options for Screen</legend>
         <div class="formRow">
           <label class="formRow-head">Width</label>
@@ -312,9 +312,11 @@
     </div>
     <!-- //Right Column -->
   </div>
+  <!-- //Functional Area -->
   <div class="footer">
     Made with ♥ by <a target="_blank" href="https://github.com/tzq1011">PPC</a>
   </div>
+  <script src="./bundle.js"></script>
 </div>
 </body>
 </html>

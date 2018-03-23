@@ -2,9 +2,9 @@ body {
   margin: 0;
   padding: 0;
   color: #222;
-  font-family: "Open Sans", Helvetica, Arial, "Microsoft Yahei", sans-serif;
+  font-family: Roboto, Helvetica, Arial, "Microsoft YaHei", sans-serif;
   font-size: 16px;
-  line-height: 1.2;
+  line-height: 1.5;
   background-color: #fff;
 }
 
@@ -15,25 +15,32 @@ body {
   margin: 0 auto;
 }
 
+.header {
+  margin: 15px 0;
+}
+
 .headline {
-  display: inline-block;
-  margin: 10px;
+  display: inline;
+  margin: 0;
+  margin-left: 15px;
   font-size: 36px;
   font-weight: normal;
+  vertical-align: middle;
 }
 
 .description {
   display: inline-block;
   margin: 0;
-  margin-left: 10px;
-  font-size: 20px;
+  margin-left: 20px;
+  font-size: 22px;
   font-style: italic;
+  vertical-align: middle;
 }
 
 .divider {
   height: 1px;
   margin: 15px 0;
-  background-color: #e8e8e8;
+  background-color: #eee;
 }
 
 /* Screen */
@@ -57,6 +64,7 @@ body {
   height: 100%;
   position: relative;
   z-index: 1;
+  pointer-events: none;
 }
 /* //Screen */
 
@@ -77,7 +85,7 @@ body {
 
 /* Table */
 .table {
-  border: solid 1px #e8e8e8;
+  border: solid 1px #eee;
   border-radius: 4px;
 }
 
@@ -88,7 +96,7 @@ body {
 .table-col {
   flex: auto;
   padding: 0 10px;
-  border-right: solid 1px #e8e8e8;
+  border-right: solid 1px #eee;
   white-space: nowrap;
   text-overflow: ellipsis;
   overflow: hidden;
@@ -100,7 +108,7 @@ body {
 
 .table-head {
   font-weight: bold;
-  border-bottom: solid 1px #e8e8e8;
+  border-bottom: solid 1px #eee;
 }
 
 .table-head > .table-row {
@@ -123,39 +131,38 @@ body {
 
 .table-foot {
   padding-left: 10px;
-  color: #666;
   font-size: 14px;
   line-height: 36px;
-  border-top: solid 1px #e8e8e8;
+  border-top: solid 1px #eee;
 }
 /* //Table */
 
-/* Comments */
-.comments-body {
+/* Comment List */
+.commentList-body {
   height: 400px;
   overflow: auto;
 }
 
-.comments-timeCol {
+.commentList-timeCol {
   flex: 0 1 80px;
 }
 
-.comments-entries {
+.commentList-entries {
   position: relative;
 }
 
-.comments-entries > .table-row {
+.commentList-entries > .table-row {
   position: absolute;
   left: 0;
   right:0;
 }
-/* //Comments */
+/* //Comment List */
 
 /* Fieldset */
 .fieldset {
   margin: 0;
   padding: 15px;
-  border: solid 1px #e8e8e8;
+  border: solid 1px #eee;
   border-radius: 4px;
   position: relative;
 }
@@ -193,6 +200,11 @@ body {
   padding-left: 3px;
   padding-right: 3px;
 }
+
+.inputRange {
+  padding: 0;
+}
+
 /* //Control */
 
 /* Form Row */
@@ -215,11 +227,10 @@ body {
 
 .resources-note {
   font-size: 14px;
-  text-align: right;
 }
 
 .footer {
-  margin: 60px 0;
-  font-size: 20px;
+  margin: 30px 0;
+  font-size: 22px;
   text-align: center;
 }

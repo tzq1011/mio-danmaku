@@ -9,55 +9,132 @@ import {
   createPlayer,
 } from "../../";
 
-const containerElement = document.getElementById("container") as HTMLDivElement;
-const videoElement = document.getElementById("video") as HTMLVideoElement;
-const commentsElement = document.getElementById("comments") as HTMLDivElement;
+// Initialize the Player
+const tmpScreenElem = document.getElementById("screen") as (HTMLDivElement | null);
+const tmpScreenVideoElem = document.getElementById("screenVideo") as (HTMLVideoElement | null);
+const tmpScreenCommentsElem = document.getElementById("screenComments") as (HTMLDivElement | null);
 
-function timeGetter(): number {
-  return videoElement.currentTime * 1000;
+if (
+  tmpScreenElem == null ||
+  tmpScreenVideoElem == null ||
+  tmpScreenCommentsElem == null
+) {
+  throw new Error("Element not found.");
 }
 
-const danmakuPlayer = createPlayer({ timeGetter });
-commentsElement.appendChild(danmakuPlayer.element);
-danmakuPlayer.renderer.screenMarginBottom = 40;
+const screenElem = tmpScreenElem;
+const screenVideoElem = tmpScreenVideoElem;
+const screenCommentsElem = tmpScreenCommentsElem;
 
-videoElement.addEventListener("playing", () => {
-    if (danmakuPlayer.state !== "playing") {
-      danmakuPlayer.play();
-    }
-  });
+const danmakuPlayer = createPlayer({
+  timeGetter() {
+    return screenVideoElem.currentTime * 1000;
+  },
+});
 
-videoElement.addEventListener("pause", () => {
-    if (danmakuPlayer.state !== "paused") {
-      danmakuPlayer.pause();
-    }
-  });
+screenCommentsElem.appendChild(danmakuPlayer.element);
+screenVideoElem.addEventListener("playing", () => danmakuPlayer.play());
+screenVideoElem.addEventListener("pause", () => danmakuPlayer.pause());
 
-// tslint:disable-next-line:max-line-length
-// const videoUrl = "https://images.apple.com/media/cn/macbook-pro/2016/b4a9efaa_6fe5_4075_a9d0_8e4592d6146c/films/design/macbook-pro-design-tft-cn-20161026_1536x640h.mp4";
-const videoUrl = "assets/video.mp4";
-videoElement.src = videoUrl;
-videoElement.play();
+// Initialize the options panel for the video resource.
+const tmpVideoURLInputElem = document.getElementById("videoURLInput") as (HTMLInputElement | null);
+const tmpVideoURLSelectElem = document.getElementById("videoURLSelect") as (HTMLSelectElement | null);
+const tmpVideoLoadingButtonElem = document.getElementById("videoLoadingButton") as (HTMLButtonElement | null);
 
-function resize(width: number, height: number): void {
-  containerElement.style.width = width + "px";
-  containerElement.style.height = height + "px";
-  videoElement.style.width = width + "px";
-  videoElement.style.height = height + "px";
-  commentsElement.style.width = width + "px";
-  commentsElement.style.height = height + "px";
-  danmakuPlayer.resize(width, height);
+if (
+  tmpVideoURLInputElem == null ||
+  tmpVideoURLSelectElem == null ||
+  tmpVideoLoadingButtonElem == null
+) {
+  throw new Error("Element not found.");
 }
 
-resize(846, 568);
+const videoURLInputElem = tmpVideoURLInputElem;
+const videoURLSelectElem = tmpVideoURLSelectElem;
+const videoLoadingButtonElem = tmpVideoLoadingButtonElem;
 
-const xhr = new XMLHttpRequest();
-xhr.onload = () => {
-  if (xhr.responseXML == null) {
-    throw new Error("ResponseXML not found.");
+videoURLSelectElem.addEventListener("change", onVideoURLSelectChange);
+videoLoadingButtonElem.addEventListener("click", onVideoLoadingButtonClick);
+
+function onVideoURLSelectChange(): void {
+  videoURLInputElem.value = videoURLSelectElem.value;
+}
+
+function onVideoLoadingButtonClick(): void {
+  if (videoURLInputElem.value === "") {
+    alert("Please enter a URL to load the video.");
+    return;
   }
 
-  const dList = xhr.responseXML.querySelectorAll("d");
+  loadVideoByURL(videoURLInputElem.value);
+}
+
+onVideoURLSelectChange();
+onVideoLoadingButtonClick();
+
+// Initialize the options panel for the comment resource.
+const tmpCommentsURLInputElem = document.getElementById("commentsURLInput") as (HTMLInputElement | null);
+const tmpCommentsURLSelectElem = document.getElementById("commentsURLSelect") as (HTMLSelectElement | null);
+const tmpCommentsLoadingButtonElem = document.getElementById("commentsLoadingButton") as (HTMLButtonElement | null);
+
+if (
+  tmpCommentsURLInputElem == null ||
+  tmpCommentsURLSelectElem == null ||
+  tmpCommentsLoadingButtonElem == null
+) {
+  throw new Error("Element not found.");
+}
+
+const commentsURLInputElem = tmpCommentsURLInputElem;
+const commentsURLSelectElem = tmpCommentsURLSelectElem;
+const commentsLoadingButtonElem = tmpCommentsLoadingButtonElem;
+
+commentsURLSelectElem.addEventListener("change", onCommentsURLSelectChange);
+commentsLoadingButtonElem.addEventListener("click", onCommentsLoadingButtonClick);
+
+function onCommentsURLSelectChange(): void {
+  commentsURLInputElem.value = commentsURLSelectElem.value;
+}
+
+function onCommentsLoadingButtonClick(): void {
+  if (videoURLInputElem.value === "") {
+    alert("Please enter a URL to load the comments.");
+    return;
+  }
+
+  loadCommentsByURL(commentsURLInputElem.value);
+}
+
+onCommentsURLSelectChange();
+onCommentsLoadingButtonClick();
+
+// Utils
+function loadVideoByURL(url: string): void {
+  screenVideoElem.src = url;
+  screenVideoElem.play();
+}
+
+function loadCommentsByURL(url: string): void {
+  const xhr = new XMLHttpRequest();
+  xhr.responseType = "document";
+
+  xhr.onload = () => {
+    const xml = xhr.responseXML;
+    if (xml == null) {
+      alert("ResponseXML is empty.");
+      throw new Error("ResponseXML is empty.");
+    }
+
+    const comments = parseCommentsXML(xml);
+    danmakuPlayer.comments.load(comments);
+  };
+
+  xhr.open("GET", url);
+  xhr.send();
+}
+
+function parseCommentsXML(xml: XMLDocument): Comment[] {
+  const dList = xml.querySelectorAll("d");
   const comments: Comment[] = [];
 
   Array.prototype.forEach.call(dList, (d: Element) => {
@@ -80,7 +157,7 @@ xhr.onload = () => {
       fontColor,
     };
 
-    let comment;
+    let comment: Comment;
 
     if (type === "1") {
       const options = {
@@ -103,16 +180,12 @@ xhr.onload = () => {
       };
 
       comment = createStackingComment(options);
+    } else {
+      return;
     }
 
-    if (comment != null) {
-      comments.push(comment);
-    }
+    comments.push(comment);
   });
 
-  danmakuPlayer.commentPool.load(comments);
-};
-
-xhr.open("GET", "assets/bilibili.xml");
-xhr.responseType = "document";
-xhr.send();
+  return comments;
+}
