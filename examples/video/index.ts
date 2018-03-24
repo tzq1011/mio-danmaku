@@ -9,128 +9,218 @@ import {
   createPlayer,
 } from "../../";
 
-// Initialize the Player
-const tmpScreenElem = document.getElementById("screen") as (HTMLDivElement | null);
-const tmpScreenVideoElem = document.getElementById("screenVideo") as (HTMLVideoElement | null);
-const tmpScreenCommentsElem = document.getElementById("screenComments") as (HTMLDivElement | null);
+// Get elements
+function getElementById<E extends HTMLElement>(id: string): E {
+  const elem = document.getElementById(id);
+  if (elem == null) {
+    throw new Error(`No element found with ID "${id}".`);
+  }
 
-if (
-  tmpScreenElem == null ||
-  tmpScreenVideoElem == null ||
-  tmpScreenCommentsElem == null
-) {
-  throw new Error("Element not found.");
+  return elem as E;
 }
 
-const screenElem = tmpScreenElem;
-const screenVideoElem = tmpScreenVideoElem;
-const screenCommentsElem = tmpScreenCommentsElem;
+const screen: HTMLDivElement = getElementById("screen");
+const video: HTMLVideoElement = getElementById("video");
+const danmaku: HTMLDivElement = getElementById("danmaku");
+const videoURLTextBox: HTMLInputElement = getElementById("videoURLTextBox");
+const videoURLPicker: HTMLSelectElement = getElementById("videoURLPicker");
+const videoLoadButton: HTMLButtonElement = getElementById("videoLoadingButton");
+const commentsURLTextBox: HTMLInputElement = getElementById("commentsURLTextBox");
+const commentsURLPicker: HTMLSelectElement = getElementById("commentsURLPicker");
+const commentsLoadButton: HTMLButtonElement = getElementById("commentsLoadingButton");
+const commentOpacitySlider: HTMLInputElement = getElementById("commentOpacitySlider");
+const commentOpacityDisplay: HTMLInputElement = getElementById("commentOpacityDisplay");
+const commentFontFamilyTextBox: HTMLInputElement = getElementById("commentFontFamilyTextBox");
+const commentFontFamilyPicker: HTMLSelectElement = getElementById("commentFontFamilyPicker");
+const commentLineHeightTextBox: HTMLInputElement = getElementById("commentLineHeightTextBox");
+const commentTextShadowTextBox: HTMLInputElement = getElementById("commentTextShadowTextBox");
+const maxRenderingCommentsTextBox: HTMLInputElement = getElementById("maxRenderingCommentsTextBox");
+const generalRenderingOptionsApplyButton: HTMLButtonElement = getElementById("generalRenderingOptionsApplyButton");
+const generalRenderingOptionsResetButton: HTMLButtonElement = getElementById("generalRenderingOptionsResetButton");
+// const commentScrollingSpeedTextSlider: HTMLInputElement = getElementById("commentScrollingSpeedTextSlider");
+// const commentScrollingBasicSpeedTextBox: HTMLInputElement = getElementById("commentScrollingBasicSpeedTextBox");
+// const commentScrollingExtraSpeedTextBox: HTMLInputElement = getElementById("commentScrollingExtraSpeedTextBox");
+// const screenWidthTextBox: HTMLInputElement = getElementById("screenWidthTextBox");
+// const screenHeightTextBox: HTMLInputElement = getElementById("screenHeightTextBox");
+// const screenMarginTopTextBox: HTMLInputElement = getElementById("screenMarginTopTextBox");
+// const screenMarginBottomTextBox: HTMLInputElement = getElementById("screenMarginBottomTextBox");
 
+// Screen
 const danmakuPlayer = createPlayer({
   timeGetter() {
-    return screenVideoElem.currentTime * 1000;
+    return video.currentTime * 1000;
   },
 });
 
-screenCommentsElem.appendChild(danmakuPlayer.element);
-screenVideoElem.addEventListener("playing", () => danmakuPlayer.play());
-screenVideoElem.addEventListener("pause", () => danmakuPlayer.pause());
+danmaku.appendChild(danmakuPlayer.element);
+video.addEventListener("playing", () => danmakuPlayer.play());
+video.addEventListener("pause", () => danmakuPlayer.pause());
 
-// Initialize the options panel for the video resource.
-const tmpVideoURLInputElem = document.getElementById("videoURLInput") as (HTMLInputElement | null);
-const tmpVideoURLSelectElem = document.getElementById("videoURLSelect") as (HTMLSelectElement | null);
-const tmpVideoLoadingButtonElem = document.getElementById("videoLoadingButton") as (HTMLButtonElement | null);
-
-if (
-  tmpVideoURLInputElem == null ||
-  tmpVideoURLSelectElem == null ||
-  tmpVideoLoadingButtonElem == null
-) {
-  throw new Error("Element not found.");
+// Resources for Testing
+function pickVideoURL(): void {
+  videoURLTextBox.value = videoURLPicker.value;
 }
 
-const videoURLInputElem = tmpVideoURLInputElem;
-const videoURLSelectElem = tmpVideoURLSelectElem;
-const videoLoadingButtonElem = tmpVideoLoadingButtonElem;
-
-videoURLSelectElem.addEventListener("change", onVideoURLSelectChange);
-videoLoadingButtonElem.addEventListener("click", onVideoLoadingButtonClick);
-
-function onVideoURLSelectChange(): void {
-  videoURLInputElem.value = videoURLSelectElem.value;
+function pickCommentsURL(): void {
+  commentsURLTextBox.value = commentsURLPicker.value;
 }
 
-function onVideoLoadingButtonClick(): void {
-  if (videoURLInputElem.value === "") {
-    alert("Please enter a URL to load the video.");
+function loadVideo(): void {
+  if (videoURLTextBox.value === "") {
+    alert("Video URL is required.");
     return;
   }
 
-  loadVideoByURL(videoURLInputElem.value);
+  video.src = videoURLTextBox.value;
 }
 
-onVideoURLSelectChange();
-onVideoLoadingButtonClick();
-
-// Initialize the options panel for the comment resource.
-const tmpCommentsURLInputElem = document.getElementById("commentsURLInput") as (HTMLInputElement | null);
-const tmpCommentsURLSelectElem = document.getElementById("commentsURLSelect") as (HTMLSelectElement | null);
-const tmpCommentsLoadingButtonElem = document.getElementById("commentsLoadingButton") as (HTMLButtonElement | null);
-
-if (
-  tmpCommentsURLInputElem == null ||
-  tmpCommentsURLSelectElem == null ||
-  tmpCommentsLoadingButtonElem == null
-) {
-  throw new Error("Element not found.");
-}
-
-const commentsURLInputElem = tmpCommentsURLInputElem;
-const commentsURLSelectElem = tmpCommentsURLSelectElem;
-const commentsLoadingButtonElem = tmpCommentsLoadingButtonElem;
-
-commentsURLSelectElem.addEventListener("change", onCommentsURLSelectChange);
-commentsLoadingButtonElem.addEventListener("click", onCommentsLoadingButtonClick);
-
-function onCommentsURLSelectChange(): void {
-  commentsURLInputElem.value = commentsURLSelectElem.value;
-}
-
-function onCommentsLoadingButtonClick(): void {
-  if (videoURLInputElem.value === "") {
-    alert("Please enter a URL to load the comments.");
+function loadComments(): void {
+  if (commentsURLTextBox.value === "") {
+    alert("Comments URL is required.");
     return;
   }
 
-  loadCommentsByURL(commentsURLInputElem.value);
-}
+  const originalText = commentsLoadButton.innerText;
+  commentsLoadButton.innerText = "Loading...";
+  commentsLoadButton.disabled = true;
 
-onCommentsURLSelectChange();
-onCommentsLoadingButtonClick();
-
-// Utils
-function loadVideoByURL(url: string): void {
-  screenVideoElem.src = url;
-  screenVideoElem.play();
-}
-
-function loadCommentsByURL(url: string): void {
-  const xhr = new XMLHttpRequest();
-  xhr.responseType = "document";
-
-  xhr.onload = () => {
-    const xml = xhr.responseXML;
-    if (xml == null) {
-      alert("ResponseXML is empty.");
-      throw new Error("ResponseXML is empty.");
+  danmakuPlayer.comments.clear();
+  loadCommentsByURL(commentsURLTextBox.value, (error) => {
+    if (error != null) {
+      alert(`Failed to load comments: ${error}`);
     }
 
-    const comments = parseCommentsXML(xml);
-    danmakuPlayer.comments.load(comments);
-  };
+    commentsLoadButton.innerText = originalText;
+    commentsLoadButton.disabled = false;
+  });
+}
 
-  xhr.open("GET", url);
-  xhr.send();
+videoURLPicker.addEventListener("change", () => pickVideoURL());
+videoLoadButton.addEventListener("click", () => loadVideo());
+commentsURLPicker.addEventListener("change", () => pickCommentsURL());
+commentsLoadButton.addEventListener("click", () => loadComments());
+
+pickVideoURL();
+pickCommentsURL();
+loadVideo();
+loadComments();
+
+// Rendering Options for All Comments
+function updateCommentOpacityDisplay(): void {
+  commentOpacityDisplay.innerText = commentOpacitySlider.value;
+}
+
+function pickCommentFontFamily(): void {
+  commentFontFamilyTextBox.value = commentFontFamilyPicker.value;
+}
+
+function applyGeneralRenderingOptions(): void {
+  if (commentOpacitySlider.value === "" || isNaN(Number(commentOpacitySlider.value))) {
+    alert(`Opacity must be a number.`);
+    return;
+  }
+
+  if (commentLineHeightTextBox.value === "" || isNaN(Number(commentLineHeightTextBox.value))) {
+    alert(`Line height must be a number.`);
+    return;
+  }
+
+  if (maxRenderingCommentsTextBox.value === "" || isNaN(Number(maxRenderingCommentsTextBox.value))) {
+    alert(`Max concurrent must be a number.`);
+    return;
+  }
+
+  const textShadowRE = /^(\d+) (\d+) (\d+) ([a-z]{2,}|#[0-9a-f]{3}|#[0-9a-f]{6})$/i;
+  const textShadowMatch = textShadowRE.exec(commentTextShadowTextBox.value);
+
+  if (commentTextShadowTextBox.value === "" || textShadowMatch == null) {
+    alert(`Invalid text shadow format.`);
+    return;
+  }
+
+  danmakuPlayer.renderer.commentOpacity = Number(commentOpacitySlider.value);
+  danmakuPlayer.renderer.commentLineHeight = Number(commentLineHeightTextBox.value);
+  danmakuPlayer.maxRenderingComments = Number(maxRenderingCommentsTextBox.value);
+
+  danmakuPlayer.renderer.commentFontFamily =
+    [commentFontFamilyTextBox.value, "Helvetica", "Arial", "sans-serif"];
+
+  if (textShadowMatch != null) {
+    danmakuPlayer.renderer.commentTextShadow = {
+      offsetX: Number(textShadowMatch[1]),
+      offsetY: Number(textShadowMatch[2]),
+      blur: Number(textShadowMatch[3]),
+      color: textShadowMatch[4],
+    };
+  }
+}
+
+function resetGeneralRenderingOptions(): void {
+  commentOpacitySlider.value = String(danmakuPlayer.renderer.commentOpacity);
+  commentLineHeightTextBox.value = String(danmakuPlayer.renderer.commentLineHeight);
+  maxRenderingCommentsTextBox.value = String(danmakuPlayer.maxRenderingComments);
+
+  commentFontFamilyTextBox.value =
+    danmakuPlayer.renderer.commentFontFamily.length > 0
+      ? danmakuPlayer.renderer.commentFontFamily[0]
+      : "";
+
+  let textShadow: string = "";
+  if (danmakuPlayer.renderer.commentTextShadow != null) {
+    const {
+      offsetX,
+      offsetY,
+      blur,
+      color,
+    } = danmakuPlayer.renderer.commentTextShadow;
+
+    textShadow = `${offsetX} ${offsetY} ${blur} ${color}`;
+  }
+
+  commentTextShadowTextBox.value = textShadow;
+}
+
+commentOpacitySlider.addEventListener("input", () => updateCommentOpacityDisplay());
+commentFontFamilyPicker.addEventListener("change", () => pickCommentFontFamily());
+generalRenderingOptionsApplyButton.addEventListener("click", () => applyGeneralRenderingOptions());
+generalRenderingOptionsResetButton.addEventListener("click", () => resetGeneralRenderingOptions());
+
+updateCommentOpacityDisplay();
+pickCommentFontFamily();
+applyGeneralRenderingOptions();
+
+// Utilities
+function loadCommentsByURL(url: string, callback: (error: (Error | null)) => void): void {
+  try {
+    const xhr = new XMLHttpRequest();
+    xhr.responseType = "document";
+
+    xhr.onerror = (e) => {
+      callback(new Error(e.message));
+    };
+
+    xhr.onload = () => {
+      if (xhr.status !== 200) {
+        callback(new Error(`Unexpected status: ${xhr.status}.`));
+        return;
+      }
+
+      const xml = xhr.responseXML;
+      if (xml == null) {
+        callback(new Error("Content is empty."));
+        return;
+      }
+
+      const comments = parseCommentsXML(xml);
+      danmakuPlayer.comments.load(comments);
+      callback(null);
+    };
+
+    xhr.open("GET", url);
+    xhr.send();
+  } catch (e) {
+    callback(e);
+  }
 }
 
 function parseCommentsXML(xml: XMLDocument): Comment[] {

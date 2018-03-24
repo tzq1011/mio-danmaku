@@ -27,8 +27,8 @@
   <div class="divider"></div>
   <!-- Screen -->
   <div id="screen" class="screen">
-    <video id="screenVideo" class="screen-video" controls></video>
-    <div id="screenComments" class="screen-comments"></div>
+    <video id="video" class="screen-video" controls></video>
+    <div id="danmaku" class="screen-comments"></div>
   </div>
   <!-- //Screen -->
   <div class="divider"></div>
@@ -167,8 +167,8 @@
         <div class="formRow">
           <label class="formRow-head">Video URL</label>
           <div class="formRow-body">
-            <input id="videoURLInput" class="inputText" type="text">
-            <select id="videoURLSelect" class="select">
+            <input id="videoURLTextBox" class="inputText" type="text">
+            <select id="videoURLPicker" class="select">
               <option value="">Presets</option>
               <option value="assets/video.mp4" selected>Kiss the Villain</option>
             </select>
@@ -178,8 +178,8 @@
         <div class="formRow">
           <label class="formRow-head">Comments URL</label>
           <div class="formRow-body">
-            <input id="commentsURLInput" class="inputText" type="text">
-            <select id="commentsURLSelect" class="select">
+            <input id="commentsURLTextBox" class="inputText" type="text">
+            <select id="commentsURLPicker" class="select">
               <option value="">Presets</option>
               <option value="assets/bilibili.xml" selected>Kiss the Villain</option>
             </select>
@@ -201,44 +201,48 @@
         <div class="formRow">
           <label class="formRow-head">Opacity</label>
           <div class="formRow-body">
-            0 <input class="inputRange" type="range"> 1
+            0
+            <input id="commentOpacitySlider" class="inputRange" style="width: 160px;" type="range" min="0" max="1" step="0.1" value="1">
+            1
+            <span style="margin-left: 20px;">
+              Value: <span id="commentOpacityDisplay">1</span>
+            </span>
           </div>
         </div>
         <div class="formRow">
           <label class="formRow-head">Font Family</label>
           <div class="formRow-body">
-            <input class="inputNumber" type="text" value="Microsoft Yahei">
-            <select>
+            <input id="commentFontFamilyTextBox" class="inputNumber" type="text">
+            <select id="commentFontFamilyPicker" class="select">
               <option value="">Presets</option>
-              <option>Microsoft Yahei</option>
-              <option>SimHei</option>
+              <option value="Microsoft YaHei" selected>Microsoft YaHei</option>
+              <option value="Microsoft JhengHei">Microsoft JhengHei</option>
+              <option value="SimHei">SimHei</option>
             </select>
           </div>
         </div>
         <div class="formRow">
           <label class="formRow-head">Line Height</label>
           <div class="formRow-body">
-            <input class="inputNumber" type="text" value="1.2">
-            times the font size.
+            <input id="commentLineHeightTextBox" class="inputNumber" type="number" min="0" step="0.1" value="1.2">
           </div>
         </div>
         <div class="formRow">
           <label class="formRow-head">Text Shadow</label>
           <div class="formRow-body">
-            <input class="inputNumber" type="text" value="0 0 2 #00000">
-            format: offsetX offsetY blur color
+            <input id="commentTextShadowTextBox" class="inputNumber" type="text" value="0 0 2 #000">
+            Format: OffsetX OffsetY Blur Color
           </div>
         </div>
         <div class="formRow">
           <label class="formRow-head">Max Concurrent</label>
           <div class="formRow-body">
-            <input class="inputNumber" type="number" value="80">
-            comments
+            <input id="maxRenderingCommentsTextBox" class="inputNumber" type="number" min="0" value="80">
           </div>
         </div>
         <div class="fieldset-rightBottom">
-          <button class="button">Reset</button>
-          <button class="button">Apply</button>
+          <button id="generalRenderingOptionsResetButton" class="button">Reset</button>
+          <button id="generalRenderingOptionsApplyButton" class="button">Apply</button>
         </div>
       </fieldset>
       <!-- //Rendering Options for All Comments -->
