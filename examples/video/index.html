@@ -25,19 +25,116 @@
   </div>
   <!-- //Header -->
   <div class="divider"></div>
-  <!-- Screen -->
-  <div id="screen" class="screen">
-    <video id="video" class="screen-video" controls></video>
-    <div id="danmaku" class="screen-comments"></div>
-  </div>
-  <!-- //Screen -->
-  <div class="divider"></div>
+</div>
+<!-- Screen -->
+<div id="screen" class="screen">
+  <video id="video" class="screen-video" controls></video>
+  <div id="danmaku" class="screen-comments"></div>
+</div>
+<!-- //Screen -->
+<div class="container">
   <!-- Functional Area -->
   <div class="functionalArea">
     <!-- Left Column -->
     <div class="functionalArea-leftCol">
+      <!-- Resources -->
+      <fieldset class="fieldset">
+        <legend>Resources</legend>
+        <div class="formRow formRow_narrow">
+          <label class="formRow-head">Video</label>
+          <div class="formRow-body">
+            <select id="videoPicker" class="select">
+              <option value="assets/video.mp4" selected>Kiss the Villain</option>
+              <option>Macbook Pro 2017</option>
+            </select>
+          </div>
+        </div>
+        <div class="formRow formRow_narrow">
+          <label class="formRow-head">Comments</label>
+          <div class="formRow-body">
+            <select id="commentsPicker" class="select">
+              <option value="assets/bilibili.xml">Kiss the Villain</option>
+            </select>
+          </div>
+        </div>
+      </fieldset>
+      <!-- //Resources -->
+      <!-- Screen Settings -->
+      <fieldset class="fieldset" style="margin-top: 15px;">
+        <legend>Screen Settings</legend>
+        <div class="formRow formRow_narrow">
+          <label class="formRow-head">Dimensions</label>
+          <div class="formRow-body">
+            <select id="screenDimensionsPicker" class="select">
+              <option value="640x360">640x360</option>
+              <option value="854x480">854x480</option>
+              <option value="960x540" selected>960x540</option>
+              <option value="1280x720">1280x720</option>
+            </select>
+          </div>
+        </div>
+        <div class="formRow formRow_narrow">
+          <label class="formRow-head">Top Margin</label>
+          <div class="formRow-body">
+            <span class="centeredText" style="width: 45px;">
+              <span id="screenMarginTopDisplay">0</span>px
+            </span>
+            <input id="screenMarginTopSlider" class="inputRange" style="width: 100px;" type="range" min="0" max="100" value="0">
+          </div>
+        </div>
+        <div class="formRow formRow_narrow">
+          <label class="formRow-head">Bottom Margin</label>
+          <div class="formRow-body">
+            <span class="centeredText" style="width: 45px;">
+              <span id="screenMarginBottomDisplay">0</span>px
+            </span>
+            <input id="screenMarginBottomSlider" class="inputRange" style="width: 100px;" type="range" min="0" max="100" value="0">
+          </div>
+        </div>
+      </fieldset>
+      <!-- //Screen Settings -->
+      <!-- Comment Settings -->
+      <fieldset class="fieldset" style="margin-top: 15px;">
+        <legend>Comment Settings</legend>
+        <div class="formRow formRow_narrow">
+          <label class="formRow-head">Opacity</label>
+          <div class="formRow-body">
+            <span class="centeredText" style="width: 45px;">
+              <span id="commentOpacityDisplay">100</span>%
+            </span>
+            <input id="commentOpacitySlider" class="inputRange" style="width: 100px;" type="range" min="0" max="100" value="100">
+          </div>
+        </div>
+        <div class="formRow formRow_narrow">
+          <label class="formRow-head">Font Family</label>
+          <div class="formRow-body">
+            <select id="commentFontFamilyPicker" class="select">
+              <option value="Microsoft YaHei" selected>Microsoft YaHei</option>
+              <option value="Microsoft JhengHei">Microsoft JhengHei</option>
+              <option value="SimHei">SimHei</option>
+            </select>
+          </div>
+        </div>
+        <div class="formRow formRow_narrow">
+          <label class="formRow-head">Line Height</label>
+          <div class="formRow-body">
+            <span id="commentLineHeightDisplay" class="centeredText" style="width: 45px;">1.2</span>
+            <input id="commentLineHeightSlider" class="inputRange" style="width: 100px;" type="range" min="1" max="3" step="0.1" value="1.2">
+          </div>
+        </div>
+        <div class="formRow formRow_narrow">
+          <label class="formRow-head">Scrolling Speed</label>
+          <div class="formRow-body">
+            <span class="centeredText" style="width: 45px;">
+              <span id="commentScrollingSpeedDisplay">100</span>%
+            </span>
+            <input id="commentScrollingSpeedSlider" class="inputRange" style="width: 100px;" type="range" min="10" max="200" value="100">
+          </div>
+        </div>
+      </fieldset>
+      <!-- //Comment Settings -->
       <!-- Comment List -->
-      <div class="table commentList">
+      <div class="table commentList" style="margin-top: 15px;">
         <div class="table-head">
           <div class="table-row">
             <div class="table-col commentList-timeCol">Time</div>
@@ -66,253 +163,128 @@
     <!-- //Left Column -->
     <!-- Right Column -->
     <div class="functionalArea-rightCol">
-      <!-- Post a Comments -->
-      <fieldset class="fieldset posting">
-        <legend>Post a Comment</legend>
+      <!-- New Comment -->
+      <fieldset class="fieldset">
+        <legend>Controls</legend>
+        <button class="button">Play</button>
+        <button class="button">Pause</button>
+        <button class="button">Hide Danmaku</button>
+        <button class="button">Show Danmaku</button>
+      </fieldset>
+      <!-- New Comment -->
+      <fieldset class="fieldset" style="margin-top: 15px;">
+        <legend>New Comment</legend>
         <div class="formRow">
           <label class="formRow-head">Type</label>
           <div class="formRow-body">
-            <select class="select">
-              <option>Scrolling Comment</option>
-              <option>Stacking Comment</option>
-              <option>Positioning Comment</option>
+            <select id="newCommentTypePicker" class="select">
+              <option value="ScrollingComment">Scrolling Comment</option>
+              <option value="StackingComment">Stacking Comment</option>
+              <option value="PositioningComment">Positioning Comment</option>
             </select>
           </div>
         </div>
         <div class="formRow">
           <label class="formRow-head">Text</label>
           <div class="formRow-body">
-            <input class="inputText" value="Nya">
+            <input id="newCommentTextTextBox" class="inputText" style="width: 350px;" value="Nya">
           </div>
         </div>
         <div class="formRow">
           <label class="formRow-head">Font Size</label>
           <div class="formRow-body">
-            <input class="inputNumber" type="number" value="25">
-            px
+            <span class="centeredText" style="width: 45px;">
+              <span id="newCommentFontSizeDisplay">25</span>px
+            </span>
+            <input id="newCommentFontSizeSlider" class="inputRange" style="width: 130px;" type="range" min="18" max="50" value="25">
           </div>
         </div>
         <div class="formRow">
           <label class="formRow-head">Text Color</label>
           <div class="formRow-body">
-            <input class="inputText" value="#FFFFFF">
-            <input type="color" value="#FFFFFF">
+            <span class="centeredText" style="width: 70px;">
+              <span id="newCommentTextColorDisplay">#FFFFFF</span>
+            </span>
+            <input id="newCommentTextColorPicker" class="inputColor" type="color" value="#FFFFFF">
+            <a href="#">Blue</a>
+            <a href="#">Yellow</a>
           </div>
         </div>
-        <div class="formRow">
+        <div id="newCommentStackingDirectionFormItem" class="formRow">
           <label class="formRow-head">Stacking Direction</label>
           <div class="formRow-body">
-            <select class="select">
-              <option>Up</option>
+            <select id="newCommentStackingDirectionPicker" class="select">
+              <option value="up">Up</option>
+              <option value="down">Down</option>
             </select>
           </div>
         </div>
-        <div class="formRow">
+        <div id="newCommentScrollingDirectionFormItem" class="formRow">
           <label class="formRow-head">Scrolling Direction</label>
           <div class="formRow-body">
-            <select class="select">
-              <option>Left</option>
-              <option>Right</option>
+            <select id="newCommentScrollingDirectionPicker" class="select">
+              <option value="left">Left</option>
+              <option value="right">Right</option>
             </select>
           </div>
         </div>
-        <div class="formRow">
+        <div id="newCommentHorizontalAlignmentFormItem" class="formRow">
           <label class="formRow-head">Horizontal Alignment</label>
           <div class="formRow-body">
-            <select class="select">
+            <select id="newCommentHorizontalAlignmentPicker" class="select">
               <option>Left</option>
               <option>Center</option>
               <option>Right</option>
             </select>
           </div>
         </div>
-        <div class="formRow">
+        <div id="newCommentVerticalAlignmentFormItem" class="formRow">
           <label class="formRow-head">Vertical Alignment</label>
           <div class="formRow-body">
-            <select class="select">
+            <select id="newCommentVerticalAlignmentPicker" class="select">
               <option>Top</option>
               <option>Middle</option>
               <option>Bottom</option>
             </select>
           </div>
         </div>
-        <div class="formRow">
+        <div id="newCommentPositionXFormItem" class="formRow">
           <label class="formRow-head">Position X</label>
           <div class="formRow-body">
-            <input class="inputNumber" type="number" value="100">
+            <input id="newCommentPositionXTextBox" class="inputNumber" type="number" value="100">
             px
           </div>
         </div>
-        <div class="formRow">
+        <div id="newCommentPositionYFormItem" class="formRow">
           <label class="formRow-head">Position Y</label>
           <div class="formRow-body">
-            <input class="inputNumber" type="number" value="100">
+            <input id="newCommentPositionYTextBox" class="inputNumber" type="number" value="100">
             px
           </div>
         </div>
-        <div class="formRow">
+        <div id="newCommentLifetimeFormItem" class="formRow">
           <label class="formRow-head">Lifetime</label>
           <div class="formRow-body">
-            <input class="inputNumber" type="number" value="5000">
-            ms
-          </div>
-        </div>
-        <button class="button fieldset-rightTop">Post</button>
-        <button class="button fieldset-rightBottom">Post</button>
-      </fieldset>
-      <!-- //Post a Comments -->
-      <!-- Resources for Testing -->
-      <fieldset class="fieldset resources" style="margin-top: 15px;">
-        <legend>Resources for Testing</legend>
-        <div class="formRow">
-          <label class="formRow-head">Video URL</label>
-          <div class="formRow-body">
-            <input id="videoURLTextBox" class="inputText" type="text">
-            <select id="videoURLPicker" class="select">
-              <option value="">Presets</option>
-              <option value="assets/video.mp4" selected>Kiss the Villain</option>
-            </select>
-            <button id="videoLoadingButton" class="button">Load</button>
-          </div>
-        </div>
-        <div class="formRow">
-          <label class="formRow-head">Comments URL</label>
-          <div class="formRow-body">
-            <input id="commentsURLTextBox" class="inputText" type="text">
-            <select id="commentsURLPicker" class="select">
-              <option value="">Presets</option>
-              <option value="assets/bilibili.xml" selected>Kiss the Villain</option>
-            </select>
-            <button id="commentsLoadingButton" class="button">Load</button>
-            <p>Only comments come from the bilibili.com are supported.</p>
-          </div>
-          <div class="resources-note">
-            The video "Kiss the Villain" is referenced from the <a href="#">Youtube.com</a>.<br>
-            The video "Macbook Pro 2017" is referenced from the <a href="#">Apple.com</a>.<br>
-            The comments of "Kiss the Villain" are referenced from the <a href="#">Bilibili.com</a>.<br>
-            All rights to the resources above belong to the original author.<br>
-          </div>
-        </div>
-      </fieldset>
-      <!-- //Resources for Testing -->
-      <!-- Rendering Options for All Comments -->
-      <fieldset class="fieldset" style="margin-top: 15px;">
-        <legend>Rendering Options for All Comments</legend>
-        <div class="formRow">
-          <label class="formRow-head">Opacity</label>
-          <div class="formRow-body">
-            0
-            <input id="commentOpacitySlider" class="inputRange" style="width: 160px;" type="range" min="0" max="1" step="0.1" value="1">
-            1
-            <span style="margin-left: 20px;">
-              Value: <span id="commentOpacityDisplay">1</span>
+            <span class="centeredText" style="width: 45px;">
+              <span id="newCommentLifetimeDisplay">5</span>s
             </span>
+            <input id="newCommentLifetimeSlider" class="inputRange" style="width: 130px;" type="range" min="1" max="20" value="5">
           </div>
         </div>
-        <div class="formRow">
-          <label class="formRow-head">Font Family</label>
-          <div class="formRow-body">
-            <input id="commentFontFamilyTextBox" class="inputNumber" type="text">
-            <select id="commentFontFamilyPicker" class="select">
-              <option value="">Presets</option>
-              <option value="Microsoft YaHei" selected>Microsoft YaHei</option>
-              <option value="Microsoft JhengHei">Microsoft JhengHei</option>
-              <option value="SimHei">SimHei</option>
-            </select>
-          </div>
-        </div>
-        <div class="formRow">
-          <label class="formRow-head">Line Height</label>
-          <div class="formRow-body">
-            <input id="commentLineHeightTextBox" class="inputNumber" type="number" min="0" step="0.1" value="1.2">
-          </div>
-        </div>
-        <div class="formRow">
-          <label class="formRow-head">Text Shadow</label>
-          <div class="formRow-body">
-            <input id="commentTextShadowTextBox" class="inputNumber" type="text" value="0 0 2 #000">
-            Format: OffsetX OffsetY Blur Color
-          </div>
-        </div>
-        <div class="formRow">
-          <label class="formRow-head">Max Concurrent</label>
-          <div class="formRow-body">
-            <input id="maxRenderingCommentsTextBox" class="inputNumber" type="number" min="0" value="80">
-          </div>
-        </div>
-        <div class="fieldset-rightBottom">
-          <button id="generalRenderingOptionsResetButton" class="button">Reset</button>
-          <button id="generalRenderingOptionsApplyButton" class="button">Apply</button>
-        </div>
+        <button id="newCommentPostButton" class="button fieldset-rightBottom">Post</button>
       </fieldset>
-      <!-- //Rendering Options for All Comments -->
-      <!-- Rendering Options for Scrolling Comments -->
+      <!-- //New Comment -->
+      <!-- About Resources -->
       <fieldset class="fieldset" style="margin-top: 15px;">
-        <legend>Rendering Options for Scrolling Comments</legend>
-        <div class="formRow">
-          <label class="formRow-head">Speed</label>
-          <div class="formRow-body">
-            10% <input class="inputRange" type="range"> 200%
-            <p>This is a shortcut to adjust the following options.</p>
-          </div>
-        </div>
-        <div class="formRow">
-          <label class="formRow-head">Basic Speed</label>
-          <div class="formRow-body">
-            <input class="inputNumber" type="number" value="0.002">
-            px/ms
-          </div>
-        </div>
-        <div class="formRow">
-          <label class="formRow-head">Extra Speed Per Pixel</label>
-          <div class="formRow-body">
-            <input class="inputNumber" type="number" value="0.2">
-            px/ms
-          </div>
-        </div>
-        <div class="fieldset-rightBottom">
-          <button class="button">Reset</button>
-          <button class="button">Apply</button>
-        </div>
+        <legend>About Resources</legend>
+        <ul style="font-size: 14px;">
+          <li>The video "Kiss the Villain" is referenced from the <a href="#">Youtube.com</a>.</li>
+          <li>The video "Macbook Pro 2017" is referenced from the <a href="#">Apple.com</a>.</li>
+          <li>The comments of "Kiss the Villain" are referenced from the <a href="#">Bilibili.com</a>.</li>
+          <li>All rights to the resources above belong to the original author.</li>
+        </ul>
       </fieldset>
-      <!-- //Rendering Options for Scrolling Comments -->
-      <!-- Rendering Options for Screen -->
-      <fieldset class="fieldset" style="margin-top: 15px;">
-        <legend>Rendering Options for Screen</legend>
-        <div class="formRow">
-          <label class="formRow-head">Width</label>
-          <div class="formRow-body">
-            <input class="inputNumber" type="number" value="800">
-            px
-          </div>
-        </div>
-        <div class="formRow">
-          <label class="formRow-head">Height</label>
-          <div class="formRow-body">
-            <input class="inputNumber" type="number" value="600">
-            px
-          </div>
-        </div>
-        <div class="formRow">
-          <label class="formRow-head">Top Margin</label>
-          <div class="formRow-body">
-            <input class="inputNumber" type="number" value="0">
-            px
-          </div>
-        </div>
-        <div class="formRow">
-          <label class="formRow-head">Bottom Margin</label>
-          <div class="formRow-body">
-            <input class="inputNumber" type="number" value="0">
-            px
-          </div>
-        </div>
-        <div class="fieldset-rightBottom">
-          <button class="button">Reset</button>
-          <button class="button">Apply</button>
-        </div>
-      </fieldset>
-      <!-- //Rendering Options for Screen -->
+      <!-- //About Resources -->
     </div>
     <!-- //Right Column -->
   </div>

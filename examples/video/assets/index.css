@@ -10,7 +10,10 @@ body {
 
 * { box-sizing: border-box; }
 
-a { color: rgb(0, 102, 204); }
+.centeredText {
+  display: inline-block;
+  text-align: center;
+}
 
 .container {
   width: 1000px;
@@ -58,14 +61,12 @@ a { color: rgb(0, 102, 204); }
   width: 100%;
   height: 100%;
   position: absolute;
-  z-index: 0;
 }
 
 .screen-comments {
   width: 100%;
   height: 100%;
   position: relative;
-  z-index: 1;
   pointer-events: none;
 }
 /* //Screen */
@@ -73,10 +74,11 @@ a { color: rgb(0, 102, 204); }
 /* Functional Area */
 .functionalArea {
   display: flex;
+  margin-top: 15px;
 }
 
 .functionalArea-leftCol {
-  flex: 0 0 300px;
+  flex: 0 0 350px;
 }
 
 .functionalArea-rightCol {
@@ -88,7 +90,6 @@ a { color: rgb(0, 102, 204); }
 /* Table */
 .table {
   border: solid 1px #eee;
-  border-radius: 4px;
 }
 
 .table-row {
@@ -109,7 +110,7 @@ a { color: rgb(0, 102, 204); }
 }
 
 .table-head {
-  font-weight: 500;
+  font-weight: bold;
   border-bottom: solid 1px #eee;
 }
 
@@ -128,12 +129,11 @@ a { color: rgb(0, 102, 204); }
 }
 
 .table-entries > .table-row:hover {
-  background-color: #f1f2f3;
+  background-color: #eee;
 }
 
 .table-foot {
   padding-left: 10px;
-  color: #444;
   font-size: 14px;
   line-height: 36px;
   border-top: solid 1px #eee;
@@ -142,7 +142,7 @@ a { color: rgb(0, 102, 204); }
 
 /* Comment List */
 .commentList-body {
-  height: 400px;
+  height: 300px;
   overflow: auto;
 }
 
@@ -167,12 +167,11 @@ a { color: rgb(0, 102, 204); }
   padding: 15px;
   background-color: #fff;
   border: solid 1px #eee;
-  border-radius: 4px;
   position: relative;
 }
 
 .fieldset > legend {
-  font-weight: 500;
+  font-weight: bold;
 }
 
 .fieldset-rightTop {
@@ -192,6 +191,7 @@ a { color: rgb(0, 102, 204); }
 .inputText,
 .inputNumber,
 .inputRange,
+.inputColor,
 .select,
 .button {
   height: 26px;
@@ -208,6 +208,18 @@ a { color: rgb(0, 102, 204); }
   padding: 0;
 }
 
+.inputText,
+.inputNumber,
+.select {
+  border: solid 1px #ddd;
+}
+
+.inputText:hover,
+.inputNumber:hover,
+.select:hover {
+  border-color: #bbb;
+}
+
 /* //Control */
 
 /* Form Row */
@@ -215,11 +227,20 @@ a { color: rgb(0, 102, 204); }
   margin: 10px 0;
 }
 
+.formRow_narrow > .formRow-head {
+  width: 120px;
+}
+
+.formRow_narrow > .formRow-body {
+  margin-left: 130px;
+}
+
 .formRow-head {
   float: left;
   width: 170px;
   line-height: 26px;
   text-align: right;
+  white-space: nowrap;
 }
 
 .formRow-body {
@@ -227,13 +248,6 @@ a { color: rgb(0, 102, 204); }
   line-height: 26px;
 }
 /* //Form Row */
-
-.resources-note {
-  color: #789;
-  font-size: 14px;
-  font-style: italic;
-  text-align: right;
-}
 
 .footer {
   margin: 30px 0;

@@ -2,12 +2,18 @@ import {
   Comment,
 } from "../../";
 
+import debounce from "debounce";
+
 import {
   createStackingComment,
   createScrollingComment,
   createPositioningComment,
   createPlayer,
 } from "../../";
+
+const isIE =
+  (navigator.appName === "Microsoft Internet Explorer") ||
+  (navigator.userAgent.indexOf("Trident") !== -1);
 
 // Get elements
 function getElementById<E extends HTMLElement>(id: string): E {
@@ -22,28 +28,41 @@ function getElementById<E extends HTMLElement>(id: string): E {
 const screen: HTMLDivElement = getElementById("screen");
 const video: HTMLVideoElement = getElementById("video");
 const danmaku: HTMLDivElement = getElementById("danmaku");
-const videoURLTextBox: HTMLInputElement = getElementById("videoURLTextBox");
-const videoURLPicker: HTMLSelectElement = getElementById("videoURLPicker");
-const videoLoadButton: HTMLButtonElement = getElementById("videoLoadingButton");
-const commentsURLTextBox: HTMLInputElement = getElementById("commentsURLTextBox");
-const commentsURLPicker: HTMLSelectElement = getElementById("commentsURLPicker");
-const commentsLoadButton: HTMLButtonElement = getElementById("commentsLoadingButton");
+const videoPicker: HTMLSelectElement = getElementById("videoPicker");
+const commentsPicker: HTMLSelectElement = getElementById("commentsPicker");
+const screenDimensionsPicker: HTMLSelectElement = getElementById("screenDimensionsPicker");
+const screenMarginTopSlider: HTMLInputElement = getElementById("screenMarginTopSlider");
+const screenMarginTopDisplay: HTMLSpanElement = getElementById("screenMarginTopDisplay");
+const screenMarginBottomSlider: HTMLInputElement = getElementById("screenMarginBottomSlider");
+const screenMarginBottomDisplay: HTMLSpanElement = getElementById("screenMarginBottomDisplay");
 const commentOpacitySlider: HTMLInputElement = getElementById("commentOpacitySlider");
-const commentOpacityDisplay: HTMLInputElement = getElementById("commentOpacityDisplay");
-const commentFontFamilyTextBox: HTMLInputElement = getElementById("commentFontFamilyTextBox");
+const commentOpacityDisplay: HTMLSpanElement = getElementById("commentOpacityDisplay");
 const commentFontFamilyPicker: HTMLSelectElement = getElementById("commentFontFamilyPicker");
-const commentLineHeightTextBox: HTMLInputElement = getElementById("commentLineHeightTextBox");
-const commentTextShadowTextBox: HTMLInputElement = getElementById("commentTextShadowTextBox");
-const maxRenderingCommentsTextBox: HTMLInputElement = getElementById("maxRenderingCommentsTextBox");
-const generalRenderingOptionsApplyButton: HTMLButtonElement = getElementById("generalRenderingOptionsApplyButton");
-const generalRenderingOptionsResetButton: HTMLButtonElement = getElementById("generalRenderingOptionsResetButton");
-// const commentScrollingSpeedTextSlider: HTMLInputElement = getElementById("commentScrollingSpeedTextSlider");
-// const commentScrollingBasicSpeedTextBox: HTMLInputElement = getElementById("commentScrollingBasicSpeedTextBox");
-// const commentScrollingExtraSpeedTextBox: HTMLInputElement = getElementById("commentScrollingExtraSpeedTextBox");
-// const screenWidthTextBox: HTMLInputElement = getElementById("screenWidthTextBox");
-// const screenHeightTextBox: HTMLInputElement = getElementById("screenHeightTextBox");
-// const screenMarginTopTextBox: HTMLInputElement = getElementById("screenMarginTopTextBox");
-// const screenMarginBottomTextBox: HTMLInputElement = getElementById("screenMarginBottomTextBox");
+const commentLineHeightSlider: HTMLInputElement = getElementById("commentLineHeightSlider");
+const commentLineHeightDisplay: HTMLSpanElement = getElementById("commentLineHeightDisplay");
+const commentScrollingSpeedSlider: HTMLInputElement = getElementById("commentScrollingSpeedSlider");
+const commentScrollingSpeedDisplay: HTMLSpanElement = getElementById("commentScrollingSpeedDisplay");
+const newCommentTypePicker: HTMLSelectElement = getElementById("newCommentTypePicker");
+const newCommentTextTextBox: HTMLInputElement = getElementById("newCommentTextTextBox");
+const newCommentFontSizeSlider: HTMLInputElement = getElementById("newCommentFontSizeSlider");
+const newCommentFontSizeDisplay: HTMLInputElement = getElementById("newCommentFontSizeDisplay");
+const newCommentTextColorPicker: HTMLInputElement = getElementById("newCommentTextColorPicker");
+const newCommentTextColorDisplay: HTMLSpanElement = getElementById("newCommentTextColorDisplay");
+const newCommentStackingDirectionFormItem: HTMLDivElement = getElementById("newCommentStackingDirectionFormItem");
+const newCommentStackingDirectionPicker: HTMLSelectElement = getElementById("newCommentStackingDirectionPicker");
+const newCommentScrollingDirectionFormItem: HTMLDivElement = getElementById("newCommentScrollingDirectionFormItem");
+const newCommentScrollingDirectionPicker: HTMLSelectElement = getElementById("newCommentScrollingDirectionPicker");
+const newCommentHorizontalAlignmentFormItem: HTMLDivElement = getElementById("newCommentHorizontalAlignmentFormItem");
+const newCommentHorizontalAlignmentPicker: HTMLSelectElement = getElementById("newCommentHorizontalAlignmentPicker");
+const newCommentVerticalAlignmentFormItem: HTMLDivElement = getElementById("newCommentVerticalAlignmentFormItem");
+const newCommentVerticalAlignmentPicker: HTMLSelectElement = getElementById("newCommentVerticalAlignmentPicker");
+const newCommentPositionXFormItem: HTMLDivElement = getElementById("newCommentPositionXFormItem");
+const newCommentPositionXTextBox: HTMLInputElement = getElementById("newCommentPositionXTextBox");
+const newCommentPositionYFormItem: HTMLDivElement = getElementById("newCommentPositionYFormItem");
+const newCommentPositionYTextBox: HTMLInputElement = getElementById("newCommentPositionYTextBox");
+const newCommentLifetimeFormItem: HTMLDivElement = getElementById("newCommentLifetimeFormItem");
+const newCommentLifetimeSlider: HTMLInputElement = getElementById("newCommentLifetimeSlider");
+const newCommentLifetimeDisplay: HTMLSpanElement = getElementById("newCommentLifetimeDisplay");
 
 // Screen
 const danmakuPlayer = createPlayer({
@@ -56,144 +75,178 @@ danmaku.appendChild(danmakuPlayer.element);
 video.addEventListener("playing", () => danmakuPlayer.play());
 video.addEventListener("pause", () => danmakuPlayer.pause());
 
-// Resources for Testing
-function pickVideoURL(): void {
-  videoURLTextBox.value = videoURLPicker.value;
-}
-
-function pickCommentsURL(): void {
-  commentsURLTextBox.value = commentsURLPicker.value;
-}
-
+// Screen Settings
 function loadVideo(): void {
-  if (videoURLTextBox.value === "") {
-    alert("Video URL is required.");
-    return;
-  }
-
-  video.src = videoURLTextBox.value;
+  video.src = videoPicker.value;
 }
 
 function loadComments(): void {
-  if (commentsURLTextBox.value === "") {
-    alert("Comments URL is required.");
-    return;
-  }
-
-  const originalText = commentsLoadButton.innerText;
-  commentsLoadButton.innerText = "Loading...";
-  commentsLoadButton.disabled = true;
-
+  commentsPicker.disabled = true;
   danmakuPlayer.comments.clear();
-  loadCommentsByURL(commentsURLTextBox.value, (error) => {
+
+  loadCommentsByURL(commentsPicker.value, (error) => {
     if (error != null) {
       alert(`Failed to load comments: ${error}`);
     }
 
-    commentsLoadButton.innerText = originalText;
-    commentsLoadButton.disabled = false;
+    commentsPicker.disabled = false;
   });
 }
 
-videoURLPicker.addEventListener("change", () => pickVideoURL());
-videoLoadButton.addEventListener("click", () => loadVideo());
-commentsURLPicker.addEventListener("change", () => pickCommentsURL());
-commentsLoadButton.addEventListener("click", () => loadComments());
+videoPicker.addEventListener("change", () => loadVideo());
+commentsPicker.addEventListener("change", () => loadComments());
 
-pickVideoURL();
-pickCommentsURL();
 loadVideo();
 loadComments();
 
-// Rendering Options for All Comments
+// Screen Settings
+function applyScreenDimensions(): void {
+  const dimensions = screenDimensionsPicker.value.split("x");
+  const width = Number(dimensions[0]);
+  const height = Number(dimensions[1]);
+
+  screen.style.width = width + "px";
+  screen.style.height = height + "px";
+  danmakuPlayer.resize(width, height);
+}
+
+function applyScreenMarginTop(): void {
+  danmakuPlayer.renderer.screenMarginTop = Number(screenMarginTopSlider.value);
+}
+
+function applyScreenMarginBottom(): void {
+  danmakuPlayer.renderer.screenMarginBottom = Number(screenMarginBottomSlider.value);
+}
+
+function updateScreenMarginTopDisplay(): void {
+  screenMarginTopDisplay.innerText = screenMarginTopSlider.value;
+}
+
+function updateScreenMarginBottomDisplay(): void {
+  screenMarginBottomDisplay.innerText = screenMarginBottomSlider.value;
+}
+
+screenDimensionsPicker.addEventListener("change", () => applyScreenDimensions());
+
+if (isIE) {
+  const applyScreenMarginTopDebounced = debounce(applyScreenMarginTop, 1000);
+  const applyScreenMarginBottomDebounced = debounce(applyScreenMarginBottom, 1000);
+  screenMarginTopSlider.addEventListener("change", () => applyScreenMarginTopDebounced());
+  screenMarginBottomSlider.addEventListener("change", () => applyScreenMarginBottomDebounced());
+  screenMarginTopSlider.addEventListener("change", () => updateScreenMarginTopDisplay());
+  screenMarginBottomSlider.addEventListener("change", () => updateScreenMarginBottomDisplay());
+} else {
+  screenMarginTopSlider.addEventListener("change", () => applyScreenMarginTop());
+  screenMarginBottomSlider.addEventListener("change", () => applyScreenMarginBottom());
+  screenMarginTopSlider.addEventListener("input", () => updateScreenMarginTopDisplay());
+  screenMarginBottomSlider.addEventListener("input", () => updateScreenMarginBottomDisplay());
+}
+
+applyScreenDimensions();
+applyScreenMarginTop();
+applyScreenMarginBottom();
+updateScreenMarginTopDisplay();
+updateScreenMarginBottomDisplay();
+
+// Comment Settings
+function applyCommentOpacity(): void {
+  danmakuPlayer.renderer.commentOpacity = Number(commentOpacitySlider.value) / 100;
+}
+
+function applyCommentFontFamily(): void {
+  danmakuPlayer.renderer.commentFontFamily = [
+    commentFontFamilyPicker.value,
+    "Arial",
+    "Microsoft YaHei",
+    "sans-serif",
+  ];
+}
+
+function applyCommentLineHeight(): void {
+  danmakuPlayer.renderer.commentLineHeight = Number(commentLineHeightSlider.value);
+}
+
+function applyCommentScrollingSpeed(): void {
+  const ratio = Number(commentScrollingSpeedSlider.value) / 100;
+  danmakuPlayer.renderer.commentScrollingBasicSpeed = 0.120 * ratio;
+  danmakuPlayer.renderer.commentScrollingExtraSpeedPerPixel = 0.0002 * ratio;
+}
+
 function updateCommentOpacityDisplay(): void {
   commentOpacityDisplay.innerText = commentOpacitySlider.value;
 }
 
-function pickCommentFontFamily(): void {
-  commentFontFamilyTextBox.value = commentFontFamilyPicker.value;
+function updateCommentLineHeightDisplay(): void {
+  commentLineHeightDisplay.innerText = commentLineHeightSlider.value;
 }
 
-function applyGeneralRenderingOptions(): void {
-  if (commentOpacitySlider.value === "" || isNaN(Number(commentOpacitySlider.value))) {
-    alert(`Opacity must be a number.`);
-    return;
-  }
-
-  if (commentLineHeightTextBox.value === "" || isNaN(Number(commentLineHeightTextBox.value))) {
-    alert(`Line height must be a number.`);
-    return;
-  }
-
-  if (maxRenderingCommentsTextBox.value === "" || isNaN(Number(maxRenderingCommentsTextBox.value))) {
-    alert(`Max concurrent must be a number.`);
-    return;
-  }
-
-  const textShadowRE = /^(\d+) (\d+) (\d+) ([a-z]{2,}|#[0-9a-f]{3}|#[0-9a-f]{6})$/i;
-  const textShadowMatch = textShadowRE.exec(commentTextShadowTextBox.value);
-
-  if (commentTextShadowTextBox.value === "" || textShadowMatch == null) {
-    alert(`Invalid text shadow format.`);
-    return;
-  }
-
-  danmakuPlayer.renderer.commentOpacity = Number(commentOpacitySlider.value);
-  danmakuPlayer.renderer.commentLineHeight = Number(commentLineHeightTextBox.value);
-  danmakuPlayer.maxRenderingComments = Number(maxRenderingCommentsTextBox.value);
-
-  danmakuPlayer.renderer.commentFontFamily =
-    [commentFontFamilyTextBox.value, "Helvetica", "Arial", "sans-serif"];
-
-  if (textShadowMatch != null) {
-    danmakuPlayer.renderer.commentTextShadow = {
-      offsetX: Number(textShadowMatch[1]),
-      offsetY: Number(textShadowMatch[2]),
-      blur: Number(textShadowMatch[3]),
-      color: textShadowMatch[4],
-    };
-  }
+function updateCommentScrollingSpeed(): void {
+  commentScrollingSpeedDisplay.innerText = commentScrollingSpeedSlider.value;
 }
 
-function resetGeneralRenderingOptions(): void {
-  commentOpacitySlider.value = String(danmakuPlayer.renderer.commentOpacity);
-  commentLineHeightTextBox.value = String(danmakuPlayer.renderer.commentLineHeight);
-  maxRenderingCommentsTextBox.value = String(danmakuPlayer.maxRenderingComments);
+commentFontFamilyPicker.addEventListener("change", () => applyCommentFontFamily());
 
-  commentFontFamilyTextBox.value =
-    danmakuPlayer.renderer.commentFontFamily.length > 0
-      ? danmakuPlayer.renderer.commentFontFamily[0]
-      : "";
-
-  let textShadow: string = "";
-  if (danmakuPlayer.renderer.commentTextShadow != null) {
-    const {
-      offsetX,
-      offsetY,
-      blur,
-      color,
-    } = danmakuPlayer.renderer.commentTextShadow;
-
-    textShadow = `${offsetX} ${offsetY} ${blur} ${color}`;
-  }
-
-  commentTextShadowTextBox.value = textShadow;
+if (isIE) {
+  const applyCommentOpacityDebounced = debounce(applyCommentOpacity, 1000);
+  const applyCommentLineHeightDebounced = debounce(applyCommentLineHeight, 1000);
+  const applyCommentScrollingSpeedDebounced = debounce(applyCommentScrollingSpeed, 1000);
+  commentOpacitySlider.addEventListener("change", () => applyCommentOpacityDebounced());
+  commentLineHeightSlider.addEventListener("change", () => applyCommentLineHeightDebounced());
+  commentScrollingSpeedSlider.addEventListener("change", () => applyCommentScrollingSpeedDebounced());
+  commentOpacitySlider.addEventListener("change", () => updateCommentOpacityDisplay());
+  commentLineHeightSlider.addEventListener("change", () => updateCommentLineHeightDisplay());
+  commentScrollingSpeedSlider.addEventListener("change", () => updateCommentScrollingSpeed());
+} else {
+  commentOpacitySlider.addEventListener("change", () => applyCommentOpacity());
+  commentLineHeightSlider.addEventListener("change", () => applyCommentLineHeight());
+  commentScrollingSpeedSlider.addEventListener("change", () => applyCommentScrollingSpeed());
+  commentOpacitySlider.addEventListener("input", () => updateCommentOpacityDisplay());
+  commentLineHeightSlider.addEventListener("input", () => updateCommentLineHeightDisplay());
+  commentScrollingSpeedSlider.addEventListener("input", () => updateCommentScrollingSpeed());
 }
 
-commentOpacitySlider.addEventListener("input", () => updateCommentOpacityDisplay());
-commentFontFamilyPicker.addEventListener("change", () => pickCommentFontFamily());
-generalRenderingOptionsApplyButton.addEventListener("click", () => applyGeneralRenderingOptions());
-generalRenderingOptionsResetButton.addEventListener("click", () => resetGeneralRenderingOptions());
-
+applyCommentOpacity();
+applyCommentFontFamily();
+applyCommentLineHeight();
+applyCommentScrollingSpeed();
 updateCommentOpacityDisplay();
-pickCommentFontFamily();
-applyGeneralRenderingOptions();
+updateCommentLineHeightDisplay();
+updateCommentScrollingSpeed();
+
+// New Comment
+function applyNewCommentType(): void {
+  const type = newCommentTypePicker.value;
+
+  newCommentStackingDirectionFormItem.style.display = "none";
+  newCommentScrollingDirectionFormItem.style.display = "none";
+  newCommentHorizontalAlignmentFormItem.style.display = "none";
+  newCommentVerticalAlignmentFormItem.style.display = "none";
+  newCommentPositionXFormItem.style.display = "none";
+  newCommentPositionYFormItem.style.display = "none";
+  newCommentLifetimeFormItem.style.display = "none";
+
+  if (type === "ScrollingComment") {
+    newCommentStackingDirectionFormItem.style.display = "block";
+    newCommentScrollingDirectionFormItem.style.display = "block";
+  } else if (type === "StackingComment") {
+    newCommentStackingDirectionFormItem.style.display = "block";
+    newCommentHorizontalAlignmentFormItem.style.display = "block";
+    newCommentLifetimeFormItem.style.display = "block";
+  } else if (type === "PositioningComment") {
+    newCommentPositionXFormItem.style.display = "block";
+    newCommentPositionYFormItem.style.display = "block";
+    newCommentLifetimeFormItem.style.display = "block";
+  }
+}
+
+newCommentTypePicker.addEventListener("change", () => applyNewCommentType());
+
+applyNewCommentType();
 
 // Utilities
 function loadCommentsByURL(url: string, callback: (error: (Error | null)) => void): void {
   try {
     const xhr = new XMLHttpRequest();
-    xhr.responseType = "document";
 
     xhr.onerror = (e) => {
       callback(new Error(e.message));
@@ -217,6 +270,7 @@ function loadCommentsByURL(url: string, callback: (error: (Error | null)) => voi
     };
 
     xhr.open("GET", url);
+    xhr.responseType = "document";
     xhr.send();
   } catch (e) {
     callback(e);

@@ -5,7 +5,8 @@
     "module": "es2015",
     "moduleResolution": "node",
     "importHelpers": true,
-    "types": []
+    "types": [],
+    "allowSyntheticDefaultImports": true
   },
   "files": [
     "index.ts"
