@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <title>MioDanmaku Example</title>
+  <link href="//fonts.googleapis.com/css?family=Open+Sans:400,400i,700" rel="stylesheet">
   <link rel="stylesheet" href="assets/normalize.css">
   <link rel="stylesheet" href="assets/index.css">
 </head>
@@ -29,7 +30,7 @@
 <!-- Screen -->
 <div id="screen" class="screen">
   <video id="video" class="screen-video" controls></video>
-  <div id="danmaku" class="screen-comments"></div>
+  <div id="danmaku" class="screen-danmaku"></div>
 </div>
 <!-- //Screen -->
 <div class="container">
@@ -206,8 +207,13 @@
               <span id="newCommentTextColorDisplay">#FFFFFF</span>
             </span>
             <input id="newCommentTextColorPicker" class="inputColor" type="color" value="#FFFFFF">
-            <a href="#">Blue</a>
-            <a href="#">Yellow</a>
+            <span id="newCommentTextColorShortcuts">
+              <a href="#" data-color="#FFFFFF">White</a>
+              <a href="#" data-color="#FF0000">Red</a>
+              <a href="#" data-color="#00CC00">Green</a>
+              <a href="#" data-color="#66CCFF">Blue</a>
+              <a href="#" data-color="#FFCC00">Yellow</a>
+            </span>
           </div>
         </div>
         <div id="newCommentStackingDirectionFormItem" class="formRow">
@@ -215,7 +221,7 @@
           <div class="formRow-body">
             <select id="newCommentStackingDirectionPicker" class="select">
               <option value="up">Up</option>
-              <option value="down">Down</option>
+              <option value="down" selected>Down</option>
             </select>
           </div>
         </div>
@@ -223,7 +229,7 @@
           <label class="formRow-head">Scrolling Direction</label>
           <div class="formRow-body">
             <select id="newCommentScrollingDirectionPicker" class="select">
-              <option value="left">Left</option>
+              <option value="left" selected>Left</option>
               <option value="right">Right</option>
             </select>
           </div>
@@ -232,9 +238,9 @@
           <label class="formRow-head">Horizontal Alignment</label>
           <div class="formRow-body">
             <select id="newCommentHorizontalAlignmentPicker" class="select">
-              <option>Left</option>
-              <option>Center</option>
-              <option>Right</option>
+              <option value="left">Left</option>
+              <option value="center" selected>Center</option>
+              <option value="right">Right</option>
             </select>
           </div>
         </div>
@@ -242,9 +248,9 @@
           <label class="formRow-head">Vertical Alignment</label>
           <div class="formRow-body">
             <select id="newCommentVerticalAlignmentPicker" class="select">
-              <option>Top</option>
-              <option>Middle</option>
-              <option>Bottom</option>
+              <option value="top">Top</option>
+              <option value="middle" selected>Middle</option>
+              <option value="bottom">Bottom</option>
             </select>
           </div>
         </div>
@@ -277,7 +283,7 @@
       <!-- About Resources -->
       <fieldset class="fieldset" style="margin-top: 15px;">
         <legend>About Resources</legend>
-        <ul style="font-size: 14px;">
+        <ul>
           <li>The video "Kiss the Villain" is referenced from the <a href="#">Youtube.com</a>.</li>
           <li>The video "Macbook Pro 2017" is referenced from the <a href="#">Apple.com</a>.</li>
           <li>The comments of "Kiss the Villain" are referenced from the <a href="#">Bilibili.com</a>.</li>

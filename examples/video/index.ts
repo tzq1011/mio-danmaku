@@ -48,6 +48,7 @@ const newCommentFontSizeSlider: HTMLInputElement = getElementById("newCommentFon
 const newCommentFontSizeDisplay: HTMLInputElement = getElementById("newCommentFontSizeDisplay");
 const newCommentTextColorPicker: HTMLInputElement = getElementById("newCommentTextColorPicker");
 const newCommentTextColorDisplay: HTMLSpanElement = getElementById("newCommentTextColorDisplay");
+const newCommentTextColorShortcuts: HTMLSpanElement = getElementById("newCommentTextColorShortcuts");
 const newCommentStackingDirectionFormItem: HTMLDivElement = getElementById("newCommentStackingDirectionFormItem");
 const newCommentStackingDirectionPicker: HTMLSelectElement = getElementById("newCommentStackingDirectionPicker");
 const newCommentScrollingDirectionFormItem: HTMLDivElement = getElementById("newCommentScrollingDirectionFormItem");
@@ -63,6 +64,7 @@ const newCommentPositionYTextBox: HTMLInputElement = getElementById("newCommentP
 const newCommentLifetimeFormItem: HTMLDivElement = getElementById("newCommentLifetimeFormItem");
 const newCommentLifetimeSlider: HTMLInputElement = getElementById("newCommentLifetimeSlider");
 const newCommentLifetimeDisplay: HTMLSpanElement = getElementById("newCommentLifetimeDisplay");
+const newCommentPostButton: HTMLButtonElement = getElementById("newCommentPostButton");
 
 // Screen
 const danmakuPlayer = createPlayer({
@@ -70,6 +72,9 @@ const danmakuPlayer = createPlayer({
     return video.currentTime * 1000;
   },
 });
+
+danmakuPlayer.play();
+danmakuPlayer.pause();
 
 danmaku.appendChild(danmakuPlayer.element);
 video.addEventListener("playing", () => danmakuPlayer.play());
@@ -239,7 +244,83 @@ function applyNewCommentType(): void {
   }
 }
 
+function updateNewCommentFontSizeDisplay(): void {
+  newCommentFontSizeDisplay.innerText = newCommentFontSizeSlider.value;
+}
+
+function updateNewCommentTextColorDisplay(): void {
+  newCommentTextColorDisplay.innerText = newCommentTextColorPicker.value.toUpperCase();
+}
+
+function updateNewCommentLifetimeDisplay(): void {
+  newCommentLifetimeDisplay.innerText = newCommentLifetimeSlider.value;
+}
+
+function postComment(): void {
+  const type = newCommentTypePicker.value;
+
+  const commonOptions = {
+    time: danmakuPlayer.time,
+    text: newCommentTextTextBox.value,
+    fontSize: Number(newCommentFontSizeSlider.value),
+    fontColor: newCommentTextColorPicker.value,
+    isOwn: true,
+  };
+
+  let comment: Comment;
+
+  if (type === "ScrollingComment") {
+    comment = createScrollingComment({
+      ...commonOptions,
+      stackingDirection: newCommentStackingDirectionPicker.value as ("up" | "down"),
+      scrollingDirection: newCommentScrollingDirectionPicker.value as ("left" | "right"),
+    });
+  } else if (type === "StackingComment") {
+    comment = createStackingComment({
+      ...commonOptions,
+      stackingDirection: newCommentStackingDirectionPicker.value as ("up" | "down"),
+      horizontalAlignment: newCommentHorizontalAlignmentPicker.value as ("left" | "center" | "right"),
+      lifetime: Number(newCommentLifetimeSlider.value) * 1000,
+    });
+  } else if (type === "PositioningComment") {
+    comment = createPositioningComment({
+      ...commonOptions,
+      positionX: Number(newCommentPositionXTextBox.value),
+      positionY: Number(newCommentPositionYTextBox.value),
+      lifetime: Number(newCommentLifetimeSlider.value) * 1000,
+    });
+  } else {
+    throw new Error(`Unexpected type: ${type}`);
+  }
+
+  console.log(comment);
+  danmakuPlayer.comments.add(comment);
+  danmakuPlayer.renderer.renderComment(comment);
+}
+
 newCommentTypePicker.addEventListener("change", () => applyNewCommentType());
+
+newCommentTextColorShortcuts.addEventListener("click", (e) => {
+  const target = e.target as HTMLElement;
+  const color = target.getAttribute("data-color")
+  if (color != null) {
+    newCommentTextColorPicker.value = color;
+    updateNewCommentTextColorDisplay();
+    e.preventDefault();
+  }
+});
+
+newCommentPostButton.addEventListener("click", () => postComment());
+
+if (isIE) {
+  newCommentFontSizeSlider.addEventListener("change", () => updateNewCommentFontSizeDisplay());
+  newCommentTextColorPicker.addEventListener("change", () => updateNewCommentTextColorDisplay());
+  newCommentLifetimeSlider.addEventListener("change", () => updateNewCommentLifetimeDisplay());
+} else {
+  newCommentFontSizeSlider.addEventListener("input", () => updateNewCommentFontSizeDisplay());
+  newCommentTextColorPicker.addEventListener("input", () => updateNewCommentTextColorDisplay());
+  newCommentLifetimeSlider.addEventListener("input", () => updateNewCommentLifetimeDisplay());
+}
 
 applyNewCommentType();
 
@@ -247,12 +328,14 @@ applyNewCommentType();
 function loadCommentsByURL(url: string, callback: (error: (Error | null)) => void): void {
   try {
     const xhr = new XMLHttpRequest();
+    xhr.open("GET", url);
+    xhr.responseType = "document";
 
-    xhr.onerror = (e) => {
+    xhr.addEventListener("error", (e) => {
       callback(new Error(e.message));
-    };
+    });
 
-    xhr.onload = () => {
+    xhr.addEventListener("load", () => {
       if (xhr.status !== 200) {
         callback(new Error(`Unexpected status: ${xhr.status}.`));
         return;
@@ -267,10 +350,8 @@ function loadCommentsByURL(url: string, callback: (error: (Error | null)) => voi
       const comments = parseCommentsXML(xml);
       danmakuPlayer.comments.load(comments);
       callback(null);
-    };
+    });
 
-    xhr.open("GET", url);
-    xhr.responseType = "document";
     xhr.send();
   } catch (e) {
     callback(e);
