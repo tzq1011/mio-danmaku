@@ -8,13 +8,14 @@
   "types": "built/esm/index.d.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build-lib-esm": "tsc --module es2015 --declaration --sourcemap --outDir ./built/esm",
-    "build-lib-umd": "tsc --module umd --declaration --sourcemap --outDir ./built/umd",
+    "build-lib-esm": "tsc --module es2015 --outDir ./built/esm",
+    "build-lib-umd": "tsc --module umd --outDir ./built/umd",
     "build-bundle-dev": "rollup -c --environment BUILD:development",
     "build-bundle-prod": "rollup -c --environment BUILD:production",
     "build-libs": "run-p build-lib-esm build-lib-umd",
     "build-bundles": "run-p build-bundle-dev build-bundle-prod",
-    "build": "run-p build-libs build-bundles"
+    "build": "run-p build-libs build-bundles",
+    "watch-lib-esm": "tsc --module es2015 --outDir ./built/esm --watch"
   },
   "author": "PPC <tzq1011@163.com>",
   "license": "MIT",

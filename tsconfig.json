@@ -5,6 +5,8 @@
     "module": "es2015",
     "moduleResolution": "node",
     "importHelpers": true,
+    "sourceMap": true,
+    "declaration": true,
     "rootDir": "./src",
     "outDir": "./built/js",
     "types": [],

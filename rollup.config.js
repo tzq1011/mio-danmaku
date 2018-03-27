@@ -8,12 +8,7 @@ import { version } from "./package.json";
 const plugins = [
   rollupResolve({ jsnext: true }),
   rollupCommonJS(),
-  rollupTypeScript({
-    typescript,
-    tsconfigOverride: {
-      compilerOptions: { sourceMap: true },
-    },
-  }),
+  rollupTypeScript({ typescript }),
 ];
 
 let extension = ".js";
