@@ -1,27 +1,88 @@
-export { Comment } from "./types";
+export {
+  EventData,
+  EventSpecs,
+  EventListener,
+  EventEmitter,
+  Dimensions,
+  Position,
+  Shadow,
+  Border,
+  CommentEvents,
+  Comment,
+  CommentTextTrait,
+  CommentPositionXTrait,
+  CommentPositionYTrait,
+  CommentHorizontalAlignmentTrait,
+  CommentVerticalAlignmentTrait,
+  CommentStackingTrait,
+  CommentScrollingTrait,
+  CommentLifetimeTrait,
+  StackingComment,
+  ScrollingComment,
+  PositioningComment,
+  CommentFilter,
+  CommentPoolEvents,
+  CommentPool,
+  CommentView,
+  RendererState,
+  RendererEvents,
+  Renderer,
+  CSSRenderer,
+  TimeGetter,
+  PlayerState,
+  PlayerEvents,
+  Player,
+} from "./types";
 
-import { createCSSRenderer } from "./css-renderer";
-import { createPlayer } from "./player";
+export {
+  CommentOptions,
+  CommentTextTraitOptions,
+  CommentPositionXTraitOptions,
+  CommentPositionYTraitOptions,
+  CommentHorizontalAlignmentTraitOptions,
+  CommentVerticalAlignmentTraitOptions,
+  CommentStackingTraitOptions,
+  CommentScrollingTraitOptions,
+  CommentLifetimeTraitOptions,
+  StackingCommentOptions,
+  ScrollingCommentOptions,
+  PositioningCommentOptions,
+} from "./comment-creators";
 
-import {
+export {
+  createComment,
+  mixinCommentTextTrait,
+  mixinCommentPositionXTrait,
+  mixinCommentPositionYTrait,
+  mixinCommentHorizontalAlignmentTrait,
+  mixinCommentVerticalAlignmentTrait,
+  mixinCommentStackingTrait,
+  mixinCommentScrollingTrait,
+  mixinCommentLifetimeTrait,
   createStackingComment,
   createScrollingComment,
   createPositioningComment,
 } from "./comment-creators";
 
-import {
+export {
+  isComment,
+  hasCommentTextTrait,
+  hasCommentPositionXTrait,
+  hasCommentPositionYTrait,
+  hasCommentHorizontalAlignmentTrait,
+  hasCommentVerticalAlignmentTrait,
+  hasCommentStackingTrait,
+  hasCommentScrollingTrait,
+  hasCommentLifetimeTrait,
   isStackingComment,
   isScrollingComment,
   isPositioningComment,
 } from "./comment-assertors";
 
 export {
-  createStackingComment,
-  createScrollingComment,
-  createPositioningComment,
-  createCSSRenderer,
+  PlayerOptions,
+} from "./player";
+
+export {
   createPlayer,
-  isStackingComment,
-  isScrollingComment,
-  isPositioningComment,
-};
+} from "./player";

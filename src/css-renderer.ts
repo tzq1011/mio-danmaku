@@ -101,7 +101,7 @@ interface ScrollingCommentStatus {
 
 declare const Promise: any;
 
-const defaultOptions: DefaultCSSRendererOptions = {
+const defaultCSSRendererOptions: DefaultCSSRendererOptions = {
   screenWidth: 800,
   screenHeight: 600,
   screenMarginTop: 0,
@@ -121,7 +121,7 @@ const hasOwnProperty = Object.prototype.hasOwnProperty;
 
 function createCSSRenderer(options: CSSRendererOptions = {}): CSSRenderer {
   const _finalOptions = {
-    ...defaultOptions,
+    ...defaultCSSRendererOptions,
     ...options,
   };
 
@@ -1012,6 +1012,6 @@ export {
 };
 
 export {
-  defaultOptions,
+  defaultCSSRendererOptions,
   createCSSRenderer,
 };

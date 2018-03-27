@@ -23,7 +23,7 @@ interface Row {
   bottomY: number;
 }
 
-const defaultOptions: DefaultStackingPlannerOptions = {
+const defaultStackingPlannerOptions: DefaultStackingPlannerOptions = {
   containerHeight: 800,
   containerMarginTop: 0,
   containerMarginBottom: 0,
@@ -32,7 +32,7 @@ const defaultOptions: DefaultStackingPlannerOptions = {
 
 function createStackingPlanner(options: StackingPlannerOptions = {}): StackingPlanner {
   const _finalOptions = {
-    ...defaultOptions,
+    ...defaultStackingPlannerOptions,
     ...options,
   };
 
@@ -328,6 +328,6 @@ export {
 };
 
 export {
-  defaultOptions,
+  defaultStackingPlannerOptions,
   createStackingPlanner,
 };

@@ -22,6 +22,7 @@ import { createEventEmitter } from "./event-emitter";
 
 interface CommentOptions {
   time?: Comment["time"];
+  data?: Comment["data"];
   isOwn?: Comment["isOwn"];
 }
 
@@ -165,6 +166,10 @@ function createComment(options: CommentOptions = {}): Comment {
     ...options,
   };
 
+  if (finalOptions.data == null) {
+    finalOptions.data = {};
+  }
+
   const instanceId = `Comment${++instanceNumber}`;
   const events: EventEmitter<CommentEvents> = createEventEmitter();
 
@@ -172,6 +177,7 @@ function createComment(options: CommentOptions = {}): Comment {
     instanceId,
     events,
     time: finalOptions.time,
+    data: finalOptions.data,
     isOwn: finalOptions.isOwn,
   };
 

@@ -47,6 +47,7 @@ interface Comment {
   readonly instanceId: string;
   readonly events: EventEmitter<CommentEvents>;
   readonly time: number;
+  readonly data: object;
   readonly isOwn: boolean;
 }
 
@@ -302,7 +303,7 @@ interface Player {
   readonly element: HTMLElement;
   readonly time: number;
   readonly timeGetter: TimeGetter;
-  readonly commentPool: CommentPool;
+  readonly comments: CommentPool;
   play(): void;
   pause(): void;
   stop(): void;

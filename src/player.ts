@@ -24,7 +24,7 @@ interface DefaultPlayerOptions {
   maxRenderingComments: Player["maxRenderingComments"];
 }
 
-const defaultOptions: DefaultPlayerOptions = {
+const defaultPlayerOptions: DefaultPlayerOptions = {
   width: 800,
   height: 600,
   maxRenderingComments: 80,
@@ -32,13 +32,13 @@ const defaultOptions: DefaultPlayerOptions = {
 
 function createPlayer(options: PlayerOptions): Player {
   const _finalOptions = {
-    ...defaultOptions,
+    ...defaultPlayerOptions,
     ...options,
   };
 
   const _events: EventEmitter<PlayerEvents> = createEventEmitter();
   const _timeGetter = _finalOptions.timeGetter;
-  const _commentPool = createCommentPool();
+  const _comments = createCommentPool();
 
   let _state: PlayerState = "idle";
   let _width: number = _finalOptions.width;
@@ -66,7 +66,7 @@ function createPlayer(options: PlayerOptions): Player {
       return;
     }
 
-    if (time < _prevTime || (time - _prevTime > 500)) {
+    if (time < _prevTime || (time - _prevTime > 1000)) {
       _renderer.getRenderingComments()
         .forEach((comment) => _renderer.unrenderComment(comment));
     } else {
@@ -74,7 +74,7 @@ function createPlayer(options: PlayerOptions): Player {
       const maxNewComments: number = Math.max(_maxRenderingComments - renderingCommentsCount, 0);
 
       if (maxNewComments > 0) {
-        _commentPool.getByTime(_prevTime, time, maxNewComments)
+        _comments.getByTime(_prevTime, time, maxNewComments)
           .forEach((comment) => _renderer.renderComment(comment));
       }
     }
@@ -237,8 +237,8 @@ function createPlayer(options: PlayerOptions): Player {
     get timeGetter() {
       return _timeGetter;
     },
-    get commentPool() {
-      return _commentPool;
+    get comments() {
+      return _comments;
     },
     play,
     pause,
@@ -255,6 +255,6 @@ export {
 };
 
 export {
-  defaultOptions,
+  defaultPlayerOptions,
   createPlayer,
 };
