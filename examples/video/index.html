@@ -5,15 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <title>MioDanmaku Example</title>
-  <link href="//fonts.googleapis.com/css?family=Open+Sans:400,400i,700" rel="stylesheet">
   <link rel="stylesheet" href="assets/normalize.css">
   <link rel="stylesheet" href="assets/index.css">
 </head>
 <body>
 
-<div class="container">
-  <!-- Header -->
-  <div class="header">
+<!-- Header -->
+<div class="header">
+  <div class="container">
     <!-- Headline -->
     <h1 class="headline">MioDanmaku</h1>
     <!-- //Headline -->
@@ -24,9 +23,8 @@
     </p>
     <!-- //Description -->
   </div>
-  <!-- //Header -->
-  <div class="divider"></div>
 </div>
+<!-- //Header -->
 <!-- Screen -->
 <div id="screen" class="screen">
   <video id="video" class="screen-video" controls></video>
@@ -39,14 +37,14 @@
     <!-- Left Column -->
     <div class="functionalArea-leftCol">
       <!-- Resources -->
-      <fieldset class="fieldset">
-        <legend>Resources</legend>
+      <div class="panel">
+        <h2 class="panel-title">Resources</h2>
         <div class="formRow formRow_narrow">
           <label class="formRow-head">Video</label>
           <div class="formRow-body">
             <select id="videoPicker" class="select">
-              <option value="assets/video.mp4" selected>Kiss the Villain</option>
-              <option>Macbook Pro 2017</option>
+              <option value="assets/video.mp4" selected>悪役にキスシーンを</option>
+              <option value="https://images.apple.com/media/cn/macbook-pro/2016/b4a9efaa_6fe5_4075_a9d0_8e4592d6146c/films/design/macbook-pro-design-tft-cn-20161026_1536x640h.mp4">Macbook Pro 2017</option>
             </select>
           </div>
         </div>
@@ -54,23 +52,23 @@
           <label class="formRow-head">Comments</label>
           <div class="formRow-body">
             <select id="commentsPicker" class="select">
-              <option value="assets/bilibili.xml">Kiss the Villain</option>
+              <option value="assets/bilibili.xml">悪役にキスシーンを</option>
             </select>
           </div>
         </div>
-      </fieldset>
+      </div>
       <!-- //Resources -->
       <!-- Screen Settings -->
-      <fieldset class="fieldset" style="margin-top: 15px;">
-        <legend>Screen Settings</legend>
+      <div class="panel" style="margin-top: 15px;">
+        <h2 class="panel-title">Screen Settings</h2>
         <div class="formRow formRow_narrow">
           <label class="formRow-head">Dimensions</label>
           <div class="formRow-body">
             <select id="screenDimensionsPicker" class="select">
-              <option value="640x360">640x360</option>
-              <option value="854x480">854x480</option>
-              <option value="960x540" selected>960x540</option>
-              <option value="1280x720">1280x720</option>
+              <option value="640x360">640 x 360</option>
+              <option value="854x480">854 x 480</option>
+              <option value="960x540" selected>960 x 540</option>
+              <option value="1280x720">1280 x 720</option>
             </select>
           </div>
         </div>
@@ -92,11 +90,11 @@
             <input id="screenMarginBottomSlider" class="inputRange" style="width: 100px;" type="range" min="0" max="100" value="0">
           </div>
         </div>
-      </fieldset>
+      </div>
       <!-- //Screen Settings -->
       <!-- Comment Settings -->
-      <fieldset class="fieldset" style="margin-top: 15px;">
-        <legend>Comment Settings</legend>
+      <div class="panel" style="margin-top: 15px;">
+        <h2 class="panel-title">Comment Settings</h2>
         <div class="formRow formRow_narrow">
           <label class="formRow-head">Opacity</label>
           <div class="formRow-body">
@@ -132,49 +130,33 @@
             <input id="commentScrollingSpeedSlider" class="inputRange" style="width: 100px;" type="range" min="10" max="200" value="100">
           </div>
         </div>
-      </fieldset>
-      <!-- //Comment Settings -->
-      <!-- Comment List -->
-      <div class="table commentList" style="margin-top: 15px;">
-        <div class="table-head">
-          <div class="table-row">
-            <div class="table-col commentList-timeCol">Time</div>
-            <div class="table-col commentList-textCol">Comment</div>
-          </div>
-        </div>
-        <div class="table-body commentList-body">
-          <ul class="table-entries commentList-entries">
-            <li class="table-row">
-              <div class="table-col commentList-timeCol">00:00</div>
-              <div class="table-col commentList-textCol">Hello</div>
-            </li>
-            <li class="table-row">
-              <div class="table-col commentList-timeCol">00:00</div>
-              <div class="table-col commentList-textCol">Hello</div>
-            </li>
-          </ul>
-        </div>
-        <div class="table-foot">
-          Showing 1 to 10 of 1000 entries.
-          <a href="#">Clear</a>
-        </div>
       </div>
-      <!-- //Comment List -->
+      <!-- //Comment Settings -->
+      <!-- Comment Settings -->
+      <div class="panel" style="margin-top: 15px;">
+        <h2 class="panel-title">About Resources</h2>
+        <ul>
+          <li>The video "悪役にキスシーンを" is referenced from the <a target="_blank" href="https://www.youtube.com/watch?v=8uV_czuhdjc">Youtube.com</a>.</li>
+          <li>The video "Macbook Pro 2017" is referenced from the <a target="_blank" href="https://www.apple.com/cn/macbook-pro/">Apple.com</a>.</li>
+          <li>The comments of "悪役にキスシーンを" are referenced from the <a target="_blank" href="https://www.bilibili.com/video/av16137754/">Bilibili.com</a>.</li>
+          <li>All rights to the resources above belong to the original author.</li>
+        </ul>
+      </div>
     </div>
     <!-- //Left Column -->
     <!-- Right Column -->
     <div class="functionalArea-rightCol">
       <!-- New Comment -->
-      <fieldset class="fieldset">
-        <legend>Controls</legend>
-        <button class="button">Play</button>
-        <button class="button">Pause</button>
-        <button class="button">Hide Danmaku</button>
-        <button class="button">Show Danmaku</button>
-      </fieldset>
+      <div class="panel">
+        <h2 class="panel-title">Controls</h2>
+        <div style="text-align: right">
+          <button class="button" style="width: 80px;">Play</button>
+          <button class="button" style="width: 150px;">Hide Danmaku</button>
+        </div>
+      </div>
       <!-- New Comment -->
-      <fieldset class="fieldset" style="margin-top: 15px;">
-        <legend>New Comment</legend>
+      <div class="panel" style="margin-top: 15px;">
+        <h2 class="panel-title">New Comment</h2>
         <div class="formRow">
           <label class="formRow-head">Type</label>
           <div class="formRow-body">
@@ -188,7 +170,7 @@
         <div class="formRow">
           <label class="formRow-head">Text</label>
           <div class="formRow-body">
-            <input id="newCommentTextTextBox" class="inputText" style="width: 350px;" value="Nya">
+            <input id="newCommentTextTextBox" class="inputText" value="Nya">
           </div>
         </div>
         <div class="formRow">
@@ -277,20 +259,36 @@
             <input id="newCommentLifetimeSlider" class="inputRange" style="width: 130px;" type="range" min="1" max="20" value="5">
           </div>
         </div>
-        <button id="newCommentPostButton" class="button fieldset-rightBottom">Post</button>
-      </fieldset>
+        <button id="newCommentPostButton" class="button panel-rightTop">Post</button>
+      </div>
       <!-- //New Comment -->
-      <!-- About Resources -->
-      <fieldset class="fieldset" style="margin-top: 15px;">
-        <legend>About Resources</legend>
-        <ul>
-          <li>The video "Kiss the Villain" is referenced from the <a href="#">Youtube.com</a>.</li>
-          <li>The video "Macbook Pro 2017" is referenced from the <a href="#">Apple.com</a>.</li>
-          <li>The comments of "Kiss the Villain" are referenced from the <a href="#">Bilibili.com</a>.</li>
-          <li>All rights to the resources above belong to the original author.</li>
-        </ul>
-      </fieldset>
-      <!-- //About Resources -->
+      <!-- Comments -->
+      <div class="panel" style="margin-top: 15px;">
+        <h2 class="panel-title">Comments (<span id="commentCount">0</span>)</h2>
+        <div class="table comments" style="margin-top: 15px;">
+          <div class="table-head">
+            <div class="table-row">
+              <div class="table-col comments-timeCol">Time</div>
+              <div class="table-col comments-textCol">Content</div>
+              <div class="table-col comments-creationTimeCol">Creation Time (UTC)</div>
+            </div>
+          </div>
+          <div id="commentList" class="table-body comments-body">
+            <ul id="commentListContent" class="table-entries comments-entries">
+              <li class="table-row">
+                <div class="table-col comments-timeCol">00:00</div>
+                <div class="table-col comments-textCol">--</div>
+                <div class="table-col comments-creationTimeCol">0000-00-00 00:00</div>
+              </li>
+            </ul>
+          </div>
+        </div>
+        <div class="panel-rightTop">
+          <button id="commentsClearButton" class="button">Clear</button>
+          <button id="commentsReloadButton" class="button">Reload</button>
+        </div>
+      </div>
+      <!-- //Comments -->
     </div>
     <!-- //Right Column -->
   </div>
@@ -299,6 +297,7 @@
     Made with ♥ by <a target="_blank" href="https://github.com/tzq1011">PPC</a>
   </div>
   <script src="./bundle.js"></script>
+  <link href="//fonts.googleapis.com/css?family=Roboto:400,400i,700" rel="stylesheet">
 </div>
 </body>
 </html>

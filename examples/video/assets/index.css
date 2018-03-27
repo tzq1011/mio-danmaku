@@ -2,15 +2,15 @@ body {
   margin: 0;
   padding: 0;
   color: #111;
-  font-family: "Open Sans", Helvetica, Arial, "Microsoft YaHei", sans-serif;
+  font-family: Roboto, Helvetica, Arial, "Microsoft YaHei", sans-serif;
   font-size: 16px;
   line-height: 1.5;
-  background-color: #fff;
+  background-color: #fafafa;
 }
 
 * { box-sizing: border-box; }
 
-a { color: #00e; }
+a { color: #07C; }
 
 .centeredText {
   display: inline-block;
@@ -23,7 +23,10 @@ a { color: #00e; }
 }
 
 .header {
-  margin: 15px 0;
+  margin-bottom: 15px;
+  padding: 15px 0;
+  background-color: #fff;
+  box-shadow: 0 1px 3px rgba(0,0,0,.1);
 }
 
 .headline {
@@ -92,6 +95,8 @@ a { color: #00e; }
 /* Table */
 .table {
   border: solid 1px #eee;
+  border-left: none;
+  border-right: none;
 }
 
 .table-row {
@@ -131,58 +136,60 @@ a { color: #00e; }
 }
 
 .table-entries > .table-row:hover {
-  background-color: #eee;
-}
-
-.table-foot {
-  padding-left: 10px;
-  font-size: 14px;
-  line-height: 36px;
-  border-top: solid 1px #eee;
+  background-color: #f1f1f1;
 }
 /* //Table */
 
-/* Comment List */
-.commentList-body {
-  height: 300px;
+/* Comments */
+.comments-body {
+  height: 360px;
   overflow: auto;
 }
 
-.commentList-timeCol {
-  flex: 0 1 80px;
+.comments-timeCol {
+  flex: 0 0 80px;
 }
 
-.commentList-entries {
+.comments-textCol {
+  flex: 0 0 300px;
+}
+
+.comments-entries {
   position: relative;
 }
 
-.commentList-entries > .table-row {
+.comments-entries > .table-row {
   position: absolute;
   left: 0;
   right:0;
 }
-/* //Comment List */
+/* //Comments */
 
 /* Fieldset */
-.fieldset {
+.panel {
   margin: 0;
   padding: 15px;
   background-color: #fff;
-  border: solid 1px #eee;
-  position: relative;
+  box-shadow: 0 1px 3px rgba(0,0,0,.1);
+  position: relative
 }
 
-.fieldset > legend {
+.panel-title {
+  margin: 0;
+  padding: 0;
+  padding-bottom: 15px;
+  font-size: 16px;
   font-weight: bold;
+  line-height: 1;
 }
 
-.fieldset-rightTop {
+.panel-rightTop {
   position: absolute;
-  top: 42px;
-  right: 30px;
+  top: 15px;
+  right: 15px;
 }
 
-.fieldset-rightBottom {
+.panel-rightBottom {
   position: absolute;
   bottom: 25px;
   right: 30px;
@@ -196,7 +203,7 @@ a { color: #00e; }
 .inputColor,
 .select,
 .button {
-  height: 26px;
+  height: 28px;
   vertical-align: top;
 }
 
@@ -211,13 +218,14 @@ a { color: #00e; }
 }
 
 .inputColor {
-  width: 30px;
+  width: 80px;
   padding: 0;
 }
 
 .inputText,
 .inputNumber,
 .select {
+  width: 170px;
   border: solid 1px #ddd;
 }
 
@@ -244,14 +252,14 @@ a { color: #00e; }
 .formRow-head {
   float: left;
   width: 170px;
-  line-height: 26px;
+  line-height: 28px;
   text-align: right;
   white-space: nowrap;
 }
 
 .formRow-body {
   margin-left: 180px;
-  line-height: 26px;
+  line-height: 28px;
 }
 /* //Form Row */
 

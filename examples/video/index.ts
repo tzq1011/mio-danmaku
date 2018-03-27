@@ -5,26 +5,26 @@ import {
 import debounce from "debounce";
 
 import {
+  hasCommentTextTrait,
   createStackingComment,
   createScrollingComment,
   createPositioningComment,
   createPlayer,
 } from "../../";
 
+interface MyCommentData {
+  creationTime: number;
+}
+
+function isMyCommentData(value: any): value is MyCommentData {
+  return value && value.creationTime != null;
+}
+
 const isIE =
   (navigator.appName === "Microsoft Internet Explorer") ||
   (navigator.userAgent.indexOf("Trident") !== -1);
 
-// Get elements
-function getElementById<E extends HTMLElement>(id: string): E {
-  const elem = document.getElementById(id);
-  if (elem == null) {
-    throw new Error(`No element found with ID "${id}".`);
-  }
-
-  return elem as E;
-}
-
+// Elements
 const screen: HTMLDivElement = getElementById("screen");
 const video: HTMLVideoElement = getElementById("video");
 const danmaku: HTMLDivElement = getElementById("danmaku");
@@ -65,8 +65,20 @@ const newCommentLifetimeFormItem: HTMLDivElement = getElementById("newCommentLif
 const newCommentLifetimeSlider: HTMLInputElement = getElementById("newCommentLifetimeSlider");
 const newCommentLifetimeDisplay: HTMLSpanElement = getElementById("newCommentLifetimeDisplay");
 const newCommentPostButton: HTMLButtonElement = getElementById("newCommentPostButton");
+const commentList: HTMLDivElement = getElementById("commentList");
+const commentListContent: HTMLDivElement = getElementById("commentListContent");
+const commentCount: HTMLSpanElement = getElementById("commentCount");
+const commentsClearButton: HTMLButtonElement = getElementById("commentsClearButton");
+const commentsReloadButton: HTMLButtonElement = getElementById("commentsReloadButton");
 
-// Screen
+const tmpCommentRowTemplate = commentListContent.querySelector("li");
+if (tmpCommentRowTemplate == null) {
+  throw new Error("CommentRowTemplate not found.");
+}
+
+const commentRowTemplate = tmpCommentRowTemplate;
+
+// Player
 const danmakuPlayer = createPlayer({
   timeGetter() {
     return video.currentTime * 1000;
@@ -100,9 +112,6 @@ function loadComments(): void {
 
 videoPicker.addEventListener("change", () => loadVideo());
 commentsPicker.addEventListener("change", () => loadComments());
-
-loadVideo();
-loadComments();
 
 // Screen Settings
 function applyScreenDimensions(): void {
@@ -146,12 +155,6 @@ if (isIE) {
   screenMarginTopSlider.addEventListener("input", () => updateScreenMarginTopDisplay());
   screenMarginBottomSlider.addEventListener("input", () => updateScreenMarginBottomDisplay());
 }
-
-applyScreenDimensions();
-applyScreenMarginTop();
-applyScreenMarginBottom();
-updateScreenMarginTopDisplay();
-updateScreenMarginBottomDisplay();
 
 // Comment Settings
 function applyCommentOpacity(): void {
@@ -210,14 +213,6 @@ if (isIE) {
   commentScrollingSpeedSlider.addEventListener("input", () => updateCommentScrollingSpeed());
 }
 
-applyCommentOpacity();
-applyCommentFontFamily();
-applyCommentLineHeight();
-applyCommentScrollingSpeed();
-updateCommentOpacityDisplay();
-updateCommentLineHeightDisplay();
-updateCommentScrollingSpeed();
-
 // New Comment
 function applyNewCommentType(): void {
   const type = newCommentTypePicker.value;
@@ -259,8 +254,13 @@ function updateNewCommentLifetimeDisplay(): void {
 function postComment(): void {
   const type = newCommentTypePicker.value;
 
+  const data: MyCommentData = {
+    creationTime: Date.now(),
+  };
+
   const commonOptions = {
     time: danmakuPlayer.time,
+    data,
     text: newCommentTextTextBox.value,
     fontSize: Number(newCommentFontSizeSlider.value),
     fontColor: newCommentTextColorPicker.value,
@@ -293,7 +293,6 @@ function postComment(): void {
     throw new Error(`Unexpected type: ${type}`);
   }
 
-  console.log(comment);
   danmakuPlayer.comments.add(comment);
   danmakuPlayer.renderer.renderComment(comment);
 }
@@ -302,7 +301,7 @@ newCommentTypePicker.addEventListener("change", () => applyNewCommentType());
 
 newCommentTextColorShortcuts.addEventListener("click", (e) => {
   const target = e.target as HTMLElement;
-  const color = target.getAttribute("data-color")
+  const color = target.getAttribute("data-color");
   if (color != null) {
     newCommentTextColorPicker.value = color;
     updateNewCommentTextColorDisplay();
@@ -322,9 +321,147 @@ if (isIE) {
   newCommentLifetimeSlider.addEventListener("input", () => updateNewCommentLifetimeDisplay());
 }
 
-applyNewCommentType();
+// Comments
+const commentListHeight = 360;
+const commentRowHeight = 36;
+let commentListMinSafeOffset: number = 0;
+let commentListMaxSafeOffset: number = commentListHeight;
+
+function updateCommentCount(): void {
+  commentCount.innerText = String(danmakuPlayer.comments.comments.length);
+}
+
+function updateCommentList(): void {
+  const comments = danmakuPlayer.comments.comments;
+  const maxVisibleRows = Math.ceil(commentListHeight / commentRowHeight);
+  const maxBufferedRows = maxVisibleRows * 3;
+  const maxSpreadRows = maxBufferedRows - maxVisibleRows;
+
+  commentListContent.style.height = (comments.length * commentRowHeight) + "px";
+
+  const firstVisibleRowIndex = Math.floor(commentList.scrollTop / commentRowHeight);
+  const lastVisibleRowIndex = Math.min(firstVisibleRowIndex + maxVisibleRows, comments.length - 1);
+  const firstSafeRowIndex = Math.max(firstVisibleRowIndex - maxSpreadRows, 0);
+  const lastSafeRowIndex = Math.min(lastVisibleRowIndex + maxSpreadRows, comments.length - 1);
+  const firstRowIndex = Math.max(firstVisibleRowIndex - maxBufferedRows, 0);
+  const lastRowIndex = Math.min(lastVisibleRowIndex + maxBufferedRows, comments.length - 1);
+  const rowCount = lastRowIndex - firstRowIndex + 1;
+
+  const rows: HTMLLIElement[] = Array.prototype.slice.call(commentListContent.querySelectorAll("li"));
+
+  if (rowCount > rows.length) {
+    let numAppend: number = rowCount - rows.length;
+
+    while (numAppend--) {
+      const row = commentRowTemplate.cloneNode(true) as HTMLLIElement;
+      commentListContent.appendChild(row);
+      rows.push(row);
+    }
+  } else if (rowCount < rows.length) {
+    let numRemove: number = rows.length - rowCount;
+
+    do {
+      const row = rows.pop();
+      if (row == null) {
+        break;
+      }
+
+      commentListContent.removeChild(row);
+    } while (--numRemove);
+  }
+
+  commentListMinSafeOffset = 0;
+  commentListMaxSafeOffset = commentListHeight;
+
+  rows.forEach((row, iterIndex) => {
+    const rowIndex = firstRowIndex + iterIndex;
+    const comment = comments[rowIndex];
+    const timeCol = row.querySelector(".comments-timeCol") as (HTMLElement | null);
+    const textCol = row.querySelector(".comments-textCol") as (HTMLElement | null);
+    const creationTimeCol = row.querySelector(".comments-creationTimeCol") as (HTMLElement | null);
+
+    if (timeCol == null || textCol == null || creationTimeCol == null) {
+      throw new Error("Unexcepted CommentRowTemplate.");
+    }
+
+    const timeInSeconds = Math.round(comment.time / 1000);
+    const minutes = Math.floor(timeInSeconds / 60);
+    const seconds = timeInSeconds % 60;
+    const minutesText = minutes < 10 ? `0${minutes}` : String(minutes);
+    const secondsText = seconds < 10 ? `0${seconds}` : String(seconds);
+    timeCol.innerText = `${minutesText}:${secondsText}`;
+
+    if (hasCommentTextTrait(comment)) {
+      textCol.innerText = comment.text;
+      textCol.title = comment.text;
+    } else {
+      textCol.innerText = "This is not a text comment.";
+      textCol.title = "This is not a text comment.";
+    }
+
+    if (isMyCommentData(comment.data)) {
+      const isoDatetime = (new Date(comment.data.creationTime)).toISOString();
+      const foramtedDatetime = isoDatetime.substr(0, 19).replace("T", " ");
+      creationTimeCol.innerText = foramtedDatetime;
+    }
+
+    const rowOffset = rowIndex * commentRowHeight;
+    row.style.top = rowOffset + "px";
+
+    if (rowIndex === firstSafeRowIndex) {
+      commentListMinSafeOffset = rowOffset;
+    } else if (rowIndex === lastSafeRowIndex) {
+      commentListMaxSafeOffset = rowOffset + commentRowHeight;
+    }
+  });
+}
+
+commentList.addEventListener("scroll", () => {
+  const viewTopOffset = commentList.scrollTop;
+  const viewBottomOffset = viewTopOffset + commentListHeight;
+
+  if (
+    viewTopOffset < commentListMinSafeOffset ||
+    viewBottomOffset > commentListMaxSafeOffset
+  ) {
+    updateCommentList();
+  }
+});
+
+commentsClearButton.addEventListener("click", () => danmakuPlayer.comments.clear());
+commentsReloadButton.addEventListener("click", () => loadComments());
+
+const updateCommentCountDebounced = debounce(updateCommentCount, 500);
+const updateCommentListDebounced = debounce(updateCommentList, 500);
+
+danmakuPlayer.comments.events
+  .on("added", () => {
+    updateCommentCountDebounced();
+    updateCommentListDebounced();
+  })
+  .on("removed", () => {
+    updateCommentCountDebounced();
+    updateCommentListDebounced();
+  })
+  .on("loaded", () => {
+    updateCommentCount();
+    updateCommentList();
+  })
+  .on("cleared", () => {
+    updateCommentCount();
+    updateCommentList();
+  });
 
 // Utilities
+function getElementById<E extends HTMLElement>(id: string): E {
+  const elem = document.getElementById(id);
+  if (elem == null) {
+    throw new Error(`No element found with ID "${id}".`);
+  }
+
+  return elem as E;
+}
+
 function loadCommentsByURL(url: string, callback: (error: (Error | null)) => void): void {
   try {
     const xhr = new XMLHttpRequest();
@@ -374,9 +511,13 @@ function parseCommentsXML(xml: XMLDocument): Comment[] {
     const type = pItems[1];
     const fontSize = Number(pItems[2]);
     const fontColor = "#" + ("00" + Number(pItems[3]).toString(16)).slice(-6);
+    const creationTime = Number(pItems[4]) * 1000;
+
+    const data: MyCommentData = { creationTime };
 
     const commonOptions = {
       time,
+      data,
       text,
       fontSize,
       fontColor,
@@ -414,3 +555,22 @@ function parseCommentsXML(xml: XMLDocument): Comment[] {
 
   return comments;
 }
+
+// Side Effects
+applyScreenDimensions();
+applyScreenMarginTop();
+applyScreenMarginBottom();
+updateScreenMarginTopDisplay();
+updateScreenMarginBottomDisplay();
+applyCommentOpacity();
+applyCommentFontFamily();
+applyCommentLineHeight();
+applyCommentScrollingSpeed();
+updateCommentOpacityDisplay();
+updateCommentLineHeightDisplay();
+updateCommentScrollingSpeed();
+applyNewCommentType();
+updateCommentCount();
+updateCommentList();
+loadVideo();
+loadComments();
