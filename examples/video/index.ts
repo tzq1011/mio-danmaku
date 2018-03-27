@@ -62,9 +62,11 @@ const newCommentHorizontalAlignmentPicker: HTMLSelectElement = getElementById("n
 const newCommentVerticalAlignmentFormItem: HTMLDivElement = getElementById("newCommentVerticalAlignmentFormItem");
 const newCommentVerticalAlignmentPicker: HTMLSelectElement = getElementById("newCommentVerticalAlignmentPicker");
 const newCommentPositionXFormItem: HTMLDivElement = getElementById("newCommentPositionXFormItem");
-const newCommentPositionXTextBox: HTMLInputElement = getElementById("newCommentPositionXTextBox");
+const newCommentPositionXSlider: HTMLInputElement = getElementById("newCommentPositionXSlider");
+const newCommentPositionXDisplay: HTMLInputElement = getElementById("newCommentPositionXDisplay");
 const newCommentPositionYFormItem: HTMLDivElement = getElementById("newCommentPositionYFormItem");
-const newCommentPositionYTextBox: HTMLInputElement = getElementById("newCommentPositionYTextBox");
+const newCommentPositionYSlider: HTMLInputElement = getElementById("newCommentPositionYSlider");
+const newCommentPositionYDisplay: HTMLInputElement = getElementById("newCommentPositionYDisplay");
 const newCommentLifetimeFormItem: HTMLDivElement = getElementById("newCommentLifetimeFormItem");
 const newCommentLifetimeSlider: HTMLInputElement = getElementById("newCommentLifetimeSlider");
 const newCommentLifetimeDisplay: HTMLSpanElement = getElementById("newCommentLifetimeDisplay");
@@ -305,6 +307,22 @@ function updateNewCommentTextColorDisplay(): void {
   newCommentTextColorDisplay.innerText = newCommentTextColorPicker.value.toUpperCase();
 }
 
+function updateNewCommentPositionXRange(): void {
+  newCommentPositionXSlider.max = String(danmakuPlayer.width);
+}
+
+function updateNewCommentPositionYRange(): void {
+  newCommentPositionYSlider.max = String(danmakuPlayer.height);
+}
+
+function updateNewCommentPositionXDisplay(): void {
+  newCommentPositionXDisplay.innerText = newCommentPositionXSlider.value;
+}
+
+function updateNewCommentPositionYDisplay(): void {
+  newCommentPositionYDisplay.innerText = newCommentPositionYSlider.value;
+}
+
 function updateNewCommentLifetimeDisplay(): void {
   newCommentLifetimeDisplay.innerText = newCommentLifetimeSlider.value;
 }
@@ -343,8 +361,8 @@ function postComment(): void {
   } else if (type === "PositioningComment") {
     comment = createPositioningComment({
       ...commonOptions,
-      positionX: Number(newCommentPositionXTextBox.value),
-      positionY: Number(newCommentPositionYTextBox.value),
+      positionX: Number(newCommentPositionXSlider.value),
+      positionY: Number(newCommentPositionYSlider.value),
       lifetime: Number(newCommentLifetimeSlider.value) * 1000,
     });
   } else {
@@ -367,15 +385,26 @@ newCommentTextColorShortcuts.addEventListener("click", (e) => {
   }
 });
 
+danmakuPlayer.events.on("resized", () => {
+  updateNewCommentPositionXRange();
+  updateNewCommentPositionYRange();
+  updateNewCommentPositionXDisplay();
+  updateNewCommentPositionYDisplay();
+});
+
 newCommentPostButton.addEventListener("click", () => postComment());
 
 if (isIE) {
   newCommentFontSizeSlider.addEventListener("change", () => updateNewCommentFontSizeDisplay());
   newCommentTextColorPicker.addEventListener("change", () => updateNewCommentTextColorDisplay());
+  newCommentPositionXSlider.addEventListener("change", () => updateNewCommentPositionXDisplay());
+  newCommentPositionYSlider.addEventListener("change", () => updateNewCommentPositionYDisplay());
   newCommentLifetimeSlider.addEventListener("change", () => updateNewCommentLifetimeDisplay());
 } else {
   newCommentFontSizeSlider.addEventListener("input", () => updateNewCommentFontSizeDisplay());
   newCommentTextColorPicker.addEventListener("input", () => updateNewCommentTextColorDisplay());
+  newCommentPositionXSlider.addEventListener("input", () => updateNewCommentPositionXDisplay());
+  newCommentPositionYSlider.addEventListener("input", () => updateNewCommentPositionYDisplay());
   newCommentLifetimeSlider.addEventListener("input", () => updateNewCommentLifetimeDisplay());
 }
 
@@ -633,6 +662,10 @@ updateDanmakuToggleButton();
 applyNewCommentType();
 updateNewCommentFontSizeDisplay();
 updateNewCommentTextColorDisplay();
+updateNewCommentPositionXRange();
+updateNewCommentPositionYRange();
+updateNewCommentPositionXDisplay();
+updateNewCommentPositionYDisplay();
 updateNewCommentLifetimeDisplay();
 updateCommentCount();
 updateCommentList();

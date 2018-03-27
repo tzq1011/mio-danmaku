@@ -209,7 +209,6 @@ a { color: #07C; }
 
 .inputText,
 .inputNumber {
-  width: 180px;
   padding-left: 3px;
 }
 
@@ -225,7 +224,7 @@ a { color: #07C; }
 .inputText,
 .inputNumber,
 .select {
-  width: 170px;
+  width: 180px;
   border: solid 1px #ddd;
 }
 
