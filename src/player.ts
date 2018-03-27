@@ -183,6 +183,7 @@ function createPlayer(options: PlayerOptions): Player {
 
     _width = width;
     _height = height;
+    _events.emit("resized", null);
   }
 
   function _setRenderer(renderer: Renderer): void {

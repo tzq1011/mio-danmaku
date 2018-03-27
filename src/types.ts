@@ -291,6 +291,7 @@ interface PlayerEvents {
   idle: null;
   playing: null;
   paused: null;
+  resized: null;
 }
 
 interface Player {
