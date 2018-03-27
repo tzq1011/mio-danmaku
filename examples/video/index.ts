@@ -42,6 +42,8 @@ const commentLineHeightSlider: HTMLInputElement = getElementById("commentLineHei
 const commentLineHeightDisplay: HTMLSpanElement = getElementById("commentLineHeightDisplay");
 const commentScrollingSpeedSlider: HTMLInputElement = getElementById("commentScrollingSpeedSlider");
 const commentScrollingSpeedDisplay: HTMLSpanElement = getElementById("commentScrollingSpeedDisplay");
+const videoToggleButton: HTMLButtonElement = getElementById("videoToggleButton");
+const danmakuToggleButton: HTMLButtonElement = getElementById("danmakuToggleButton");
 const newCommentTypePicker: HTMLSelectElement = getElementById("newCommentTypePicker");
 const newCommentTextTextBox: HTMLInputElement = getElementById("newCommentTextTextBox");
 const newCommentFontSizeSlider: HTMLInputElement = getElementById("newCommentFontSizeSlider");
@@ -212,6 +214,46 @@ if (isIE) {
   commentLineHeightSlider.addEventListener("input", () => updateCommentLineHeightDisplay());
   commentScrollingSpeedSlider.addEventListener("input", () => updateCommentScrollingSpeed());
 }
+
+// Controls
+function updateVideoToggleButton(): void {
+  if (video.paused) {
+    videoToggleButton.innerText = "Play";
+  } else {
+    videoToggleButton.innerText = "Pause";
+  }
+}
+
+function updateDanmakuToggleButton(): void {
+  if (danmakuPlayer.state === "idle") {
+    danmakuToggleButton.innerText = "Show Damaku";
+  } else {
+    danmakuToggleButton.innerText = "Hide Damaku";
+  }
+}
+
+function toggleVideo(): void {
+  if (video.paused) {
+    video.play();
+  } else {
+    video.pause();
+  }
+}
+
+function toggleDanmaku(): void {
+  if (danmakuPlayer.state === "idle") {
+    danmakuPlayer.play();
+  } else {
+    danmakuPlayer.stop();
+  }
+}
+
+video.addEventListener("pause", () => updateVideoToggleButton());
+video.addEventListener("playing", () => updateVideoToggleButton());
+danmakuPlayer.events.on("idle", () => updateDanmakuToggleButton());
+danmakuPlayer.events.on("playing", () => updateDanmakuToggleButton());
+videoToggleButton.addEventListener("click", () => toggleVideo());
+danmakuToggleButton.addEventListener("click", () => toggleDanmaku());
 
 // New Comment
 function applyNewCommentType(): void {
@@ -569,6 +611,8 @@ applyCommentScrollingSpeed();
 updateCommentOpacityDisplay();
 updateCommentLineHeightDisplay();
 updateCommentScrollingSpeed();
+updateVideoToggleButton();
+updateDanmakuToggleButton();
 applyNewCommentType();
 updateCommentCount();
 updateCommentList();
