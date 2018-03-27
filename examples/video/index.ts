@@ -99,6 +99,7 @@ video.addEventListener("pause", () => danmakuPlayer.pause());
 // Screen Settings
 function loadVideo(): void {
   video.src = videoPicker.value;
+  updateVideoToggleButton();
 }
 
 function loadComments(): void {
