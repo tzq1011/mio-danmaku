@@ -42,6 +42,8 @@ const commentLineHeightSlider: HTMLInputElement = getElementById("commentLineHei
 const commentLineHeightDisplay: HTMLSpanElement = getElementById("commentLineHeightDisplay");
 const commentScrollingSpeedSlider: HTMLInputElement = getElementById("commentScrollingSpeedSlider");
 const commentScrollingSpeedDisplay: HTMLSpanElement = getElementById("commentScrollingSpeedDisplay");
+const commentMaxConcurrentSlider: HTMLInputElement = getElementById("commentMaxConcurrentSlider");
+const commentMaxConcurrentDisplay: HTMLSpanElement = getElementById("commentMaxConcurrentDisplay");
 const videoToggleButton: HTMLButtonElement = getElementById("videoToggleButton");
 const danmakuToggleButton: HTMLButtonElement = getElementById("danmakuToggleButton");
 const newCommentTypePicker: HTMLSelectElement = getElementById("newCommentTypePicker");
@@ -182,6 +184,10 @@ function applyCommentScrollingSpeed(): void {
   danmakuPlayer.renderer.commentScrollingExtraSpeedPerPixel = 0.0002 * ratio;
 }
 
+function applyCommentMaxConcurrent(): void {
+  danmakuPlayer.maxRenderingComments = Number(commentMaxConcurrentSlider.value);
+}
+
 function updateCommentOpacityDisplay(): void {
   commentOpacityDisplay.innerText = commentOpacitySlider.value;
 }
@@ -190,8 +196,12 @@ function updateCommentLineHeightDisplay(): void {
   commentLineHeightDisplay.innerText = commentLineHeightSlider.value;
 }
 
-function updateCommentScrollingSpeed(): void {
+function updateCommentScrollingSpeedDisplay(): void {
   commentScrollingSpeedDisplay.innerText = commentScrollingSpeedSlider.value;
+}
+
+function updateCommentMaxConcurrentDisplay(): void {
+  commentMaxConcurrentDisplay.innerText = commentMaxConcurrentSlider.value;
 }
 
 commentFontFamilyPicker.addEventListener("change", () => applyCommentFontFamily());
@@ -200,19 +210,24 @@ if (isIE) {
   const applyCommentOpacityDebounced = debounce(applyCommentOpacity, 1000);
   const applyCommentLineHeightDebounced = debounce(applyCommentLineHeight, 1000);
   const applyCommentScrollingSpeedDebounced = debounce(applyCommentScrollingSpeed, 1000);
+  const applyCommentMaxConcurrentDebounced = debounce(applyCommentMaxConcurrent, 1000);
   commentOpacitySlider.addEventListener("change", () => applyCommentOpacityDebounced());
   commentLineHeightSlider.addEventListener("change", () => applyCommentLineHeightDebounced());
   commentScrollingSpeedSlider.addEventListener("change", () => applyCommentScrollingSpeedDebounced());
+  commentMaxConcurrentSlider.addEventListener("change", () => applyCommentMaxConcurrentDebounced());
   commentOpacitySlider.addEventListener("change", () => updateCommentOpacityDisplay());
   commentLineHeightSlider.addEventListener("change", () => updateCommentLineHeightDisplay());
-  commentScrollingSpeedSlider.addEventListener("change", () => updateCommentScrollingSpeed());
+  commentScrollingSpeedSlider.addEventListener("change", () => updateCommentScrollingSpeedDisplay());
+  commentMaxConcurrentSlider.addEventListener("change", () => updateCommentMaxConcurrentDisplay());
 } else {
   commentOpacitySlider.addEventListener("change", () => applyCommentOpacity());
   commentLineHeightSlider.addEventListener("change", () => applyCommentLineHeight());
   commentScrollingSpeedSlider.addEventListener("change", () => applyCommentScrollingSpeed());
+  commentMaxConcurrentSlider.addEventListener("change", () => applyCommentMaxConcurrent());
   commentOpacitySlider.addEventListener("input", () => updateCommentOpacityDisplay());
   commentLineHeightSlider.addEventListener("input", () => updateCommentLineHeightDisplay());
-  commentScrollingSpeedSlider.addEventListener("input", () => updateCommentScrollingSpeed());
+  commentScrollingSpeedSlider.addEventListener("input", () => updateCommentScrollingSpeedDisplay());
+  commentMaxConcurrentSlider.addEventListener("input", () => updateCommentMaxConcurrentDisplay());
 }
 
 // Controls
@@ -364,7 +379,7 @@ if (isIE) {
 }
 
 // Comments
-const commentListHeight = 360;
+const commentListHeight = 396;
 const commentRowHeight = 36;
 let commentListMinSafeOffset: number = 0;
 let commentListMaxSafeOffset: number = commentListHeight;
@@ -610,10 +625,14 @@ applyCommentLineHeight();
 applyCommentScrollingSpeed();
 updateCommentOpacityDisplay();
 updateCommentLineHeightDisplay();
-updateCommentScrollingSpeed();
+updateCommentScrollingSpeedDisplay();
+updateCommentMaxConcurrentDisplay();
 updateVideoToggleButton();
 updateDanmakuToggleButton();
 applyNewCommentType();
+updateNewCommentFontSizeDisplay();
+updateNewCommentTextColorDisplay();
+updateNewCommentLifetimeDisplay();
 updateCommentCount();
 updateCommentList();
 loadVideo();

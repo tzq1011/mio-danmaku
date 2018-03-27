@@ -76,7 +76,7 @@
           <label class="formRow-head">Top Margin</label>
           <div class="formRow-body">
             <span class="centeredText" style="width: 45px;">
-              <span id="screenMarginTopDisplay">0</span>px
+              <span id="screenMarginTopDisplay">-</span>px
             </span>
             <input id="screenMarginTopSlider" class="inputRange" style="width: 100px;" type="range" min="0" max="100" value="0">
           </div>
@@ -85,7 +85,7 @@
           <label class="formRow-head">Bottom Margin</label>
           <div class="formRow-body">
             <span class="centeredText" style="width: 45px;">
-              <span id="screenMarginBottomDisplay">0</span>px
+              <span id="screenMarginBottomDisplay">-</span>px
             </span>
             <input id="screenMarginBottomSlider" class="inputRange" style="width: 100px;" type="range" min="0" max="100" value="0">
           </div>
@@ -99,7 +99,7 @@
           <label class="formRow-head">Opacity</label>
           <div class="formRow-body">
             <span class="centeredText" style="width: 45px;">
-              <span id="commentOpacityDisplay">100</span>%
+              <span id="commentOpacityDisplay">-</span>%
             </span>
             <input id="commentOpacitySlider" class="inputRange" style="width: 100px;" type="range" min="0" max="100" value="100">
           </div>
@@ -117,7 +117,7 @@
         <div class="formRow formRow_narrow">
           <label class="formRow-head">Line Height</label>
           <div class="formRow-body">
-            <span id="commentLineHeightDisplay" class="centeredText" style="width: 45px;">1.2</span>
+            <span id="commentLineHeightDisplay" class="centeredText" style="width: 45px;">-</span>
             <input id="commentLineHeightSlider" class="inputRange" style="width: 100px;" type="range" min="1" max="3" step="0.1" value="1.2">
           </div>
         </div>
@@ -125,9 +125,18 @@
           <label class="formRow-head">Scrolling Speed</label>
           <div class="formRow-body">
             <span class="centeredText" style="width: 45px;">
-              <span id="commentScrollingSpeedDisplay">100</span>%
+              <span id="commentScrollingSpeedDisplay">-</span>%
             </span>
             <input id="commentScrollingSpeedSlider" class="inputRange" style="width: 100px;" type="range" min="10" max="200" value="100">
+          </div>
+        </div>
+        <div class="formRow formRow_narrow">
+          <label class="formRow-head">Max Concurrent</label>
+          <div class="formRow-body">
+            <span class="centeredText" style="width: 45px;">
+              <span id="commentMaxConcurrentDisplay">-</span>
+            </span>
+            <input id="commentMaxConcurrentSlider" class="inputRange" style="width: 100px;" type="range" min="1" max="200" value="80">
           </div>
         </div>
       </div>
@@ -150,8 +159,8 @@
       <div class="panel">
         <h2 class="panel-title">Controls</h2>
         <div style="text-align: right">
-          <button id="videoToggleButton" class="button" style="width: 80px;">Play</button>
-          <button id="danmakuToggleButton" class="button" style="width: 150px;">Hide Danmaku</button>
+          <button id="videoToggleButton" class="button" style="width: 80px;">-</button>
+          <button id="danmakuToggleButton" class="button" style="width: 150px;">-</button>
         </div>
       </div>
       <!-- New Comment -->
@@ -177,7 +186,7 @@
           <label class="formRow-head">Font Size</label>
           <div class="formRow-body">
             <span class="centeredText" style="width: 45px;">
-              <span id="newCommentFontSizeDisplay">25</span>px
+              <span id="newCommentFontSizeDisplay">-</span>px
             </span>
             <input id="newCommentFontSizeSlider" class="inputRange" style="width: 130px;" type="range" min="18" max="50" value="25">
           </div>
@@ -186,7 +195,7 @@
           <label class="formRow-head">Text Color</label>
           <div class="formRow-body">
             <span class="centeredText" style="width: 70px;">
-              <span id="newCommentTextColorDisplay">#FFFFFF</span>
+              <span id="newCommentTextColorDisplay">-</span>
             </span>
             <input id="newCommentTextColorPicker" class="inputColor" type="color" value="#FFFFFF">
             <span id="newCommentTextColorShortcuts">
@@ -254,7 +263,7 @@
           <label class="formRow-head">Lifetime</label>
           <div class="formRow-body">
             <span class="centeredText" style="width: 45px;">
-              <span id="newCommentLifetimeDisplay">5</span>s
+              <span id="newCommentLifetimeDisplay">-</span>s
             </span>
             <input id="newCommentLifetimeSlider" class="inputRange" style="width: 130px;" type="range" min="1" max="20" value="5">
           </div>
