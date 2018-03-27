@@ -263,7 +263,7 @@ function postComment(): void {
     data,
     text: newCommentTextTextBox.value,
     fontSize: Number(newCommentFontSizeSlider.value),
-    fontColor: newCommentTextColorPicker.value,
+    textColor: newCommentTextColorPicker.value,
     isOwn: true,
   };
 
@@ -510,7 +510,7 @@ function parseCommentsXML(xml: XMLDocument): Comment[] {
     const time = Math.round(Number(pItems[0]) * 1000);
     const type = pItems[1];
     const fontSize = Number(pItems[2]);
-    const fontColor = "#" + ("00" + Number(pItems[3]).toString(16)).slice(-6);
+    const textColor = "#" + ("00" + Number(pItems[3]).toString(16)).slice(-6);
     const creationTime = Number(pItems[4]) * 1000;
 
     const data: MyCommentData = { creationTime };
@@ -520,7 +520,7 @@ function parseCommentsXML(xml: XMLDocument): Comment[] {
       data,
       text,
       fontSize,
-      fontColor,
+      textColor,
     };
 
     let comment: Comment;

@@ -29,7 +29,7 @@ interface CommentOptions {
 interface CommentTextTraitOptions {
   text?: CommentTextTrait["text"];
   fontSize?: CommentTextTrait["fontSize"];
-  fontColor?: CommentTextTrait["fontColor"];
+  textColor?: CommentTextTrait["textColor"];
 }
 
 interface CommentPositionXTraitOptions {
@@ -88,7 +88,7 @@ interface DefaultCommentOptions {
 interface DefaultCommentTextTraitOptions {
   text: CommentTextTrait["text"];
   fontSize: CommentTextTrait["fontSize"];
-  fontColor: CommentTextTrait["fontColor"];
+  textColor: CommentTextTrait["textColor"];
 }
 
 interface DefaultCommentPositionXTraitOptions {
@@ -127,7 +127,7 @@ const defaultCommentOptions: DefaultCommentOptions = {
 const defaultCommentTextTraitOptions: DefaultCommentTextTraitOptions = {
   text: "Nya",
   fontSize: 25,
-  fontColor: "#fff",
+  textColor: "#fff",
 };
 
 const defaultCommentPositionXTraitOptions: DefaultCommentPositionXTraitOptions = {
@@ -203,14 +203,14 @@ function mixinCommentTextTrait<C extends Comment>(
   const trait: CommentTextTrait = {
     text: finalOptions.text,
     fontSize: finalOptions.fontSize,
-    fontColor: finalOptions.fontColor,
+    textColor: finalOptions.textColor,
   };
 
   const newComment = assign(comment, trait);
   Object.defineProperties(newComment, {
     text: { configurable: false },
     fontSize: { configurable: false },
-    fontColor: { configurable: false },
+    textColor: { configurable: false },
   });
 
   return newComment;

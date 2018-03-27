@@ -54,7 +54,7 @@ interface Comment {
 interface CommentTextTrait {
   readonly text: string;
   readonly fontSize: number;
-  readonly fontColor: string;
+  readonly textColor: string;
 }
 
 interface CommentPositionXTrait {
