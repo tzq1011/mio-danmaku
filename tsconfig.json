@@ -8,7 +8,7 @@
     "sourceMap": true,
     "declaration": true,
     "rootDir": "./src",
-    "outDir": "./built/js",
+    "outDir": "./dist/js",
     "types": [],
     "allowSyntheticDefaultImports": true
   },

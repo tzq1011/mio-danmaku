@@ -8,7 +8,14 @@ import { version } from "./package.json";
 const plugins = [
   rollupResolve({ jsnext: true }),
   rollupCommonJS(),
-  rollupTypeScript({ typescript }),
+  rollupTypeScript({
+    typescript,
+    tsconfigOverride: {
+      compilerOptions: {
+        declaration: false,
+      },
+    }
+  }),
 ];
 
 let extension = ".js";
@@ -39,14 +46,14 @@ export default {
   input: "src/index.ts",
   output: [
     {
-      file: `built/bundles/mio-danmaku.umd${extension}`,
+      file: `dist/bundles/mio-danmaku.umd${extension}`,
       format: "umd",
       name: "mioDanmaku",
       sourcemap: true,
       banner,
     },
     {
-      file: `built/bundles/mio-danmaku.esm${extension}`,
+      file: `dist/bundles/mio-danmaku.esm${extension}`,
       format: "es",
       sourcemap: true,
       banner,
