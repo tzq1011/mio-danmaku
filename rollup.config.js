@@ -5,6 +5,8 @@ import rollupUglify from "rollup-plugin-uglify";
 import typescript from "typescript";
 import { version } from "./package.json";
 
+const isProduction = process.env.NODE_ENV === "production";
+
 const plugins = [
   rollupResolve({ jsnext: true }),
   rollupCommonJS(),
@@ -14,23 +16,25 @@ const plugins = [
       compilerOptions: {
         declaration: false,
       },
-    }
+    },
   }),
 ];
 
 let extension = ".js";
 
-if (process.env.BUILD === "production") {
-  plugins.push(rollupUglify({
-    output: {
-      comments(node, comment) {
-        return (
-          comment.type === "comment2" &&
-          `/*${comment.value}*/` === banner
-        );
+if (isProduction) {
+  plugins.push(
+    rollupUglify({
+      output: {
+        comments(node, comment) {
+          return (
+            comment.type === "comment2" &&
+            `/*${comment.value}*/` === banner
+          );
+        },
       },
-    }
-  }));
+    })
+  );
 
   extension = ".min.js";
 }

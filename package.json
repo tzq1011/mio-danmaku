@@ -6,15 +6,16 @@
   "module": "dist/esm/index.js",
   "jsnext:main": "dist/esm/index.js",
   "types": "dist/esm/index.d.ts",
+  "unpkg": "dist/bundles/mio-danmaku.umd.min.js",
   "scripts": {
     "clean": "rimraf --no-glob dist .rpt2_cache",
     "build-esm": "tsc --module es2015 --outDir dist/esm",
     "build-esm-watch": "tsc --module es2015 --outDir dist/esm --watch",
     "build-umd": "tsc --module umd --outDir dist/umd",
-    "bundle-dev": "rollup --config --environment BUILD:development",
-    "bundle-prod": "rollup --config --environment BUILD:production",
+    "bundle-dev": "rollup --config --environment NODE_ENV:development",
+    "bundle-prod": "rollup --config --environment NODE_ENV:production",
     "build": "run-p build-esm build-umd bundle-dev bundle-prod",
-    "prepublish": "clean && build"
+    "prepublish": "run-s clean build"
   },
   "author": "PPC <tzq1011@163.com>",
   "license": "MIT",
