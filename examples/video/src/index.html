@@ -5,11 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <title>MioDanmaku Example</title>
-  <link rel="stylesheet" href="assets/normalize.css">
-  <link rel="stylesheet" href="assets/index.css">
+  <script src="<%- htmlWebpackPlugin.files.chunks.style.entry %>"></script>
 </head>
 <body>
-
 <!-- Header -->
 <div class="header">
   <div class="container">
@@ -43,7 +41,7 @@
           <label class="formRow-head">Video</label>
           <div class="formRow-body">
             <select id="videoPicker" class="select">
-              <option value="assets/video.mp4" selected>悪役にキスシーンを</option>
+              <option value="videos/video.mp4" selected>悪役にキスシーンを</option>
               <option value="https://images.apple.com/media/cn/macbook-pro/2016/b4a9efaa_6fe5_4075_a9d0_8e4592d6146c/films/design/macbook-pro-design-tft-cn-20161026_1536x640h.mp4">Macbook Pro 2017</option>
             </select>
           </div>
@@ -52,7 +50,7 @@
           <label class="formRow-head">Comments</label>
           <div class="formRow-body">
             <select id="commentsPicker" class="select">
-              <option value="assets/bilibili.xml">悪役にキスシーンを</option>
+              <option value="comments/av16137754.xml">悪役にキスシーンを</option>
             </select>
           </div>
         </div>
@@ -309,8 +307,7 @@
   <div class="footer">
     Made with ♥ by <a target="_blank" href="https://github.com/tzq1011">PPC</a>
   </div>
-  <script src="./bundle.js"></script>
-  <link href="//fonts.googleapis.com/css?family=Roboto:400,400i,700" rel="stylesheet">
 </div>
+<script src="<%- htmlWebpackPlugin.files.chunks.script.entry %>"></script>
 </body>
 </html>

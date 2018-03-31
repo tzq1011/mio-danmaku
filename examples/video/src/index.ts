@@ -1,16 +1,16 @@
 import {
   Comment,
-} from "../../";
+} from "../../../";
 
 import debounce from "debounce";
 
 import {
-  hasCommentTextTrait,
+  createPlayer,
   createStackingComment,
   createScrollingComment,
   createPositioningComment,
-  createPlayer,
-} from "../../";
+  hasCommentTextTrait,
+} from "../../../";
 
 interface MyCommentData {
   creationTime: number;
