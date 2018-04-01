@@ -18,7 +18,6 @@ import {
   VerticalSpaceFilter,
 } from "./types";
 
-import isReadonlyArray from "./utils/isReadonlyArray";
 import { StackingPlannerOptions } from "./stacking-planner";
 
 import {
@@ -132,7 +131,7 @@ function createCSSRenderer(options: CSSRendererOptions = {}): CSSRenderer {
   let _screenMarginTop: number = _finalOptions.screenMarginTop;
   let _screenMarginBottom: number = _finalOptions.screenMarginBottom;
   let _commentOpacity: number = _finalOptions.commentOpacity;
-  let _commentFontFamily: string | ReadonlyArray<string> = _finalOptions.commentFontFamily;
+  let _commentFontFamily: ReadonlyArray<string> = _finalOptions.commentFontFamily;
   let _commentLineHeight: number = _finalOptions.commentLineHeight;
   let _commentTextShadow: Shadow | null = _finalOptions.commentTextShadow;
   let _commentScrollingBasicSpeed: number = _finalOptions.commentScrollingBasicSpeed;
@@ -330,12 +329,7 @@ function createCSSRenderer(options: CSSRendererOptions = {}): CSSRenderer {
       element.style.whiteSpace = "nowrap";
       element.style.color = comment.textColor;
       element.style.fontSize = comment.fontSize + "px";
-
-      element.style.fontFamily =
-        isReadonlyArray(_commentFontFamily)
-          ? _commentFontFamily.join(",")
-          : _commentFontFamily;
-
+      element.style.fontFamily = _commentFontFamily.join(",");
       element.style.lineHeight = String(_commentLineHeight);
 
       if (_commentTextShadow != null) {
@@ -927,7 +921,7 @@ function createCSSRenderer(options: CSSRendererOptions = {}): CSSRenderer {
     get commentFontFamily() {
       return _commentFontFamily;
     },
-    set commentFontFamily(fontFamily: string | ReadonlyArray<string>) {
+    set commentFontFamily(fontFamily: ReadonlyArray<string>) {
       _commentFontFamily = fontFamily;
     },
     get commentLineHeight() {

@@ -184,7 +184,7 @@ interface Renderer {
   screenMarginTop: number;
   screenMarginBottom: number;
   commentOpacity: number;
-  commentFontFamily: string | ReadonlyArray<string>;
+  commentFontFamily: ReadonlyArray<string>;
   commentLineHeight: number;
   commentTextShadow: Shadow | null;
   commentScrollingBasicSpeed: number;
