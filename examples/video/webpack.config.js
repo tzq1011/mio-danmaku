@@ -6,10 +6,10 @@ const isProduction = process.env.NODE_ENV === "production";
 
 module.exports = {
   mode: isProduction ? "production" : "development",
-  entry: {
-    style: "./src/index.css",
-    script: "./src/index.ts",
-  },
+  entry: [
+    "./src/index.css",
+    "./src/index.ts",
+  ],
   output: {
     path: path.join(__dirname, "dist"),
     filename: isProduction ? "[name]-[chunkhash].js" : "[name].js",
@@ -39,7 +39,7 @@ module.exports = {
   plugins: [
     new HTMLPlugin({
       template: "./src/index.html",
-      inject: false,
+      inject: "head",
       minify:
         isProduction && {
           removeComments: true,

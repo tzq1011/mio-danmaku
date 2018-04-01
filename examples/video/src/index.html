@@ -1,37 +1,35 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <title>MioDanmaku Example</title>
-  <script src="<%- htmlWebpackPlugin.files.chunks.style.entry %>"></script>
 </head>
 <body>
-<!-- Header -->
-<div class="header">
-  <div class="container">
-    <!-- Headline -->
-    <h1 class="headline">MioDanmaku</h1>
-    <!-- //Headline -->
-    <!-- Description -->
-    <p class="description">
-      A simple JavaScript library for playing danmaku.
-      <a href="https://github.com/tzq1011/mio-danmaku" target="_blank">@Github</a>
-    </p>
-    <!-- //Description -->
+  <!-- Header -->
+  <div class="header">
+    <div class="container">
+      <!-- Headline -->
+      <h1 class="headline">MioDanmaku</h1>
+      <!-- //Headline -->
+      <!-- Description -->
+      <p class="description">
+        A simple JavaScript library for playing danmaku.
+        <a href="https://github.com/tzq1011/mio-danmaku" target="_blank">@Github</a>
+      </p>
+      <!-- //Description -->
+    </div>
   </div>
-</div>
-<!-- //Header -->
-<!-- Screen -->
-<div id="screen" class="screen">
-  <video id="video" class="screen-video" controls></video>
-  <div id="danmaku" class="screen-danmaku"></div>
-</div>
-<!-- //Screen -->
-<div class="container">
+  <!-- //Header -->
+  <!-- Screen -->
+  <div id="screen" class="screen">
+    <video id="video" class="screen-video" controls></video>
+    <div id="danmaku" class="screen-danmaku"></div>
+  </div>
+  <!-- //Screen -->
   <!-- Functional Area -->
-  <div class="functionalArea">
+  <form id="mainForm" class="container functionalArea">
     <!-- Left Column -->
     <div class="functionalArea-leftCol">
       <!-- Resources -->
@@ -41,8 +39,8 @@
           <label class="formRow-head">Video</label>
           <div class="formRow-body">
             <select id="videoPicker" class="select">
-              <option value="videos/video.mp4" selected>悪役にキスシーンを</option>
-              <option value="https://images.apple.com/media/cn/macbook-pro/2016/b4a9efaa_6fe5_4075_a9d0_8e4592d6146c/films/design/macbook-pro-design-tft-cn-20161026_1536x640h.mp4">Macbook Pro 2017</option>
+              <option value="//raw.githubusercontent.com/tzq1011/resources/master/videos/kiss-the-villain.mp4" selected>悪役にキスシーンを</option>
+              <option value="//images.apple.com/media/cn/macbook-pro/2016/b4a9efaa_6fe5_4075_a9d0_8e4592d6146c/films/design/macbook-pro-design-tft-cn-20161026_1536x640h.mp4">Macbook Pro 2017</option>
             </select>
           </div>
         </div>
@@ -76,7 +74,7 @@
             <span class="centeredText" style="width: 45px;">
               <span id="screenMarginTopDisplay">-</span>px
             </span>
-            <input id="screenMarginTopSlider" class="inputRange" style="width: 100px;" type="range" min="0" max="100" value="0">
+            <input id="screenMarginTopSlider" class="inputRange" style="width: 120px;" type="range" min="0" max="100" value="0">
           </div>
         </div>
         <div class="formRow formRow_narrow">
@@ -85,7 +83,7 @@
             <span class="centeredText" style="width: 45px;">
               <span id="screenMarginBottomDisplay">-</span>px
             </span>
-            <input id="screenMarginBottomSlider" class="inputRange" style="width: 100px;" type="range" min="0" max="100" value="0">
+            <input id="screenMarginBottomSlider" class="inputRange" style="width: 120px;" type="range" min="0" max="100" value="0">
           </div>
         </div>
       </div>
@@ -99,7 +97,7 @@
             <span class="centeredText" style="width: 45px;">
               <span id="commentOpacityDisplay">-</span>%
             </span>
-            <input id="commentOpacitySlider" class="inputRange" style="width: 100px;" type="range" min="0" max="100" value="100">
+            <input id="commentOpacitySlider" class="inputRange" style="width: 120px;" type="range" min="0" max="100" value="100">
           </div>
         </div>
         <div class="formRow formRow_narrow">
@@ -116,7 +114,7 @@
           <label class="formRow-head">Line Height</label>
           <div class="formRow-body">
             <span id="commentLineHeightDisplay" class="centeredText" style="width: 45px;">-</span>
-            <input id="commentLineHeightSlider" class="inputRange" style="width: 100px;" type="range" min="1" max="3" step="0.1" value="1.2">
+            <input id="commentLineHeightSlider" class="inputRange" style="width: 120px;" type="range" min="1" max="3" step="0.1" value="1.2">
           </div>
         </div>
         <div class="formRow formRow_narrow">
@@ -125,7 +123,7 @@
             <span class="centeredText" style="width: 45px;">
               <span id="commentScrollingSpeedDisplay">-</span>%
             </span>
-            <input id="commentScrollingSpeedSlider" class="inputRange" style="width: 100px;" type="range" min="10" max="200" value="100">
+            <input id="commentScrollingSpeedSlider" class="inputRange" style="width: 120px;" type="range" min="10" max="200" value="100">
           </div>
         </div>
         <div class="formRow formRow_narrow">
@@ -134,7 +132,7 @@
             <span class="centeredText" style="width: 45px;">
               <span id="commentMaxConcurrentDisplay">-</span>
             </span>
-            <input id="commentMaxConcurrentSlider" class="inputRange" style="width: 100px;" type="range" min="1" max="200" value="80">
+            <input id="commentMaxConcurrentSlider" class="inputRange" style="width: 120px;" type="range" min="1" max="200" value="80">
           </div>
         </div>
       </div>
@@ -157,8 +155,8 @@
       <div class="panel">
         <h2 class="panel-title">Controls</h2>
         <div style="text-align: right">
-          <button id="videoToggleButton" class="button" style="width: 80px;">-</button>
-          <button id="danmakuToggleButton" class="button" style="width: 150px;">-</button>
+          <button id="videoToggleButton" class="button" style="width: 80px;" type="button">-</button>
+          <button id="danmakuToggleButton" class="button" style="width: 150px;" type="button">-</button>
         </div>
       </div>
       <!-- New Comment -->
@@ -177,7 +175,7 @@
         <div class="formRow">
           <label class="formRow-head">Text</label>
           <div class="formRow-body">
-            <input id="newCommentTextTextBox" class="inputText" value="Nya">
+            <input id="newCommentTextTextBox" class="inputText" style="width: 360px;" value="Nya">
           </div>
         </div>
         <div class="formRow">
@@ -270,7 +268,7 @@
             <input id="newCommentLifetimeSlider" class="inputRange" style="width: 115px;" type="range" min="1" max="20" value="5">
           </div>
         </div>
-        <button id="newCommentPostButton" class="button panel-rightTop">Post</button>
+        <button id="newCommentPostButton" class="button panel-rightTop" type="button">Post</button>
       </div>
       <!-- //New Comment -->
       <!-- Comments -->
@@ -295,19 +293,17 @@
           </div>
         </div>
         <div class="panel-rightTop">
-          <button id="commentsClearButton" class="button">Clear</button>
-          <button id="commentsReloadButton" class="button">Reload</button>
+          <button id="commentsClearButton" class="button" type="button">Clear</button>
+          <button id="commentsReloadButton" class="button" type="button">Reload</button>
         </div>
       </div>
       <!-- //Comments -->
     </div>
     <!-- //Right Column -->
-  </div>
+  </form>
   <!-- //Functional Area -->
   <div class="footer">
     Made with ♥ by <a target="_blank" href="https://github.com/tzq1011">PPC</a>
   </div>
-</div>
-<script src="<%- htmlWebpackPlugin.files.chunks.script.entry %>"></script>
 </body>
 </html>
