@@ -6,7 +6,7 @@
   "scripts": {
     "clean": "rimraf --no-glob dist",
     "build": "cross-env NODE_ENV=production webpack",
-    "dev": "cross-env NODE_ENV=development webpack-serve",
+    "dev": "cross-env NODE_ENV=development webpack-dev-server",
     "prepublish": "npm run clean && npm run build"
   },
   "author": "PPC <tzq1011@163.com>",
@@ -29,6 +29,6 @@
     "ts-loader": "^4.1.0",
     "webpack": "^4.4.1",
     "webpack-cli": "^2.0.13",
-    "webpack-serve": "^0.3.0"
+    "webpack-dev-server": "^3.1.1"
   }
 }

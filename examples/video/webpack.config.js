@@ -50,5 +50,9 @@ module.exports = {
     new CopyPlugin([
       { from: "./src/comments", to: "comments" },
     ]),
-  ]
+  ],
+  devServer: {
+    inline: false,
+    contentBase: false,
+  },
 };
