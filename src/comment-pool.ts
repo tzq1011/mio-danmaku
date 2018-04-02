@@ -64,14 +64,14 @@ function createCommentPool(): CommentPool {
   }
 
   function getByTime(startTime: number, endTime: number, limit: number): Comment[] {
-    let index: number = binarySearch(_comments, { time: startTime }, (c1, c2) => c1.time - c2.time);
+    let index: number = binarySearch(_comments, { time: startTime - 1 }, (c1, c2) => c1.time - c2.time);
     index = index > 0 ? index : Math.abs(index + 1);
     const comments: Comment[] = [];
 
     while (index < _comments.length) {
       const comment = _comments[index];
 
-      if (comment.time < endTime) {
+      if (comment.time >= startTime && comment.time < endTime) {
         const isPassed = _filters.every((filter) => filter(comment));
         if (isPassed) {
           comments.push(comment);
