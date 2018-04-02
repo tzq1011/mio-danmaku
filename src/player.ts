@@ -67,15 +67,15 @@ function createPlayer(options: PlayerOptions): Player {
     }
 
     if (time < _prevTime || (time - _prevTime > 1000)) {
-      _renderer.getRenderingComments()
-        .forEach((comment) => _renderer.unrenderComment(comment));
+      const renderingComments = _renderer.getRenderingComments();
+      renderingComments.forEach((comment) => _renderer.unrenderComment(comment));
     } else {
       const renderingCommentsCount = _renderer.getRenderingCommentsCount();
       const maxNewComments: number = Math.max(_maxRenderingComments - renderingCommentsCount, 0);
 
       if (maxNewComments > 0) {
-        _comments.getByTime(_prevTime, time, maxNewComments)
-          .forEach((comment) => _renderer.renderComment(comment));
+        const newComments = _comments.getByTime(_prevTime, time, maxNewComments);
+        newComments.forEach((comment) => _renderer.renderComment(comment));
       }
     }
 
