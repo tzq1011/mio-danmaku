@@ -21,43 +21,43 @@ import mixin from "./utils/mixin";
 import { createEventEmitter } from "./event-emitter";
 
 interface CommentOptions {
-  time?: Comment["time"];
-  data?: Comment["data"];
-  isOwn?: Comment["isOwn"];
+  time?: number;
+  data?: object;
+  isOwn?: boolean;
 }
 
 interface CommentTextTraitOptions {
-  text?: CommentTextTrait["text"];
-  fontSize?: CommentTextTrait["fontSize"];
-  textColor?: CommentTextTrait["textColor"];
+  text?: string;
+  fontSize?: number;
+  textColor?: string;
 }
 
 interface CommentPositionXTraitOptions {
-  positionX?: CommentPositionXTrait["positionX"];
+  positionX?: number;
 }
 
 interface CommentPositionYTraitOptions {
-  positionY?: CommentPositionYTrait["positionY"];
+  positionY?: number;
 }
 
 interface CommentHorizontalAlignmentTraitOptions {
-  horizontalAlignment?: CommentHorizontalAlignmentTrait["horizontalAlignment"];
+  horizontalAlignment?: "left" | "center" | "right";
 }
 
 interface CommentVerticalAlignmentTraitOptions {
-  verticalAlignment?: CommentVerticalAlignmentTrait["verticalAlignment"];
+  verticalAlignment?: "top" | "middle" | "bottom";
 }
 
 interface CommentStackingTraitOptions {
-  stackingDirection?: CommentStackingTrait["stackingDirection"];
+  stackingDirection?: "up" | "down";
 }
 
 interface CommentScrollingTraitOptions {
-  scrollingDirection?: CommentScrollingTrait["scrollingDirection"];
+  scrollingDirection?: "left" | "right";
 }
 
 interface CommentLifetimeTraitOptions {
-  lifetime?: CommentLifetimeTrait["lifetime"];
+  lifetime?: number;
 }
 
 type StackingCommentOptions =
@@ -81,42 +81,42 @@ type PositioningCommentOptions =
   & CommentLifetimeTraitOptions;
 
 interface DefaultCommentOptions {
-  time: Comment["time"];
-  isOwn: Comment["isOwn"];
+  time: number;
+  isOwn: boolean;
 }
 
 interface DefaultCommentTextTraitOptions {
-  text: CommentTextTrait["text"];
-  fontSize: CommentTextTrait["fontSize"];
-  textColor: CommentTextTrait["textColor"];
+  text: string;
+  fontSize: number;
+  textColor: string;
 }
 
 interface DefaultCommentPositionXTraitOptions {
-  positionX: CommentPositionXTrait["positionX"];
+  positionX: number;
 }
 
 interface DefaultCommentPositionYTraitOptions {
-  positionY: CommentPositionYTrait["positionY"];
+  positionY: number;
 }
 
 interface DefaultCommentHorizontalAlignmentTraitOptions {
-  horizontalAlignment: CommentHorizontalAlignmentTrait["horizontalAlignment"];
+  horizontalAlignment: "left" | "center" | "right";
 }
 
 interface DefaultCommentVerticalAlignmentTraitOptions {
-  verticalAlignment: CommentVerticalAlignmentTrait["verticalAlignment"];
+  verticalAlignment: "top" | "middle" | "bottom";
 }
 
 interface DefaultCommentStackingTraitOptions {
-  stackingDirection: CommentStackingTrait["stackingDirection"];
+  stackingDirection: "up" | "down";
 }
 
 interface DefaultCommentScrollingTraitOptions {
-  scrollingDirection: CommentScrollingTrait["scrollingDirection"];
+  scrollingDirection: "left" | "right";
 }
 
 interface DefaultCommentLifetimeTraitOptions {
-  lifetime: CommentLifetimeTrait["lifetime"];
+  lifetime: number;
 }
 
 const defaultCommentOptions: DefaultCommentOptions = {

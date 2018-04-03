@@ -9,10 +9,10 @@ import { createEventEmitter } from "./event-emitter";
 import domOperator from "./dom-operator";
 
 interface CSSScrollingAnimationOptions {
-  element: CSSScrollingAnimation["element"];
-  duration: CSSScrollingAnimation["duration"];
-  fromX: CSSScrollingAnimation["fromX"];
-  toX: CSSScrollingAnimation["toX"];
+  element: HTMLElement;
+  duration: number;
+  fromX: number;
+  toX: number;
 }
 
 function createCSSScrollingAnimation(options: CSSScrollingAnimationOptions): CSSScrollingAnimation {

@@ -5,17 +5,17 @@ import {
 } from "./types";
 
 interface StackingPlannerOptions {
-  containerHeight?: StackingPlanner["containerHeight"];
-  containerMarginTop?: StackingPlanner["containerMarginTop"];
-  containerMarginBottom?: StackingPlanner["containerMarginBottom"];
-  direction?: StackingPlanner["direction"];
+  containerHeight?: number;
+  containerMarginTop?: number;
+  containerMarginBottom?: number;
+  direction?: "up" | "down";
 }
 
 interface DefaultStackingPlannerOptions {
-  containerHeight: StackingPlanner["containerHeight"];
-  containerMarginTop: StackingPlanner["containerMarginTop"];
-  containerMarginBottom: StackingPlanner["containerMarginBottom"];
-  direction: StackingPlanner["direction"];
+  containerHeight: number;
+  containerMarginTop: number;
+  containerMarginBottom: number;
+  direction: "up" | "down";
 }
 
 interface Row {

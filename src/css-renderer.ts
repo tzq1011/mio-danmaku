@@ -39,35 +39,35 @@ import { createCSSScrollingAnimation } from "./css-scrolling-animation";
 import domOperator from "./dom-operator";
 
 interface CSSRendererOptions {
-  screenWidth?: CSSRenderer["screenWidth"];
-  screenHeight?: CSSRenderer["screenHeight"];
-  screenMarginTop?: CSSRenderer["screenMarginTop"];
-  screenMarginBottom?: CSSRenderer["screenMarginBottom"];
-  commentOpacity?: CSSRenderer["commentOpacity"];
-  commentFontFamily?: CSSRenderer["commentFontFamily"];
-  commentLineHeight?: CSSRenderer["commentLineHeight"];
-  commentTextShadow?: CSSRenderer["commentTextShadow"];
-  commentScrollingBasicSpeed?: CSSRenderer["commentScrollingBasicSpeed"];
-  commentScrollingExtraSpeedPerPixel?: CSSRenderer["commentScrollingExtraSpeedPerPixel"];
-  ownCommentBorder?: CSSRenderer["ownCommentBorder"];
-  ownCommentPaddingLeft?: CSSRenderer["ownCommentPaddingLeft"];
-  ownCommentPaddingRight?: CSSRenderer["ownCommentPaddingRight"];
+  screenWidth?: number;
+  screenHeight?: number;
+  screenMarginTop?: number;
+  screenMarginBottom?: number;
+  commentOpacity?: number;
+  commentFontFamily?: ReadonlyArray<string>;
+  commentLineHeight?: number;
+  commentTextShadow?: Shadow | null;
+  commentScrollingBasicSpeed?: number;
+  commentScrollingExtraSpeedPerPixel?: number;
+  ownCommentBorder?: Border | null;
+  ownCommentPaddingLeft?: number;
+  ownCommentPaddingRight?: number;
 }
 
 interface DefaultCSSRendererOptions {
-  screenWidth: CSSRenderer["screenWidth"];
-  screenHeight: CSSRenderer["screenHeight"];
-  screenMarginTop: CSSRenderer["screenMarginTop"];
-  screenMarginBottom: CSSRenderer["screenMarginBottom"];
-  commentOpacity: CSSRenderer["commentOpacity"];
-  commentFontFamily: CSSRenderer["commentFontFamily"];
-  commentLineHeight: CSSRenderer["commentLineHeight"];
-  commentTextShadow: CSSRenderer["commentTextShadow"];
-  commentScrollingBasicSpeed: CSSRenderer["commentScrollingBasicSpeed"];
-  commentScrollingExtraSpeedPerPixel: CSSRenderer["commentScrollingExtraSpeedPerPixel"];
-  ownCommentBorder: CSSRenderer["ownCommentBorder"];
-  ownCommentPaddingLeft: CSSRenderer["ownCommentPaddingLeft"];
-  ownCommentPaddingRight: CSSRenderer["ownCommentPaddingRight"];
+  screenWidth: number;
+  screenHeight: number;
+  screenMarginTop: number;
+  screenMarginBottom: number;
+  commentOpacity: number;
+  commentFontFamily: ReadonlyArray<string>;
+  commentLineHeight: number;
+  commentTextShadow: Shadow | null;
+  commentScrollingBasicSpeed: number;
+  commentScrollingExtraSpeedPerPixel: number;
+  ownCommentBorder: Border | null;
+  ownCommentPaddingLeft: number;
+  ownCommentPaddingRight: number;
 }
 
 type CommentRenderingState =

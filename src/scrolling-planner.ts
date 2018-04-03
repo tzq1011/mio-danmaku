@@ -4,17 +4,17 @@ import {
 } from "./types";
 
 interface ScrollingPlannerOptions {
-  direction?: ScrollingPlanner["direction"];
-  marqueeWidth?: ScrollingPlanner["marqueeWidth"];
-  basicSpeed?: ScrollingPlanner["basicSpeed"];
-  extraSpeedPerPixel?: ScrollingPlanner["extraSpeedPerPixel"];
+  direction?: "left" | "right";
+  marqueeWidth?: number;
+  basicSpeed?: number;
+  extraSpeedPerPixel?: number;
 }
 
 interface DefaultScrollingPlannerOptions {
-  direction: ScrollingPlanner["direction"];
-  marqueeWidth: ScrollingPlanner["marqueeWidth"];
-  basicSpeed: ScrollingPlanner["basicSpeed"];
-  extraSpeedPerPixel: ScrollingPlanner["extraSpeedPerPixel"];
+  direction: "left" | "right";
+  marqueeWidth: number;
+  basicSpeed: number;
+  extraSpeedPerPixel: number;
 }
 
 const defaultScrollingPlannerOptions: DefaultScrollingPlannerOptions = {

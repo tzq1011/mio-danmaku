@@ -1,8 +1,9 @@
 import {
-  Renderer,
   Player,
   PlayerState,
   PlayerEvents,
+  Renderer,
+  TimeGetter,
   EventEmitter,
 } from "./types";
 
@@ -11,17 +12,17 @@ import { createCSSRenderer } from "./css-renderer";
 import { createEventEmitter } from "./event-emitter";
 
 interface PlayerOptions {
-  timeGetter: Player["timeGetter"];
-  width?: Player["width"];
-  height?: Player["height"];
-  renderer?: Player["renderer"];
-  maxRenderingComments?: Player["maxRenderingComments"];
+  timeGetter: TimeGetter;
+  width?: number;
+  height?: number;
+  renderer?: Renderer;
+  maxRenderingComments?: number;
 }
 
 interface DefaultPlayerOptions {
-  width: Player["width"];
-  height: Player["height"];
-  maxRenderingComments: Player["maxRenderingComments"];
+  width: number;
+  height: number;
+  maxRenderingComments: number;
 }
 
 const defaultPlayerOptions: DefaultPlayerOptions = {

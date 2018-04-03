@@ -8,7 +8,7 @@ import {
 import { createEventEmitter } from "./event-emitter";
 
 interface TimerOptions {
-  duration: Timer["duration"];
+  duration: number;
 }
 
 function createTimer(options: TimerOptions): Timer {
