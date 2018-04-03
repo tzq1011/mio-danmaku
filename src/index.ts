@@ -80,6 +80,14 @@ export {
 } from "./comment-assertors";
 
 export {
+  CSSRendererOptions,
+} from "./css-renderer";
+
+export {
+  createCSSRenderer,
+} from "./css-renderer";
+
+export {
   PlayerOptions,
 } from "./player";
 
