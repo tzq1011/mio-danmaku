@@ -127,7 +127,7 @@ const defaultCommentOptions: DefaultCommentOptions = {
 const defaultCommentTextTraitOptions: DefaultCommentTextTraitOptions = {
   text: "Nya",
   fontSize: 25,
-  textColor: "#fff",
+  textColor: "#FFFFFF",
 };
 
 const defaultCommentPositionXTraitOptions: DefaultCommentPositionXTraitOptions = {

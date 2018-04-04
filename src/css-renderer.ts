@@ -108,10 +108,10 @@ const defaultCSSRendererOptions: DefaultCSSRendererOptions = {
   commentOpacity: 1,
   commentFontFamily: Object.freeze(["Microsoft Yahei", "sans-serif"]),
   commentLineHeight: 1.2,
-  commentTextShadow: Object.freeze({ offsetX: 0, offsetY: 0, blur: 3, color: "#000" }),
+  commentTextShadow: Object.freeze({ offsetX: 0, offsetY: 0, blur: 3, color: "#000000" }),
   commentScrollingBasicSpeed: 0.120,
   commentScrollingExtraSpeedPerPixel: 0.0002,
-  ownCommentBorder: Object.freeze({ width: 1, color: "green" }),
+  ownCommentBorder: Object.freeze({ width: 1, color: "#008000" }),
   ownCommentPaddingLeft: 2,
   ownCommentPaddingRight: 2,
 };
