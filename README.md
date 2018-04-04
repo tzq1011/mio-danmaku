@@ -16,14 +16,14 @@ This is a simple JavaScript library for playing danmaku.
 * CSS3 弹幕渲染
 
 待支持：
-* 实时弹幕
 * Canvas 弹幕渲染
+* 实时弹幕
 
 已知问题：
 * 当使用 Edge 浏览器时，滚动弹幕会在特定情况下出现闪烁与偏移现象。<br>
-该问题可能与此浏览器 [BUG](https://developer.microsoft.com/en-us/microsoft-edge/platform/issues/14653084/) 有关。
+该现象可能与此浏览器 [BUG](https://developer.microsoft.com/en-us/microsoft-edge/platform/issues/14653084/) 有关。
 
-[Demo](https://tzq1011.github.io/mio-danmaku)
+[Online Demo / 在线演示](https://tzq1011.github.io/mio-danmaku)
 
 ## Supported Browsers
 
@@ -68,24 +68,24 @@ npm install --save mio-danmaku
       var createScrollingComment = mioDanmaku.createScrollingComment;
       var createPositioningComment = mioDanmaku.createPositioningComment;
 
-      var screen = document.getElementById("screen");
-      var video = document.getElementById("video");
-      var danmaku = document.getElementById("danmaku");
-      var addButton = document.getElementById("addButton");
+      var screenElem = document.getElementById("screen");
+      var videoElem = document.getElementById("video");
+      var danmakuElem = document.getElementById("danmaku");
+      var addButtonElem = document.getElementById("addButton");
 
       var danmakuPlayer = createPlayer({
         timeGetter: function () {
-          return video.currentTime * 1000;
+          return videoElem.currentTime * 1000;
         }
       });
 
-      danmaku.appendChild(danmakuPlayer.element);
-      video.addEventListener("playing", function() { danmakuPlayer.play(); });
-      video.addEventListener("pause", function() { danmakuPlayer.pause(); });
+      danmakuElem.appendChild(danmakuPlayer.element);
+      videoElem.addEventListener("playing", function() { danmakuPlayer.play(); });
+      videoElem.addEventListener("pause", function() { danmakuPlayer.pause(); });
 
       function resize(width, height) {
-        screen.style.width = width + "px";
-        screen.style.height = height + "px";
+        screenElem.style.width = width + "px";
+        screenElem.style.height = height + "px";
         danmakuPlayer.resize(width, height);
       }
 
@@ -129,7 +129,7 @@ npm install --save mio-danmaku
         positioningComment
       ]);
 
-      addButton.addEventListener("click", function() {
+      addButtonElem.addEventListener("click", function() {
         var myComment = createScrollingComment({
           time: danmakuPlayer.time,
           isOwn: true,
@@ -152,15 +152,15 @@ npm install --save mio-danmaku
 declare function createPlayer(options: PlayerOptions): Player;
 ```
 
-options
-
-| Property   | Type       | Required | Default     |
-| ---------- | ---------- | -------- | ----------- |
-| timeGetter | TimeGetter | Yes      | None        |
-| width      | number     | No       | 800         |
-| height     | number     | No       | 600         |
-| renderer   | Renderer   | No       | CSSRenderer |
-
+```typescript
+interface PlayerOptions {
+  timeGetter: TimeGetter; // 时间获取器，其返回值应为视频的当前时间，并以毫秒为单位。| Example: () => videoElem.currentTime * 1000
+  width?: number; // 宽度 | Default: 800
+  height?: number; // 高度 | Default: 600
+  renderer?: Renderer; // 渲染器 | Default: CSSRenderer
+  maxRenderingComments?: number; // 最大同时渲染评论数，即同屏弹幕数。 | Default: 80
+}
+```
 ---
 
 ### *createCSSRenderer() / 创建CSS渲染器*
@@ -169,23 +169,23 @@ options
 declare function createCSSRenderer(options: CSSRendererOptions = {}): CSSRenderer;
 ```
 
-options
-
-| Property                           | Type                    | Required | Default                                              |
-| ---------------------------------- | ----------------------- | -------- | ---------------------------------------------------- |
-| screenWidth                        | number                  | No       | 800                                                  |
-| screenHeight                       | number                  | No       | 600                                                  |
-| screenMarginTop                    | number                  | No       | 0                                                    |
-| screenMarginBottom                 | number                  | No       | 0                                                    |
-| commentOpacity                     | number                  | No       | 1                                                    |
-| commentFontFamily                  | `ReadonlyArray<string>` | No       | `["Microsoft Yahei", "sans-serif"]`                  |
-| commentLineHeight                  | number                  | No       | 1.2                                                  |
-| commentTextShadow                  | Shadow                  | No       | `{ offsetX: 0, offsetY: 0, blur: 3, color: "#000" }` |
-| commentScrollingBasicSpeed         | number                  | No       | 0.120                                                |
-| commentScrollingExtraSpeedPerPixel | number                  | No       | 0.0002                                               |
-| ownCommentBorder                   | number                  | No       | `{ width: 1, color: "green" }`                       |
-| ownCommentPaddingLeft              | number                  | No       | 2                                                    |
-| ownCommentPaddingRight             | number                  | No       | 2                                                    |
+```typescript
+interface CSSRendererOptions {
+  screenWidth?: number; // 荧幕宽度（像素）| Default: 800
+  screenHeight?: number; // 荧幕高度（像素）| Default: 600
+  screenMarginTop?: number; // 荧幕上边距（像素）| Default: 0
+  screenMarginBottom?: number; // 荧幕下边距（像素）| Default: 0
+  commentOpacity?: number; // 评论不透明度 | Range: 0 ~ 1 | Default: 1
+  commentFontFamily?: ReadonlyArray<string>; // 评论字体家族 | Default: ["Microsoft Yahei", "sans-serif"]
+  commentLineHeight?: number; // 评论文本行高（单位是字体大小的几倍）| Default: 1.2
+  commentTextShadow?: Shadow | null; // 评论文本阴影 | Default: { offsetX: 0, offsetY: 0, blur: 3, color: "#000000" }
+  commentScrollingBasicSpeed?: number; // 评论滚动基速（像素/毫秒） | Default: 0.120
+  commentScrollingExtraSpeedPerPixel?: number; // 评论滚动增速（像素/毫秒） | Default: 0.0002
+  ownCommentBorder?: Border | null; // 附属（自己发出的）评论边框 | Default: { width: 1, color: "#008000" }
+  ownCommentPaddingLeft?: number; // 附属评论左填充（像素）| Default: 2
+  ownCommentPaddingRight?: number; // 附属评论右填充（像素）| Default: 2
+}
+```
 
 ---
 
@@ -195,16 +195,28 @@ options
 declare function createStackingComment(options: StackingCommentOptions = {}): StackingComment;
 ```
 
-options
+```typescript
+type StackingCommentOptions =
+  & CommentOptions
+  & CommentTextTraitOptions
+  & CommentHorizontalAlignmentTraitOptions
+  & CommentStackingTraitOptions
+  & CommentLifetimeTraitOptions;
 
-| Property            | Type                          | Required | Default   |
-| ------------------- | ----------------------------- | -------- | --------- |
-| text                | string                        | No       | "Nya"     |
-| fontSize            | number                        | No       | 25        |
-| textColor           | string                        | No       | "#FFFFFF" |
-| horizontalAlignment | "left" or "center" or "right" | No       | "center"  |
-| stackingDirection   | "up" or "down"                | No       | "down"    |
-| lifetime            | number                        | No       | 5000      |
+// Spread
+interface StackingCommentOptions {
+  time?: number; // 何时呈现（毫秒），对应视频时间轴。 | Default: 0
+  data?: object; // 自定义数据，用于存储创建时间，用户ID等数据。 | Default: {}
+  isOwn?: boolean; // 附属（自己发出的）评论？ | Default: false
+  text?: string; // 文本 | Default: "Nya"
+  fontSize?: number; // 字体大小（像素）| Default: 25
+  textColor?: string; // 文本颜色（十六进制RGB）| Default: "#FFFFFF"
+  horizontalAlignment?: "left" | "center" | "right"; // 水平对齐（left: 左, center: 中, right: 右）| Default: "center"
+  stackingDirection?: "up" | "down"; // 堆叠方向（up: 上, down: 下）| Default: "down"
+  lifetime?: number; // 评论将呈现多久（毫秒）| Default: 5000
+}
+
+```
 
 ---
 
@@ -214,15 +226,25 @@ options
 declare function createScrollingComment(options: ScrollingCommentOptions = {}): ScrollingComment;
 ```
 
-options
+```typescript
+type ScrollingCommentOptions =
+  & CommentOptions
+  & CommentTextTraitOptions
+  & CommentStackingTraitOptions
+  & CommentScrollingTraitOptions;
 
-| Property           | Type              | Required | Default   |
-| ------------------ | ----------------- | -------- | --------- |
-| text               | string            | No       | "Nya"     |
-| fontSize           | number            | No       | 25        |
-| textColor          | string            | No       | "#FFFFFF" |
-| stackingDirection  | "up" or "down"    | No       | "down"    |
-| scrollingDirection | "left" or "right" | No       | "left"    |
+// Spread
+interface ScrollingCommentOptions {
+  time?: number; // 何时呈现（毫秒），对应视频时间轴。 | Default: 0
+  data?: object; // 自定义数据，用于存储创建时间，用户ID等数据。 | Default: {}
+  isOwn?: boolean; // 附属（自己发出的）评论？ | Default: false
+  text?: string; // 文本 | Default: "Nya"
+  fontSize?: number; // 字体大小（像素）| Default: 25
+  textColor?: string; // 文本颜色（十六进制RGB）| Default: "#FFFFFF"
+  stackingDirection?: "up" | "down"; // 堆叠方向（up: 上, down: 下）| Default: "down"
+  scrollingDirection?: "left" | "right"; // 滚动方向（left: 左, right: 右）| Default: "left"
+}
+```
 
 ---
 
@@ -232,18 +254,27 @@ options
 declare function createPositioningComment(options: PositioningCommentOptions = {}): PositioningComment;
 ```
 
-options
+```typescript
+type PositioningCommentOptions =
+  & CommentOptions
+  & CommentTextTraitOptions
+  & CommentPositionXTraitOptions
+  & CommentPositionYTraitOptions
+  & CommentLifetimeTraitOptions;
 
-| Property  | Type   | Required | Default   |
-| --------- | ------ | -------- | --------- |
-| text      | string | No       | "Nya"     |
-| fontSize  | number | No       | 25        |
-| textColor | string | No       | "#FFFFFF" |
-| positionX | number | No       | 0         |
-| positionY | number | No       | 0         |
-| lifetime  | number | No       | 5000      |
-
----
+// Spread
+interface PositioningCommentOptions {
+  time?: number; // 何时呈现（毫秒），对应视频时间轴。 | Default: 0
+  data?: object; // 自定义数据，用于存储创建时间，用户ID等数据。 | Default: {}
+  isOwn?: boolean; // 附属（自己发出的）评论？ | Default: false
+  text?: string; // 文本 | Default: "Nya"
+  fontSize?: number; // 字体大小（像素）| Default: 25
+  textColor?: string; // 文本颜色（十六进制RGB）| Default: "#FFFFFF"
+  positionX?: number; // 水平位置（像素）| Default: 0
+  positionY?: number; // 垂直位置（像素）| Default: 0
+  lifetime?: number; // 评论将呈现多久（毫秒）| Default: 5000
+}
+```
 
 ### *isStackingComment() / 检查目标是否为堆叠评论*
 
@@ -275,13 +306,13 @@ declare function isPositioningComment(target: any): target is PositioningComment
 declare function createComment(options: CommentOptions = {}): Comment;
 ```
 
-options
-
-| Property | Type    | Required | Default |
-| -------- | ------- | -------- | ------- |
-| time     | number  | No       | 0       |
-| data     | object  | No       | {}      |
-| isOwn    | boolean | No       | false   |
+```typescript
+interface CommentOptions {
+  time?: number; // 何时呈现（毫秒），对应视频时间轴。 | Default: 0
+  data?: object; // 自定义数据，用于存储创建时间，用户ID等数据。 | Default: {}
+  isOwn?: boolean; // 附属（自己发出的）评论？ | Default: false
+}
+```
 
 ---
 
@@ -291,13 +322,13 @@ options
 declare function mixinCommentTextTrait<C extends Comment> (comment: C, options: CommentTextTraitOptions = {}): C & CommentTextTrait;
 ```
 
-options
-
-| Property  | Type   | Required | Default   |
-| --------- | ------ | -------- | --------- |
-| text      | string | No       | "Nya"     |
-| fontSize  | number | No       | 25        |
-| textColor | string | No       | "#FFFFFF" |
+```typescript
+interface CommentTextTraitOptions {
+  text?: string; // 文本 | Default: "Nya"
+  fontSize?: number; // 字体大小（像素）| Default: 25
+  textColor?: string; // 文本颜色（十六进制RGB）| Default: "#FFFFFF"
+}
+```
 
 ---
 
@@ -307,11 +338,11 @@ options
 declare function mixinCommentPositionXTrait<C extends Comment> (comment: C, options: CommentPositionXTraitOptions = {}): C & CommentPositionXTrait;
 ```
 
-options
-
-| Property  | Type   | Required | Default |
-| --------- | ------ | -------- | ------- |
-| positionX | number | No       | 0       |
+```typescript
+interface CommentPositionXTraitOptions {
+  positionX?: number; // 水平位置（像素）| Default: 0
+}
+```
 
 ---
 
@@ -321,11 +352,11 @@ options
 declare function mixinCommentPositionYTrait<C extends Comment> (comment: C, options: CommentPositionYTraitOptions = {}): C & CommentPositionYTrait;
 ```
 
-options
-
-| Property  | Type   | Required | Default |
-| --------- | ------ | -------- | ------- |
-| positionY | number | No       | 0       |
+```typescript
+interface CommentPositionYTraitOptions {
+  positionY?: number; // 垂直位置（像素）| Default: 0
+}
+```
 
 ---
 
@@ -335,11 +366,11 @@ options
 declare function mixinCommentHorizontalAlignmentTrait<C extends Comment> (comment: C, options: CommentHorizontalAlignmentTraitOptions = {}): C & CommentHorizontalAlignmentTrait;
 ```
 
-options
-
-| Property            | Type                          | Required | Default  |
-| ------------------- | ----------------------------- | -------- | -------- |
-| horizontalAlignment | "left" or "center" or "right" | No       | "center" |
+```typescript
+interface CommentHorizontalAlignmentTraitOptions {
+  horizontalAlignment?: "left" | "center" | "right"; // 水平对齐（left: 左, center: 中, right: 右）| Default: "center"
+}
+```
 
 ---
 
@@ -349,11 +380,11 @@ options
 declare function mixinCommentVerticalAlignmentTrait<C extends Comment> (comment: C, options: CommentVerticalAlignmentTraitOptions = {}): C & CommentVerticalAlignmentTrait;
 ```
 
-options
-
-| Property          | Type                          | Required | Default  |
-| ----------------- | ----------------------------- | -------- | -------- |
-| verticalAlignment | "top" or "middle" or "bottom" | No       | "middle" |
+```typescript
+interface CommentVerticalAlignmentTraitOptions {
+  verticalAlignment?: "top" | "middle" | "bottom"; // 垂直对齐（top: 上, middle: 中, bottom: 下）| Default: "middle"
+}
+```
 
 ---
 
@@ -363,11 +394,11 @@ options
 declare function mixinCommentStackingTrait<C extends Comment> (comment: C, options: CommentStackingTraitOptions = {}): C & CommentStackingTrait;
 ```
 
-options
-
-| Property          | Type           | Required | Default |
-| ----------------- | -------------- | -------- | ------- |
-| stackingDirection | "up" or "down" | No       | "down"  |
+```typescript
+interface CommentStackingTraitOptions {
+  stackingDirection?: "up" | "down"; // 堆叠方向（up: 上, down: 下）| Default: "down"
+}
+```
 
 ---
 
@@ -377,11 +408,11 @@ options
 declare function mixinCommentScrollingTrait<C extends Comment> (comment: C, options: CommentScrollingTraitOptions = {}): C & CommentScrollingTrait;
 ```
 
-options
-
-| Property           | Type              | Required | Default |
-| ------------------ | ----------------- | -------- | ------- |
-| scrollingDirection | "left" or "right" | No       | "left"  |
+```typescript
+interface CommentScrollingTraitOptions {
+  scrollingDirection?: "left" | "right"; // 滚动方向（left: 左, right: 右）| Default: "left"
+}
+```
 
 ---
 
@@ -391,11 +422,11 @@ options
 declare function mixinCommentLifetimeTrait<C extends Comment> (comment: C, options: CommentLifetimeTraitOptions = {}): C & CommentLifetimeTrait;
 ```
 
-options
-
-| Property | Type   | Required | Default |
-| -------- | ------ | -------- | ------- |
-| lifetime | number | No       | 5000    |
+```typescript
+interface CommentLifetimeTraitOptions {
+  lifetime?: number; // 评论将呈现多久（毫秒）| Default: 5000
+}
+```
 
 ---
 
@@ -476,7 +507,7 @@ type EventData = any;
 
 // 事件规格
 interface EventSpecs {
-  // 事件名称: 事件数据类型
+  // 事件名称: 事件数据
   [event: string]: EventData;
 }
 
@@ -485,8 +516,8 @@ type EventListener<D extends EventData> = (data: D) => void;
 
 // 事件发射器
 interface EventEmitter<ES extends EventSpecs> {
-  on<E extends keyof ES>(event: E, listener: EventListener<ES[E]>): EventEmitter<ES>; // 绑定事件处理器
-  off<E extends keyof ES>(event: E, listener?: EventListener<ES[E]>): EventEmitter<ES>; // 解绑事件处理器
+  on<E extends keyof ES>(event: E, listener: EventListener<ES[E]>): EventEmitter<ES>; // 绑定事件监听器
+  off<E extends keyof ES>(event: E, listener?: EventListener<ES[E]>): EventEmitter<ES>; // 解绑事件监听器
   emit<E extends keyof ES>(event: E, data: ES[E]): void; // 触发事件
 }
 
@@ -528,9 +559,9 @@ interface CommentEvents {
 interface Comment {
   readonly instanceId: string; // 实例ID
   readonly events: EventEmitter<CommentEvents>; // 事件发射器
-  readonly time: number; // 何时渲染（毫秒），对应视频时间轴。
-  readonly data: object; // 自定义数据，用于存储“用户ID”等数据。
-  readonly isOwn: boolean; // 自己发送的评论？为真时渲染器将使用特定的风格渲染该评论。
+  readonly time: number; // 何时呈现（毫秒），对应视频时间轴。
+  readonly data: object; // 自定义数据，用于存储创建时间，用户ID等数据。
+  readonly isOwn: boolean; // 附属（自己发出的）评论？为真时渲染器将使用专用风格渲染该评论。
 }
 
 // 评论文本特性
@@ -572,7 +603,7 @@ interface CommentScrollingTrait {
 
 // 评论寿命特性
 interface CommentLifetimeTrait {
-  readonly lifetime: number; // 评论将渲染多久（毫秒）
+  readonly lifetime: number; // 评论将呈现多久（毫秒）
 }
 
 // 堆叠评论
@@ -603,12 +634,12 @@ type CommentFilter = (comment: Comment) => boolean;
 
 // 评论池事件
 interface CommentPoolEvents {
-  loaded: { comments: Comment[] }; // 载入一批评论
-  added: { index: number, comment: Comment }; // 添加一条评论
-  removed: { index: number, comment: Comment }; // 移除一条评论
+  loaded: { comments: Comment[] }; // 批量载入评论
+  added: { index: number, comment: Comment }; // 添加评论，load() 方法不会触发该事件。
+  removed: { index: number, comment: Comment }; // 移除评论，clear() 方法不会触发该事件。
   cleared: { comments: Comment[] }; // 移除所有评论
   filterAdded: { filter: CommentFilter }; // 添加评论过滤器
-  filterRemoved: { filter: CommentFilter }; // 移除评论过滤器
+  filterRemoved: { filter: CommentFilter }; // 移除评论过滤器，clearFilters() 方法也会触发该事件。
 }
 
 // 评论池
@@ -621,7 +652,7 @@ interface CommentPool {
   has(comment: Comment): void; // 检查评论是否已添加
   remove(comment: Comment): boolean; // 移除评论
   clear(): void; // 移除所有评论
-  getByTime(startTime: number, endTime: number, limit: number): Comment[]; // 获取特定时间段的评论
+  getByTime(startTime: number, endTime: number, limit: number): Comment[]; // 获取指定时间段的评论
   addFilter(filter: CommentFilter): void; // 添加评论过滤器，过滤器将影响 getByTime() 方法的返回结果。
   hasFilter(filter: CommentFilter): boolean; // 检查评论过滤器是否已添加
   removeFilter(filter: CommentFilter): boolean; // 移除评论过滤器
@@ -638,41 +669,41 @@ interface CommentView {
 
 // 渲染器状态
 type RendererState =
-  | "idle" // 闲置中
-  | "running" // 运行中
-  | "paused"; // 已暂停
+  | "idle" // 闲置
+  | "running" // 运行
+  | "paused"; // 暂停
 
 // 渲染器事件
 interface RendererEvents {
-  idle: null; // 已闲置
-  running: null; // 运行中
-  paused: null; // 已暂停
+  idle: null; // 闲置
+  running: null; // 运行
+  paused: null; // 暂停
 }
 
 // 渲染器
 interface Renderer {
-  screenMarginTop: number; // 荧幕上边距
-  screenMarginBottom: number; // 荧幕下边距，可用于实现字幕防挡。
-  commentOpacity: number; // 评论不透明度
+  screenMarginTop: number; // 荧幕上边距（像素）
+  screenMarginBottom: number; // 荧幕下边距（像素），可用于实现字幕防挡。
+  commentOpacity: number; // 评论不透明度 | Range: 0 ~ 1
   commentFontFamily: ReadonlyArray<string>; // 评论字体家族
-  commentLineHeight: number; // 评论文本行高
+  commentLineHeight: number; // 评论文本行高（单位是字体大小的几倍）
   commentTextShadow: Shadow | null; // 评论文本阴影
   commentScrollingBasicSpeed: number; // 评论滚动基速（像素/毫秒）
   commentScrollingExtraSpeedPerPixel: number; // 评论滚动增速（像素/毫秒）（最终速度 = 基速 + 评论宽度 * 增速）
-  ownCommentBorder: Border | null; // 己发（自己发送的）评论边框
-  ownCommentPaddingLeft: number; // 己发评论左填充
-  ownCommentPaddingRight: number; // 己发评论右填充
+  ownCommentBorder: Border | null; // 附属（自己发出的）评论边框
+  ownCommentPaddingLeft: number; // 附属评论左填充
+  ownCommentPaddingRight: number; // 附属评论右填充
   readonly state: RendererState; // 渲染器状态
   readonly events: EventEmitter<RendererEvents>; // 事件发射器
-  readonly screenWidth: number; // 荧幕宽度
-  readonly screenHeight: number; // 荧幕高度
+  readonly screenWidth: number; // 荧幕宽度（像素）
+  readonly screenHeight: number; // 荧幕高度（像素）
   readonly screenElement: HTMLElement; // 荧幕元素
   run(): void; // 运行，渲染器进入工作状态，定格中的评论视图将继续渲染。
-  pause(): void; // 暂停，渲染中的评论视图将定格在当前状态（例如：当前视图位置，当前计时器耗时等等）。
+  pause(): void; // 暂停，渲染中的评论视图将定格在当前状态（例如：当前视图位置，当前计时等等）。
   stop(): void; // 停止，渲染中的评论视图将被销毁，渲染器进入闲置状态。
   resizeScreen(width: number, height: number): void; // 调整荧幕尺寸
   renderComment(comment: Comment): CommentView; // 渲染评论，当渲染器处于运行或暂停态时可以调用。
-  unrenderComment(comment: Comment): void; // 取消渲染评论
+  unrenderComment(comment: Comment): void; // 取消评论渲染
   isCommentRendering(comment: Comment): boolean; // 检查评论是否正在渲染
   getRenderingComments(): Comment[]; // 获取渲染中的评论
   getRenderingCommentsCount(): number; // 获取渲染中的评论数量
@@ -682,20 +713,20 @@ interface Renderer {
 // CSS渲染器
 type CSSRenderer = Renderer;
 
-// 时间获取器
+// 时间获取器，其返回值应为视频的当前时间，并以毫秒为单位。
 type TimeGetter = () => number;
 
 // 播放器状态
 type PlayerState =
-  | "idle" // 闲置中
-  | "playing" // 播放中
-  | "paused"; // 已暂停
+  | "idle" // 闲置
+  | "playing" // 播放
+  | "paused"; // 暂停
 
 // 播放器事件
 interface PlayerEvents {
-  idle: null; // 已闲置
-  playing: null; // 播放中
-  paused: null; // 已暂停
+  idle: null; // 闲置
+  playing: null; // 播放
+  paused: null; // 暂停
   resized: null; // 调整尺寸
 }
 
@@ -705,114 +736,16 @@ interface Player {
   maxRenderingComments: number; // 最大同时渲染评论数，即同屏弹幕数。
   readonly state: PlayerState; // 播放器状态
   readonly events: EventEmitter<PlayerEvents>; // 事件发射器
-  readonly width: number; // 宽度
-  readonly height: number; // 高度
+  readonly width: number; // 宽度（像素）
+  readonly height: number; // 高度（像素）
   readonly element: HTMLElement; // 播放器元素
-  readonly time: number; // 时间（毫秒），对应视频时间轴。
+  readonly time: number; // 时间（毫秒），对应视频当前时间。
   readonly timeGetter: TimeGetter; // 时间获取器
   readonly comments: CommentPool; // 评论池
   play(): void; // 播放
   pause(): void; // 暂停
   stop(): void; // 停止
   resize(width: number, height: number): void; // 调整尺寸
-}
-
-// 评论选项
-interface CommentOptions {
-  time?: number; // 时间
-  data?: object; // 自定义数据
-  isOwn?: boolean; // 自己发送的评论？
-}
-
-// 评论文本特性选项
-interface CommentTextTraitOptions {
-  text?: string; // 文本
-  fontSize?: number; // 字体大小（像素）
-  textColor?: string; // 文本颜色（十六进制RGB）
-}
-
-// 评论水平位置特性选项
-interface CommentPositionXTraitOptions {
-  positionX?: number; // 水平位置（像素）
-}
-
-// 评论垂直位置特性选项
-interface CommentPositionYTraitOptions {
-  positionY?: number; // 垂直位置（像素）
-}
-
-// 评论水平对齐特性选项
-interface CommentHorizontalAlignmentTraitOptions {
-  horizontalAlignment?: "left" | "center" | "right"; // 水平对齐（left: 左, center: 中, right: 右）
-}
-
-// 评论垂直对齐特性选项
-interface CommentVerticalAlignmentTraitOptions {
-  verticalAlignment?: "top" | "middle" | "bottom"; // 垂直对齐（top: 上, middle: 中, bottom: 下）
-}
-
-// 评论堆叠特性选项
-interface CommentStackingTraitOptions {
-  stackingDirection?: "up" | "down"; // 堆叠方向（up: 上, down: 下）
-}
-
-// 评论滚动特性选项
-interface CommentScrollingTraitOptions {
-  scrollingDirection?: "left" | "right"; // 滚动方向（left: 左, right: 右）
-}
-
-// 滚动寿命特性选项
-interface CommentLifetimeTraitOptions {
-  lifetime?: number; // 评论将渲染多久（毫秒）
-}
-
-// 堆叠评论选项
-type StackingCommentOptions =
-  & CommentOptions
-  & CommentTextTraitOptions
-  & CommentHorizontalAlignmentTraitOptions
-  & CommentStackingTraitOptions
-  & CommentLifetimeTraitOptions;
-
-// 滚动评论选项
-type ScrollingCommentOptions =
-  & CommentOptions
-  & CommentTextTraitOptions
-  & CommentStackingTraitOptions
-  & CommentScrollingTraitOptions;
-
-// 定位评论选项
-type PositioningCommentOptions =
-  & CommentOptions
-  & CommentTextTraitOptions
-  & CommentPositionXTraitOptions
-  & CommentPositionYTraitOptions
-  & CommentLifetimeTraitOptions;
-
-// CSS渲染器选项
-interface CSSRendererOptions {
-  screenWidth?: number; // 荧幕宽度（像素）
-  screenHeight?: number; // 荧幕高度（像素）
-  screenMarginTop?: number; // 荧幕左边距（像素）
-  screenMarginBottom?: number; // 荧幕右边距（像素）
-  commentOpacity?: number; // 评论不透明度
-  commentFontFamily?: ReadonlyArray<string>; // 评论字体家族
-  commentLineHeight?: number; // 评论文本行高
-  commentTextShadow?: Shadow | null; // 评论文本阴影
-  commentScrollingBasicSpeed?: number; // 评论滚动基速
-  commentScrollingExtraSpeedPerPixel?: number; // 评论滚动增速
-  ownCommentBorder?: Border | null; // 己发（自己发送的）评论边框
-  ownCommentPaddingLeft?: number; // 己发评论左填充（像素）
-  ownCommentPaddingRight?: number; // 己发评论右填充（像素）
-}
-
-// 播放器选项
-interface PlayerOptions {
-  timeGetter: TimeGetter; // 时间获取器，其返回值对应视频时间轴。
-  width?: number; // 宽度
-  height?: number; // 高度
-  renderer?: Renderer; // 渲染器
-  maxRenderingComments?: number; // 最大同时渲染评论数，即同屏弹幕数。
 }
 ```
 
