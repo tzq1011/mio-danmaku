@@ -106,7 +106,7 @@ const defaultCSSRendererOptions: DefaultCSSRendererOptions = {
   screenMarginTop: 0,
   screenMarginBottom: 0,
   commentOpacity: 1,
-  commentFontFamily: Object.freeze(["Microsoft Yahei", "sans-serif"]),
+  commentFontFamily: Object.freeze(["Microsoft YaHei", "sans-serif"]),
   commentLineHeight: 1.2,
   commentTextShadow: Object.freeze({ offsetX: 0, offsetY: 0, blur: 3, color: "#000000" }),
   commentScrollingBasicSpeed: 0.120,
