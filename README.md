@@ -21,9 +21,9 @@ This is a simple JavaScript library for playing danmaku.
 
 已知问题：
 * 当使用 Edge 浏览器时，滚动弹幕会在特定情况下出现闪烁与偏移问题。<br>
-该问题可能与浏览器 [BUG](https://developer.microsoft.com/en-us/microsoft-edge/platform/issues/14653084/) 有关。
+该问题可能是由此浏览器 [BUG](https://developer.microsoft.com/en-us/microsoft-edge/platform/issues/14653084/) 引起。
 
-[Online Demo（在线演示）](https://tzq1011.github.io/mio-danmaku)
+[Demo / 演示](https://tzq1011.github.io/mio-danmaku)
 
 ## Supported Browsers
 
