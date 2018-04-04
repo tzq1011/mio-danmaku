@@ -7,23 +7,23 @@
 This is a simple JavaScript library for playing danmaku.
 
 这是一个简单的 JavaScript 库，用于播放弹幕。  
-注意：这不是稳定的库，请不要将其使用在生产环境中。
+注意：该库尚不稳定，请不要将其使用在生产环境中。
 
 已支持：
 * 堆叠弹幕（顶部、底部弹幕）
 * 滚动弹幕（向左、向右滚动）
 * 定位弹幕（在指定位置呈现）
-* CSS3 弹幕渲染
+* CSS3 弹幕呈现
 
 待支持：
-* Canvas 弹幕渲染
+* Canvas 弹幕呈现
 * 实时弹幕
 
 已知问题：
-* 当使用 Edge 浏览器时，滚动弹幕会在特定情况下出现闪烁与偏移现象。<br>
-该现象可能与此浏览器 [BUG](https://developer.microsoft.com/en-us/microsoft-edge/platform/issues/14653084/) 有关。
+* 当使用 Edge 浏览器时，滚动弹幕会在特定情况下出现闪烁与偏移问题。<br>
+该问题可能与浏览器 [BUG](https://developer.microsoft.com/en-us/microsoft-edge/platform/issues/14653084/) 有关。
 
-[Online Demo / 在线演示](https://tzq1011.github.io/mio-danmaku)
+[Online Demo（在线演示）](https://tzq1011.github.io/mio-danmaku)
 
 ## Supported Browsers
 
@@ -49,7 +49,7 @@ npm install --save mio-danmaku
   <meta charset="UTF-8">
   <title>MioDanmaku</title>
   <style>
-    #screen { position: relative; background-color: black; }
+    #screen { background-color: black; position: relative; }
     #video { width: 100%; height: 100%; position: absolute; }
     #danmaku { width: 100%; height: 100%; position: absolute; pointer-events: none; }
   </style>
@@ -62,7 +62,7 @@ npm install --save mio-danmaku
   <button id="addButton" type="button">Add a Comment</button>
   <script src="https://unpkg.com/mio-danmaku@^0.1.0"></script>
   <script>
-    (function() {
+    (function () {
       var createPlayer = mioDanmaku.createPlayer;
       var createStackingComment = mioDanmaku.createStackingComment;
       var createScrollingComment = mioDanmaku.createScrollingComment;
@@ -80,8 +80,8 @@ npm install --save mio-danmaku
       });
 
       danmakuElem.appendChild(danmakuPlayer.element);
-      videoElem.addEventListener("playing", function() { danmakuPlayer.play(); });
-      videoElem.addEventListener("pause", function() { danmakuPlayer.pause(); });
+      videoElem.addEventListener("playing", function () { danmakuPlayer.play(); });
+      videoElem.addEventListener("pause", function () { danmakuPlayer.pause(); });
 
       function resize(width, height) {
         screenElem.style.width = width + "px";
@@ -129,7 +129,7 @@ npm install --save mio-danmaku
         positioningComment
       ]);
 
-      addButtonElem.addEventListener("click", function() {
+      addButtonElem.addEventListener("click", function () {
         var myComment = createScrollingComment({
           time: danmakuPlayer.time,
           isOwn: true,
@@ -144,6 +144,8 @@ npm install --save mio-danmaku
 </html>
 ```
 
+[Play with it on JSBin.](https://jsbin.com/qiyemim/edit?html,output)
+
 ## API
 
 ### *createPlayer() / 创建播放器*
@@ -154,16 +156,16 @@ declare function createPlayer(options: PlayerOptions): Player;
 
 ```typescript
 interface PlayerOptions {
-  timeGetter: TimeGetter; // 时间获取器，其返回值应为视频的当前时间，并以毫秒为单位。| Example: () => videoElem.currentTime * 1000
-  width?: number; // 宽度 | Default: 800
-  height?: number; // 高度 | Default: 600
-  renderer?: Renderer; // 渲染器 | Default: CSSRenderer
-  maxRenderingComments?: number; // 最大同时渲染评论数，即同屏弹幕数。 | Default: 80
+  timeGetter: TimeGetter; // 时间获取器，它返回以毫秒为单位的视频当前时间。 | Required | Example: () => videoElem.currentTime * 1000
+  width?: number; // 宽度（像素）| Default: 800
+  height?: number; // 高度（像素）| Default: 600
+  renderer?: Renderer; // 呈现器 | Default: CSSRenderer
+  maxRenderingComments?: number; // 最多同时呈现多少评论，即同屏弹幕数。 | Default: 80
 }
 ```
 ---
 
-### *createCSSRenderer() / 创建CSS渲染器*
+### *createCSSRenderer() / 创建CSS呈现器*
 
 ```typescript
 declare function createCSSRenderer(options: CSSRendererOptions = {}): CSSRenderer;
@@ -176,8 +178,8 @@ interface CSSRendererOptions {
   screenMarginTop?: number; // 荧幕上边距（像素）| Default: 0
   screenMarginBottom?: number; // 荧幕下边距（像素）| Default: 0
   commentOpacity?: number; // 评论不透明度 | Range: 0 ~ 1 | Default: 1
-  commentFontFamily?: ReadonlyArray<string>; // 评论字体家族 | Default: ["Microsoft Yahei", "sans-serif"]
-  commentLineHeight?: number; // 评论文本行高（单位是字体大小的几倍）| Default: 1.2
+  commentFontFamily?: ReadonlyArray<string>; // 评论字体家族 | Default: ["Microsoft YaHei", "sans-serif"]
+  commentLineHeight?: number; // 评论文本行高（单位是字体大小的倍数）| Default: 1.2
   commentTextShadow?: Shadow | null; // 评论文本阴影 | Default: { offsetX: 0, offsetY: 0, blur: 3, color: "#000000" }
   commentScrollingBasicSpeed?: number; // 评论滚动基速（像素/毫秒） | Default: 0.120
   commentScrollingExtraSpeedPerPixel?: number; // 评论滚动增速（像素/毫秒） | Default: 0.0002
@@ -207,7 +209,7 @@ type StackingCommentOptions =
 interface StackingCommentOptions {
   time?: number; // 何时呈现（毫秒），对应视频时间轴。 | Default: 0
   data?: object; // 自定义数据，用于存储创建时间，用户ID等数据。 | Default: {}
-  isOwn?: boolean; // 附属（自己发出的）评论？ | Default: false
+  isOwn?: boolean; // 自己发出的评论？为真时呈现器将使用特定风格呈现该评论。 | Default: false
   text?: string; // 文本 | Default: "Nya"
   fontSize?: number; // 字体大小（像素）| Default: 25
   textColor?: string; // 文本颜色（十六进制RGB）| Default: "#FFFFFF"
@@ -237,7 +239,7 @@ type ScrollingCommentOptions =
 interface ScrollingCommentOptions {
   time?: number; // 何时呈现（毫秒），对应视频时间轴。 | Default: 0
   data?: object; // 自定义数据，用于存储创建时间，用户ID等数据。 | Default: {}
-  isOwn?: boolean; // 附属（自己发出的）评论？ | Default: false
+  isOwn?: boolean; // 自己发出的评论？为真时呈现器将使用特定风格呈现该评论。 | Default: false
   text?: string; // 文本 | Default: "Nya"
   fontSize?: number; // 字体大小（像素）| Default: 25
   textColor?: string; // 文本颜色（十六进制RGB）| Default: "#FFFFFF"
@@ -266,7 +268,7 @@ type PositioningCommentOptions =
 interface PositioningCommentOptions {
   time?: number; // 何时呈现（毫秒），对应视频时间轴。 | Default: 0
   data?: object; // 自定义数据，用于存储创建时间，用户ID等数据。 | Default: {}
-  isOwn?: boolean; // 附属（自己发出的）评论？ | Default: false
+  isOwn?: boolean; // 自己发出的评论？为真时呈现器将使用特定风格呈现该评论。 | Default: false
   text?: string; // 文本 | Default: "Nya"
   fontSize?: number; // 字体大小（像素）| Default: 25
   textColor?: string; // 文本颜色（十六进制RGB）| Default: "#FFFFFF"
@@ -310,7 +312,7 @@ declare function createComment(options: CommentOptions = {}): Comment;
 interface CommentOptions {
   time?: number; // 何时呈现（毫秒），对应视频时间轴。 | Default: 0
   data?: object; // 自定义数据，用于存储创建时间，用户ID等数据。 | Default: {}
-  isOwn?: boolean; // 附属（自己发出的）评论？ | Default: false
+  isOwn?: boolean; // 自己发出的评论？为真时呈现器将使用特定风格呈现该评论。 | Default: false
 }
 ```
 
@@ -549,10 +551,10 @@ interface Border {
 
 // 评论事件
 interface CommentEvents {
-  rendering: null; // 渲染中
-  renderingCanceled: null; // 渲染已取消
-  renderingFinished: null; // 渲染已完成
-  renderingEnded: null; // 渲染已结束
+  rendering: null; // 呈现中
+  renderingCanceled: null; // 呈现已取消
+  renderingFinished: null; // 呈现已完成
+  renderingEnded: null; // 呈现已结束，将跟随 renderingCanceled，renderingFinished 事件触发。
 }
 
 // 评论
@@ -561,7 +563,7 @@ interface Comment {
   readonly events: EventEmitter<CommentEvents>; // 事件发射器
   readonly time: number; // 何时呈现（毫秒），对应视频时间轴。
   readonly data: object; // 自定义数据，用于存储创建时间，用户ID等数据。
-  readonly isOwn: boolean; // 附属（自己发出的）评论？为真时渲染器将使用专用风格渲染该评论。
+  readonly isOwn: boolean; // 自己发出的评论？为真时呈现器将使用特定风格呈现该评论。
 }
 
 // 评论文本特性
@@ -652,7 +654,7 @@ interface CommentPool {
   has(comment: Comment): void; // 检查评论是否已添加
   remove(comment: Comment): boolean; // 移除评论
   clear(): void; // 移除所有评论
-  getByTime(startTime: number, endTime: number, limit: number): Comment[]; // 获取指定时间段的评论
+  getByTime(startTime: number, endTime: number, limit: number): Comment[]; // 获取特定时间段的评论
   addFilter(filter: CommentFilter): void; // 添加评论过滤器，过滤器将影响 getByTime() 方法的返回结果。
   hasFilter(filter: CommentFilter): boolean; // 检查评论过滤器是否已添加
   removeFilter(filter: CommentFilter): boolean; // 移除评论过滤器
@@ -667,53 +669,53 @@ interface CommentView {
   destroy(): void; // 销毁视图，等同于 Renderer.unrenderComment()。
 }
 
-// 渲染器状态
+// 呈现器状态
 type RendererState =
   | "idle" // 闲置
   | "running" // 运行
   | "paused"; // 暂停
 
-// 渲染器事件
+// 呈现器事件
 interface RendererEvents {
   idle: null; // 闲置
   running: null; // 运行
   paused: null; // 暂停
 }
 
-// 渲染器
+// 呈现器
 interface Renderer {
   screenMarginTop: number; // 荧幕上边距（像素）
   screenMarginBottom: number; // 荧幕下边距（像素），可用于实现字幕防挡。
   commentOpacity: number; // 评论不透明度 | Range: 0 ~ 1
   commentFontFamily: ReadonlyArray<string>; // 评论字体家族
-  commentLineHeight: number; // 评论文本行高（单位是字体大小的几倍）
+  commentLineHeight: number; // 评论文本行高（单位是字体大小的倍数）
   commentTextShadow: Shadow | null; // 评论文本阴影
   commentScrollingBasicSpeed: number; // 评论滚动基速（像素/毫秒）
   commentScrollingExtraSpeedPerPixel: number; // 评论滚动增速（像素/毫秒）（最终速度 = 基速 + 评论宽度 * 增速）
   ownCommentBorder: Border | null; // 附属（自己发出的）评论边框
   ownCommentPaddingLeft: number; // 附属评论左填充
   ownCommentPaddingRight: number; // 附属评论右填充
-  readonly state: RendererState; // 渲染器状态
+  readonly state: RendererState; // 呈现器状态
   readonly events: EventEmitter<RendererEvents>; // 事件发射器
   readonly screenWidth: number; // 荧幕宽度（像素）
   readonly screenHeight: number; // 荧幕高度（像素）
   readonly screenElement: HTMLElement; // 荧幕元素
-  run(): void; // 运行，渲染器进入工作状态，定格中的评论视图将继续渲染。
-  pause(): void; // 暂停，渲染中的评论视图将定格在当前状态（例如：当前视图位置，当前计时等等）。
-  stop(): void; // 停止，渲染中的评论视图将被销毁，渲染器进入闲置状态。
+  run(): void; // 运行，呈现器进入工作状态，定格中的评论视图将继续呈现。
+  pause(): void; // 暂停，呈现中的评论视图将定格在当前状态（例如：当前视图位置，当前计时器时间等等）。
+  stop(): void; // 停止，呈现中的评论视图将被销毁，呈现器进入闲置状态。
   resizeScreen(width: number, height: number): void; // 调整荧幕尺寸
-  renderComment(comment: Comment): CommentView; // 渲染评论，当渲染器处于运行或暂停态时可以调用。
-  unrenderComment(comment: Comment): void; // 取消评论渲染
-  isCommentRendering(comment: Comment): boolean; // 检查评论是否正在渲染
-  getRenderingComments(): Comment[]; // 获取渲染中的评论
-  getRenderingCommentsCount(): number; // 获取渲染中的评论数量
+  renderComment(comment: Comment): CommentView; // 呈现评论，当呈现器处于运行或暂停态时可以调用。
+  unrenderComment(comment: Comment): void; // 取消评论呈现
+  isCommentRendering(comment: Comment): boolean; // 检查评论是否正在呈现
+  getRenderingComments(): Comment[]; // 获取呈现中的评论
+  getRenderingCommentsCount(): number; // 获取呈现中的评论数量
   getCommentView(comment: Comment): CommentView | null; // 获取评论视图
 }
 
-// CSS渲染器
+// CSS呈现器
 type CSSRenderer = Renderer;
 
-// 时间获取器，其返回值应为视频的当前时间，并以毫秒为单位。
+// 时间获取器，它返回以毫秒为单位的视频当前时间。
 type TimeGetter = () => number;
 
 // 播放器状态
@@ -732,8 +734,8 @@ interface PlayerEvents {
 
 // 播放器
 interface Player {
-  renderer: Renderer; // 渲染器
-  maxRenderingComments: number; // 最大同时渲染评论数，即同屏弹幕数。
+  renderer: Renderer; // 呈现器
+  maxRenderingComments: number; // 最多同时呈现多少评论，即同屏弹幕数。
   readonly state: PlayerState; // 播放器状态
   readonly events: EventEmitter<PlayerEvents>; // 事件发射器
   readonly width: number; // 宽度（像素）
