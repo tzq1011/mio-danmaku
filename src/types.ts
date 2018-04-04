@@ -1,7 +1,7 @@
 type EventData = any;
 
 interface EventSpecs {
-  [event: string]: any;
+  [event: string]: EventData;
 }
 
 type EventListener<D extends EventData> = (data: D) => void;
