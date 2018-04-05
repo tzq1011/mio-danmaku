@@ -11,6 +11,9 @@
   "jsnext:main": "dist/esm/index.js",
   "types": "dist/esm/index.d.ts",
   "unpkg": "dist/bundles/mio-danmaku.umd.min.js",
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "clean": "rimraf --no-glob dist .rpt2_cache",
     "build-esm": "tsc --module es2015 --outDir dist/esm",
@@ -23,10 +26,13 @@
   },
   "author": "PPC <tzq1011@163.com>",
   "license": "MIT",
-  "repository": "tzq1011/mio-danmaku",
-  "files": [
-    "dist"
-  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tzq1011/mio-danmaku.git"
+  },
+  "bugs": {
+    "url": "https://github.com/tzq1011/mio-danmaku/issues"
+  },
   "dependencies": {
     "object-assign": "^4.1.1",
     "tslib": "^1.9.0"
