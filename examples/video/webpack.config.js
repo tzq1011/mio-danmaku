@@ -42,6 +42,7 @@ module.exports = {
       inject: "head",
       minify:
         isProduction && {
+          minifyJS: true,
           removeComments: true,
           collapseWhitespace: true,
           conservativeCollapse: true,
