@@ -182,10 +182,10 @@ function createComment(options: CommentOptions = {}): Comment {
   };
 
   Object.defineProperties(comment, {
-    instanceId: { configurable: false },
-    events: { configurable: false },
-    time: { configurable: false },
-    isOwn: { configurable: false },
+    instanceId: { writable: false },
+    events: { writable: false },
+    time: { writable: false },
+    isOwn: { writable: false },
   });
 
   return comment;
@@ -208,9 +208,9 @@ function mixinCommentTextTrait<C extends Comment>(
 
   const newComment = assign(comment, trait);
   Object.defineProperties(newComment, {
-    text: { configurable: false },
-    fontSize: { configurable: false },
-    textColor: { configurable: false },
+    text: { writable: false },
+    fontSize: { writable: false },
+    textColor: { writable: false },
   });
 
   return newComment;
@@ -231,7 +231,7 @@ function mixinCommentPositionXTrait<C extends Comment>(
 
   const newComment = assign(comment, trait);
   Object.defineProperties(newComment, {
-    positionX: { configurable: false },
+    positionX: { writable: false },
   });
 
   return newComment;
@@ -252,7 +252,7 @@ function mixinCommentPositionYTrait<C extends Comment>(
 
   const newComment = assign(comment, trait);
   Object.defineProperties(newComment, {
-    positionY: { configurable: false },
+    positionY: { writable: false },
   });
 
   return newComment;
@@ -273,7 +273,7 @@ function mixinCommentHorizontalAlignmentTrait<C extends Comment>(
 
   const newComment = assign(comment, trait);
   Object.defineProperties(newComment, {
-    horizontalAlignment: { configurable: false },
+    horizontalAlignment: { writable: false },
   });
 
   return newComment;
@@ -294,7 +294,7 @@ function mixinCommentVerticalAlignmentTrait<C extends Comment>(
 
   const newComment = assign(comment, trait);
   Object.defineProperties(newComment, {
-    verticalAlignment: { configurable: false },
+    verticalAlignment: { writable: false },
   });
 
   return newComment;
@@ -315,7 +315,7 @@ function mixinCommentStackingTrait<C extends Comment>(
 
   const newComment = assign(comment, trait);
   Object.defineProperties(newComment, {
-    stackingDirection: { configurable: false },
+    stackingDirection: { writable: false },
   });
 
   return newComment;
@@ -336,7 +336,7 @@ function mixinCommentScrollingTrait<C extends Comment>(
 
   const newComment = assign(comment, trait);
   Object.defineProperties(newComment, {
-    scrollingDirection: { configurable: false },
+    scrollingDirection: { writable: false },
   });
 
   return newComment;
@@ -357,7 +357,7 @@ function mixinCommentLifetimeTrait<C extends Comment>(
 
   const newComment = assign(comment, trait);
   Object.defineProperties(newComment, {
-    lifetime: { configurable: false },
+    lifetime: { writable: false },
   });
 
   return newComment;

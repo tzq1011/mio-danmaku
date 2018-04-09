@@ -62,10 +62,10 @@ function createScrollingPlanner(options: ScrollingPlannerOptions = {}): Scrollin
     };
 
     Object.defineProperties(scrollingPlan, {
-      fromX: { configurable: false },
-      toX: { configurable: false },
-      speed: { configurable: false },
-      duration: { configurable: false },
+      fromX: { writable: false },
+      toX: { writable: false },
+      speed: { writable: false },
+      duration: { writable: false },
     });
 
     return scrollingPlan;

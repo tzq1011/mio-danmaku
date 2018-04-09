@@ -844,8 +844,8 @@ function createCSSRenderer(options: CSSRendererOptions = {}): CSSRenderer {
     };
 
     Object.defineProperties(process, {
-      view: { configurable: false },
-      comment: { configurable: false },
+      view: { writable: false },
+      comment: { writable: false },
     });
 
     _setCommentRenderingProcess(comment, process);
